@@ -77,7 +77,6 @@ public class StatusPageTest {
         
         statusPage.render(writer);
         
-        System.err.println(writer.toString());
         InputSource source = new InputSource(new StringReader(writer.toString()));
         Document document = parse(source);
         DocumentType doctype = document.getDoctype();
@@ -94,7 +93,6 @@ public class StatusPageTest {
         builder.setEntityResolver(new EntityResolver() {
             
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                System.err.println("looking for " + publicId + "/" + systemId);
                 String filename;
                 try {
                     filename = new File(new URI(systemId).getPath()).getName();
