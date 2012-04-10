@@ -62,7 +62,7 @@ public class StatusPageTest {
     @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
-        statusPage.addComponent(new Component("mycomponent", "Number of things") {
+        statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             
             @Override
             public Report getReport() {
@@ -79,14 +79,14 @@ public class StatusPageTest {
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
-        assertEquals("Number of things: 23", component.getTextContent());
+        assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
     
     @Test
     public void canAddANormativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
-        statusPage.addComponent(new Component("mycomponent", "Number of things") {
+        statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             
             @Override
             public Report getReport() {
@@ -103,8 +103,32 @@ public class StatusPageTest {
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("warn", component.getAttribute("class"));
-        assertEquals("Number of things: 23", component.getTextContent());
+        assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
+    }
+    
+    @Test
+    public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
+        StatusPage statusPage = new StatusPage("myapp");
+        statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
+            
+            @Override
+            public Report getReport() {
+                return new Report(Status.WARN);
+            }
+            
+        });
+        
+        Document document = render(statusPage);
+        
+        Element root = document.getDocumentElement();
+        assertEquals("warn", root.getAttribute("class"));
+        
+        Element component = getSingleElementByTagName(root, "component");
+        assertEquals("mycomponent", component.getAttribute("id"));
+        assertEquals("warn", component.getAttribute("class"));
+        assertEquals("Eschatological immanency", component.getTextContent());
+        assertEquals(0, component.getElementsByTagName("value").getLength());
     }
     
     private String iso8601(long time) {
@@ -179,8 +203,6 @@ public class StatusPageTest {
      * polling/cached components
      * 
      * boolean components
-     * 
-     * statusless string-only components
      * 
      * metric components with a threshold (use Comparable)
      * 

@@ -74,10 +74,13 @@ public class StatusPage {
                 out.writeAttribute(ATTR_ID, component.getId());
                 out.writeAttribute(ATTR_CLASS, report.getStatus().name().toLowerCase());
                 out.writeCharacters(component.getLabel());
-                out.writeCharacters(": ");
-                out.writeStartElement(TAG_VALUE);
-                out.writeCharacters(report.getValue().toString());
-                out.writeEndElement();
+                Object value = report.getValue();
+                if (value != Report.NO_VALUE) {
+                    out.writeCharacters(": ");
+                    out.writeStartElement(TAG_VALUE);
+                    out.writeCharacters(String.valueOf(value));
+                    out.writeEndElement();
+                }
                 out.writeEndElement();
             }
             
