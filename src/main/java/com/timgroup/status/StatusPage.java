@@ -49,7 +49,7 @@ public class StatusPage {
             for (Component component : components) {
                 Report report = component.getReport();
                 Status status = report.getStatus();
-                if (status.compareTo(applicationStatus) < 0) applicationStatus = status;
+                applicationStatus = applicationStatus.or(status);
             }
             out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
             
