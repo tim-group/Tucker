@@ -13,7 +13,12 @@ public class GaugeComponent<T> extends Component {
     
     @Override
     public Report getReport() {
-        return new Report(Status.INFO, gauge.value());
+        T value = gauge.value();
+        return new Report(getStatus(value), value);
+    }
+    
+    protected Status getStatus(T value) {
+        return Status.INFO;
     }
     
 }
