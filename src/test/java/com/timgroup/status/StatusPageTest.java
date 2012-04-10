@@ -90,7 +90,7 @@ public class StatusPageTest {
             
             @Override
             public Report getReport() {
-                return new Report(Status.WARN, 23);
+                return new Report(Status.ERROR, 23);
             }
             
         });
@@ -98,11 +98,11 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
-        assertEquals("warn", root.getAttribute("class"));
+        assertEquals("error", root.getAttribute("class"));
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
-        assertEquals("warn", component.getAttribute("class"));
+        assertEquals("error", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
@@ -114,7 +114,7 @@ public class StatusPageTest {
             
             @Override
             public Report getReport() {
-                return new Report(Status.WARN);
+                return new Report(Status.ERROR);
             }
             
         });
@@ -122,11 +122,11 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
-        assertEquals("warn", root.getAttribute("class"));
+        assertEquals("error", root.getAttribute("class"));
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
-        assertEquals("warn", component.getAttribute("class"));
+        assertEquals("error", component.getAttribute("class"));
         assertEquals("Eschatological immanency", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
     }

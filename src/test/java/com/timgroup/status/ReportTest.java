@@ -15,11 +15,11 @@ public class ReportTest {
         
         assertEquals(Status.OK, Report.worstStatus(Collections.singleton(new Report(Status.INFO, null))));
         assertEquals(Status.OK, Report.worstStatus(Collections.singleton(new Report(Status.OK, null))));
-        assertEquals(Status.WARN, Report.worstStatus(Collections.singleton(new Report(Status.WARN, null))));
+        assertEquals(Status.ERROR, Report.worstStatus(Collections.singleton(new Report(Status.ERROR, null))));
         
         assertEquals(Status.OK, Report.worstStatus(Arrays.asList(new Report(Status.INFO, null), new Report(Status.INFO, null))));
         assertEquals(Status.OK, Report.worstStatus(Arrays.asList(new Report(Status.INFO, null), new Report(Status.OK, null))));
-        assertEquals(Status.WARN, Report.worstStatus(Arrays.asList(new Report(Status.OK, null), new Report(Status.WARN, null))));
+        assertEquals(Status.ERROR, Report.worstStatus(Arrays.asList(new Report(Status.OK, null), new Report(Status.ERROR, null))));
     }
     
 }
