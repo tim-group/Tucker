@@ -45,7 +45,13 @@ public class StatusPage {
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
-            out.writeAttribute(ATTR_CLASS, "ok");
+            Status applicationStatus = Status.OK;
+            for (Component component : components) {
+                Report report = component.getReport();
+                Status status = report.getStatus();
+                if (status.compareTo(applicationStatus) < 0) applicationStatus = status;
+            }
+            out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
             
             for (Component component : components) {
                 out.writeStartElement(TAG_COMPONENT);

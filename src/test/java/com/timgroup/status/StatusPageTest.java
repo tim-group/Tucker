@@ -75,9 +75,35 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
+        assertEquals("ok", root.getAttribute("class"));
+
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
+        assertEquals("Number of things: 23", component.getTextContent());
+        assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
+    }
+    
+    @Test
+    public void canAddANormativeComponentStatus() throws Exception {
+        StatusPage statusPage = new StatusPage("myapp");
+        statusPage.addComponent(new Component("mycomponent", "Number of things") {
+            
+            @Override
+            public Report getReport() {
+                return new Report(Status.WARN, 23);
+            }
+            
+        });
+        
+        Document document = render(statusPage);
+        
+        Element root = document.getDocumentElement();
+        assertEquals("warn", root.getAttribute("class"));
+
+        Element component = getSingleElementByTagName(root, "component");
+        assertEquals("mycomponent", component.getAttribute("id"));
+        assertEquals("warn", component.getAttribute("class"));
         assertEquals("Number of things: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
