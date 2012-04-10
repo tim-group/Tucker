@@ -5,7 +5,10 @@ import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -35,8 +38,24 @@ public class StatusPage {
         components.add(component);
     }
     
+    private Map<Component, Report> findComponentReports() {
+        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
+        for (Component component : components) {
+            Report report = component.getReport();
+            componentReports.put(component, report);
+        }
+        return componentReports;
+    }
+    
+    private Status findApplicationStatus(Map<Component, Report> componentReports) {
+        return Report.worstStatus(componentReports.values());
+    }
+    
     public void render(StringWriter writer) throws IOException {
         long timestamp = System.currentTimeMillis();
+        
+        Map<Component, Report> componentReports = findComponentReports();
+        
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         try {
             XMLStreamWriter out = xmlOutputFactory.createXMLStreamWriter(writer);
@@ -45,18 +64,14 @@ public class StatusPage {
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
-            Status applicationStatus = Status.OK;
-            for (Component component : components) {
-                Report report = component.getReport();
-                Status status = report.getStatus();
-                applicationStatus = applicationStatus.or(status);
-            }
+            Status applicationStatus = findApplicationStatus(componentReports);
             out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
             
-            for (Component component : components) {
+            for (Entry<Component, Report> componentReport : componentReports.entrySet()) {
+                Component component = componentReport.getKey();
+                Report report = componentReport.getValue();
                 out.writeStartElement(TAG_COMPONENT);
                 out.writeAttribute(ATTR_ID, component.getId());
-                Report report = component.getReport();
                 out.writeAttribute(ATTR_CLASS, report.getStatus().name().toLowerCase());
                 out.writeCharacters(component.getLabel());
                 out.writeCharacters(": ");

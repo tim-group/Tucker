@@ -1,9 +1,9 @@
 package com.timgroup.status;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StatusTest {
     
@@ -14,7 +14,7 @@ public class StatusTest {
     }
     
     private void assertLessThan(Status a, Status b) {
-        Assert.assertTrue(a.compareTo(b) < 0);
+        assertTrue(a.compareTo(b) < 0);
     }
     
     @Test
@@ -25,7 +25,7 @@ public class StatusTest {
         
         assertEquals(Status.OK, Status.INFO.or(Status.OK));
         assertEquals(Status.OK, Status.OK.or(Status.INFO));
-
+        
         assertEquals(Status.WARN, Status.OK.or(Status.WARN));
         assertEquals(Status.WARN, Status.WARN.or(Status.OK));
         

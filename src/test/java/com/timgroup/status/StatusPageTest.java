@@ -18,7 +18,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -76,7 +75,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("ok", root.getAttribute("class"));
-
+        
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
@@ -100,7 +99,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("warn", root.getAttribute("class"));
-
+        
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("warn", component.getAttribute("class"));
@@ -169,7 +168,7 @@ public class StatusPageTest {
         
         Document document = builder.parse(source);
         
-        Assert.assertEquals(Collections.emptyList(), problems);
+        assertEquals(Collections.emptyList(), problems);
         
         return document;
     }
