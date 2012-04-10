@@ -60,6 +60,28 @@ public class StatusPageTest {
         assertEquals(iso8601(renderTime), timestamp.getTextContent());
     }
     
+    @Test
+    public void canAddAnInformativeComponentStatus() throws Exception {
+        StatusPage statusPage = new StatusPage("myapp");
+        statusPage.addComponent(new Component("mycomponent", "Number of things") {
+            
+            @Override
+            public Report getReport() {
+                return new Report(Status.INFO, 23);
+            }
+            
+        });
+        
+        Document document = render(statusPage);
+        
+        Element root = document.getDocumentElement();
+        Element component = getSingleElementByTagName(root, "component");
+        assertEquals("mycomponent", component.getAttribute("id"));
+        assertEquals("info", component.getAttribute("class"));
+        assertEquals("Number of things: 23", component.getTextContent());
+        assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
+    }
+    
     private String iso8601(long time) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         df.setTimeZone(UTC);
