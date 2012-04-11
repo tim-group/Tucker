@@ -15,7 +15,12 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class StatusPage {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatusPage.class);
     
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     
@@ -46,6 +51,7 @@ public class StatusPage {
             try {
                 report = component.getReport();
             } catch (Throwable e) {
+                LOGGER.error("error getting report from component {}", component.getId(), e);
                 report = new Report(e);
             }
             componentReports.put(component, report);
