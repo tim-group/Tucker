@@ -131,6 +131,30 @@ public class StatusPageTest {
         assertEquals(0, component.getElementsByTagName("value").getLength());
     }
     
+    @Test
+    public void failedReportLeadsToErrorStatusAndErrorOnPage() throws Exception {
+        StatusPage statusPage = new StatusPage("myapp");
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
+            
+            @Override
+            public Report getReport() {
+                throw new Error("wrong wire");
+            }
+            
+        });
+        
+        Document document = render(statusPage);
+        
+        Element root = document.getDocumentElement();
+        assertEquals("error", root.getAttribute("class"));
+        
+        Element component = getSingleElementByTagName(root, "component");
+        assertEquals("error", component.getAttribute("class"));
+        assertEquals("Red wire or green wire: wrong wire", component.getTextContent());
+        assertEquals(0, component.getElementsByTagName("value").getLength());
+        assertEquals("wrong wire", getSingleElementByTagName(component, "exception").getTextContent());
+    }
+    
     private String iso8601(long time) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         df.setTimeZone(UTC);

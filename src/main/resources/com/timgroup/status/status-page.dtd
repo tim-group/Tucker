@@ -7,12 +7,13 @@
 	%statusAttr;
 >
 
-<!ELEMENT component (#PCDATA|value)*>
+<!ELEMENT component (#PCDATA|value|exception)*>
 <!ATTLIST component
 	%idAttr;
 	%statusAttr;
 >
 
 <!ELEMENT value (#PCDATA)>
+<!ELEMENT exception (#PCDATA)>
 
 <!ELEMENT timestamp (#PCDATA)> <!-- should be ISO 8601 in UTC -->

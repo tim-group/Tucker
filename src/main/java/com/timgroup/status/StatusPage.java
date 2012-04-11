@@ -22,6 +22,7 @@ public class StatusPage {
     private static final String TAG_APPLICATION = "application";
     private static final String TAG_COMPONENT = "component";
     private static final String TAG_VALUE = "value";
+    private static final String TAG_EXCEPTION = "exception";
     private static final String TAG_TIMESTAMP = "timestamp";
     private static final String ATTR_CLASS = "class";
     private static final String ATTR_ID = "id";
@@ -41,7 +42,12 @@ public class StatusPage {
     private Map<Component, Report> findComponentReports() {
         Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
         for (Component component : components) {
-            Report report = component.getReport();
+            Report report;
+            try {
+                report = component.getReport();
+            } catch (Throwable e) {
+                report = new Report(Status.ERROR, e);
+            }
             componentReports.put(component, report);
         }
         return componentReports;
@@ -77,9 +83,15 @@ public class StatusPage {
                 Object value = report.getValue();
                 if (value != Report.NO_VALUE) {
                     out.writeCharacters(": ");
-                    out.writeStartElement(TAG_VALUE);
-                    out.writeCharacters(String.valueOf(value));
-                    out.writeEndElement();
+                    if (!(value instanceof Throwable)) {
+                        out.writeStartElement(TAG_VALUE);
+                        out.writeCharacters(String.valueOf(value));
+                        out.writeEndElement();
+                    } else {
+                        out.writeStartElement(TAG_EXCEPTION);
+                        out.writeCharacters(((Throwable) value).getMessage());
+                        out.writeEndElement();
+                    }
                 }
                 out.writeEndElement();
             }
