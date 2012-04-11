@@ -1,7 +1,7 @@
 package com.timgroup.status;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class StatusPage {
         return Report.worstStatus(componentReports.values());
     }
     
-    public void render(StringWriter writer) throws IOException {
+    public void render(Writer writer) throws IOException {
         long timestamp = System.currentTimeMillis();
         
         Map<Component, Report> componentReports = findComponentReports();
