@@ -46,7 +46,7 @@ public class StatusPage {
             try {
                 report = component.getReport();
             } catch (Throwable e) {
-                report = new Report(Status.ERROR, e);
+                report = new Report(e);
             }
             componentReports.put(component, report);
         }
@@ -80,16 +80,15 @@ public class StatusPage {
                 out.writeAttribute(ATTR_ID, component.getId());
                 out.writeAttribute(ATTR_CLASS, report.getStatus().name().toLowerCase());
                 out.writeCharacters(component.getLabel());
-                Object value = report.getValue();
-                if (value != Report.NO_VALUE) {
+                if (report.hasValue()) {
                     out.writeCharacters(": ");
-                    if (!(value instanceof Throwable)) {
+                    if (report.isSuccessful()) {
                         out.writeStartElement(TAG_VALUE);
-                        out.writeCharacters(String.valueOf(value));
+                        out.writeCharacters(String.valueOf(report.getValue()));
                         out.writeEndElement();
                     } else {
                         out.writeStartElement(TAG_EXCEPTION);
-                        out.writeCharacters(((Throwable) value).getMessage());
+                        out.writeCharacters(report.getException().getMessage());
                         out.writeEndElement();
                     }
                 }

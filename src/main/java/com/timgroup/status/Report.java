@@ -2,7 +2,7 @@ package com.timgroup.status;
 
 public class Report {
     
-    public static final Object NO_VALUE = new Object();
+    private static final Object NO_VALUE = new Object();
     
     public static Status worstStatus(Iterable<Report> reports) {
         Status worst = Status.OK;
@@ -24,12 +24,28 @@ public class Report {
         this(status, NO_VALUE);
     }
     
+    public Report(Throwable e) {
+        this(Status.ERROR, e);
+    }
+    
     public Status getStatus() {
         return status;
     }
     
+    public boolean hasValue() {
+        return value != NO_VALUE;
+    }
+    
+    public boolean isSuccessful() {
+        return !(value instanceof Throwable);
+    }
+    
     public Object getValue() {
         return value;
+    }
+    
+    public Throwable getException() {
+        return (Throwable) value;
     }
     
 }
