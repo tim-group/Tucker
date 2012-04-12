@@ -48,7 +48,7 @@ public class ServletContainer {
         System.out.println("server listening on " + port + " at paths " + Arrays.asList(paths));
     }
     
-    private static final class ServletAdapter implements HttpHandler {
+    private static class ServletAdapter implements HttpHandler {
         
         private final HttpServlet servlet;
         
@@ -77,11 +77,18 @@ public class ServletContainer {
             return request;
         }
         
-        private HttpServletResponse asServletResponse(HttpExchange exchange) {
+        private HttpServletResponse asServletResponse(final HttpExchange exchange) {
             HttpServletResponse response = mock(HttpServletResponse.class);
             doAnswer(new SetHeader(exchange, HEADER_RESPONSE_CODE)).when(response).setStatus(anyInt());
             doAnswer(new SetHeader(exchange, HEADER_CONTENT_CHARSET)).when(response).setCharacterEncoding(anyString());
-            doAnswer(new SetHeader(exchange, HEADER_CONTENT_TYPE)).when(response).setContentType(anyString());
+            doAnswer(new SetHeader(exchange, HEADER_CONTENT_TYPE) {
+                
+                @Override
+                protected String value(String value) {
+                    return value + "; charset=" + exchange.getResponseHeaders().getFirst(HEADER_CONTENT_CHARSET);
+                }
+                
+            }).when(response).setContentType(anyString());
             try {
                 when(response.getWriter()).thenAnswer(new GetWriter(exchange));
             } catch (IOException e) {
@@ -91,25 +98,29 @@ public class ServletContainer {
         }
     }
     
-    private static final class SetHeader implements Answer<Void> {
+    private static class SetHeader implements Answer<Void> {
         
         private final HttpExchange exchange;
         private final String headerName;
         
         private SetHeader(HttpExchange exchange, String headerName) {
             this.exchange = exchange;
-            this.headerName = headerName;
+            this.headerName = value(headerName);
         }
         
         @Override
         public Void answer(InvocationOnMock invocation) throws Throwable {
-            exchange.getResponseHeaders().set(headerName, String.valueOf(invocation.getArguments()[0]));
+            exchange.getResponseHeaders().set(headerName, value(String.valueOf(invocation.getArguments()[0])));
             return null;
+        }
+        
+        protected String value(String value) {
+            return value;
         }
         
     }
     
-    private static final class GetWriter implements Answer<PrintWriter> {
+    private static class GetWriter implements Answer<PrintWriter> {
         
         private final HttpExchange exchange;
         

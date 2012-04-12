@@ -31,7 +31,7 @@ public class StatusPageServletTest {
         statusPageServlet.service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
-        verify(response).setContentType("text/xml+status");
+        verify(response).setContentType("text/xml+status"); // we won't need a charset here, because the container will add it
         verify(statusPage).render(writer);
     }
     
