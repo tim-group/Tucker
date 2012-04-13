@@ -2,6 +2,10 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+group = 'com.timgroup'
+version = '1.0.0'
 
 repositories {
     mavenLocal()
@@ -21,4 +25,9 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.8.5'
     
     testRuntime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+}
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+     classifier = 'sources'
+     from sourceSets.main.allSource
 }
