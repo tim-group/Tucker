@@ -12,7 +12,7 @@ repositories {
     mavenRepo urls: "${repoUrl}/groups/public"
 }
 
-slf4jVersion = '1.6.4'
+def slf4jVersion = '1.6.4'
 
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
 dependencies {
@@ -30,4 +30,21 @@ dependencies {
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
      from sourceSets.main.allSource
+}
+
+eclipse {
+    classpath {
+        defaultOutputDir = project.sourceSets.main.output.classesDir
+    }
+}
+
+task hgignore << {
+	// gitignore and hgignore syntax are similar enough that this works (for now)
+	file('.hgignore').withWriter { out ->
+		out.println 'syntax: glob'
+		out.println '.hgignore'
+		file('.gitignore').eachLine { line ->
+			out.println line
+		}
+	}
 }
