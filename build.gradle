@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+/*
+ * HELLO! This build script works with Gradle 1.0-milestone-8 and 1.0-milestone-9. It does not work with 1.0-milestone-3. 
+ */
+
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
@@ -9,7 +13,7 @@ version = '1.0.0'
 
 repositories {
     mavenLocal()
-    mavenRepo urls: "${repoUrl}/groups/public"
+    mavenRepo url: "${repoUrl}/groups/public"
 }
 
 def slf4jVersion = '1.6.4'
