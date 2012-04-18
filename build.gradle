@@ -9,7 +9,12 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 group = 'com.timgroup'
-version = '1.0.0'
+def majorVersion = 1
+def minorVersion = 0
+def isReleaseVersion = System.getenv('BUILD_NUMBER') != null
+def patchVersion = isReleaseVersion ? System.getenv('BUILD_NUMBER') : new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone("UTC"))
+def patchSeparator = isReleaseVersion ? '.' : '-'
+version = "${majorVersion}.${minorVersion}${patchSeparator}${patchVersion}"
 
 repositories {
     mavenLocal()
