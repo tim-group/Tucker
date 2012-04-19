@@ -1,4 +1,4 @@
-package servlet;
+package com.timgroup.status.servlet;
 
 import java.io.IOException;
 

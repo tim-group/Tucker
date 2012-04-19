@@ -1,12 +1,13 @@
-package servlet;
+package com.timgroup.status.servlet;
 
 import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.timgroup.status.StatusPage;
 import org.junit.Test;
+
+import com.timgroup.status.StatusPage;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
