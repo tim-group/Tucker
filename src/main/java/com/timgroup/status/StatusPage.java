@@ -20,8 +20,9 @@ import org.slf4j.LoggerFactory;
 
 public class StatusPage {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatusPage.class);
+    public static final String DTD_FILENAME = "status-page.dtd";
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatusPage.class);
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     
     private static final String TAG_APPLICATION = "application";
@@ -72,7 +73,7 @@ public class StatusPage {
         try {
             XMLStreamWriter out = xmlOutputFactory.createXMLStreamWriter(writer);
             out.writeStartDocument();
-            out.writeDTD(constructDTD(TAG_APPLICATION, "status-page.dtd"));
+            out.writeDTD(constructDTD(TAG_APPLICATION, DTD_FILENAME));
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
