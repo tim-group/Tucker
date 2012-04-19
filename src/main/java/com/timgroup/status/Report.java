@@ -25,7 +25,7 @@ public class Report {
     }
     
     public Report(Throwable e) {
-        this(Status.ERROR, e);
+        this(Status.CRITICAL, e);
     }
     
     public Status getStatus() {

@@ -4,21 +4,21 @@ import com.yammer.metrics.core.Gauge;
 
 public class ThresholdedGaugeComponent<T extends Comparable<T>> extends GaugeComponent<T> {
     
-    private final T warnThreshold;
-    private final T errorThreshold;
+    private final T warningThreshold;
+    private final T criticalThreshold;
     
-    public ThresholdedGaugeComponent(String id, String label, Gauge<T> gauge, T warnThreshold, T errorThreshold) {
+    public ThresholdedGaugeComponent(String id, String label, Gauge<T> gauge, T warningThreshold, T criticalThreshold) {
         super(id, label, gauge);
-        this.warnThreshold = warnThreshold;
-        this.errorThreshold = errorThreshold;
+        this.warningThreshold = warningThreshold;
+        this.criticalThreshold = criticalThreshold;
     }
     
     @Override
     protected Status getStatus(T value) {
-        if (value.compareTo(errorThreshold) > 0) {
-            return Status.ERROR;
-        } else if (value.compareTo(warnThreshold) > 0) {
-            return Status.WARN;
+        if (value.compareTo(criticalThreshold) > 0) {
+            return Status.CRITICAL;
+        } else if (value.compareTo(warningThreshold) > 0) {
+            return Status.WARNING;
         } else {
             return Status.OK;
         }

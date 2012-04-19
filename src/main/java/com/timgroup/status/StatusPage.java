@@ -51,7 +51,7 @@ public class StatusPage {
             try {
                 report = component.getReport();
             } catch (Throwable e) {
-                LOGGER.error("error getting report from component {}", component.getId(), e);
+                LOGGER.error("exception getting report from component {}", component.getId(), e);
                 report = new Report(e);
             }
             componentReports.put(component, report);

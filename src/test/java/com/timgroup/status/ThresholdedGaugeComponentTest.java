@@ -1,14 +1,15 @@
 package com.timgroup.status;
 
-import com.yammer.metrics.core.Gauge;
 import org.junit.Test;
+
+import com.yammer.metrics.core.Gauge;
 
 import static org.junit.Assert.assertEquals;
 
 public class ThresholdedGaugeComponentTest {
     
     @Test
-    public void reportsOkStatusIfValueLessThanWarnThreshold() throws Exception {
+    public void reportsOkStatusIfValueLessThanWarningThreshold() throws Exception {
         ThresholdedGaugeComponent<Integer> gaugeComponent = new ThresholdedGaugeComponent<Integer>("", "", new Gauge<Integer>() {
             
             @Override
@@ -22,7 +23,7 @@ public class ThresholdedGaugeComponentTest {
     }
     
     @Test
-    public void reportsWarnStatusIfValueGreaterThanWarnThresholdButLessThanErrorThreshold() throws Exception {
+    public void reportsWarningStatusIfValueGreaterThanWarningThresholdButLessThanCriticalThreshold() throws Exception {
         ThresholdedGaugeComponent<Integer> gaugeComponent = new ThresholdedGaugeComponent<Integer>("", "", new Gauge<Integer>() {
             
             @Override
@@ -32,11 +33,11 @@ public class ThresholdedGaugeComponentTest {
             
         }, 20, 40);
         
-        assertEquals(Status.WARN, gaugeComponent.getReport().getStatus());
+        assertEquals(Status.WARNING, gaugeComponent.getReport().getStatus());
     }
     
     @Test
-    public void reportsErrorStatusIfValueGreaterThanErrorThreshold() throws Exception {
+    public void reportsCriticalStatusIfValueGreaterThanCriticalThreshold() throws Exception {
         ThresholdedGaugeComponent<Integer> gaugeComponent = new ThresholdedGaugeComponent<Integer>("", "", new Gauge<Integer>() {
             
             @Override
@@ -46,7 +47,7 @@ public class ThresholdedGaugeComponentTest {
             
         }, 10, 20);
         
-        assertEquals(Status.ERROR, gaugeComponent.getReport().getStatus());
+        assertEquals(Status.CRITICAL, gaugeComponent.getReport().getStatus());
     }
     
 }

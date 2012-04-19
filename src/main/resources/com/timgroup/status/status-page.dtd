@@ -1,5 +1,5 @@
 <!ENTITY % idAttr "id	ID	#REQUIRED">
-<!ENTITY % statusAttr "class	(ok|warn|error|info) #REQUIRED">
+<!ENTITY % statusAttr "class	(ok|warning|critical|info) #REQUIRED">
 
 <!ELEMENT application (component*, timestamp)>
 <!ATTLIST application

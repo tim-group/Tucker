@@ -90,7 +90,7 @@ public class StatusPageTest {
             
             @Override
             public Report getReport() {
-                return new Report(Status.ERROR, 23);
+                return new Report(Status.CRITICAL, 23);
             }
             
         });
@@ -98,11 +98,11 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
-        assertEquals("error", root.getAttribute("class"));
+        assertEquals("critical", root.getAttribute("class"));
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
-        assertEquals("error", component.getAttribute("class"));
+        assertEquals("critical", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
@@ -114,7 +114,7 @@ public class StatusPageTest {
             
             @Override
             public Report getReport() {
-                return new Report(Status.ERROR);
+                return new Report(Status.CRITICAL);
             }
             
         });
@@ -122,17 +122,17 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
-        assertEquals("error", root.getAttribute("class"));
+        assertEquals("critical", root.getAttribute("class"));
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
-        assertEquals("error", component.getAttribute("class"));
+        assertEquals("critical", component.getAttribute("class"));
         assertEquals("Eschatological immanency", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
     }
     
     @Test
-    public void failedReportLeadsToErrorStatusAndErrorOnPage() throws Exception {
+    public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             
@@ -146,10 +146,10 @@ public class StatusPageTest {
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
-        assertEquals("error", root.getAttribute("class"));
+        assertEquals("critical", root.getAttribute("class"));
         
         Element component = getSingleElementByTagName(root, "component");
-        assertEquals("error", component.getAttribute("class"));
+        assertEquals("critical", component.getAttribute("class"));
         assertEquals("Red wire or green wire: wrong wire", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
         assertEquals("wrong wire", getSingleElementByTagName(component, "exception").getTextContent());
@@ -187,6 +187,7 @@ public class StatusPageTest {
         
         builder.setEntityResolver(new EntityResolver() {
             
+            @Override
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
                 String filename;
                 try {
@@ -201,14 +202,17 @@ public class StatusPageTest {
         
         builder.setErrorHandler(new ErrorHandler() {
             
+            @Override
             public void warning(SAXParseException exception) throws SAXException {
                 problems.add(exception);
             }
             
+            @Override
             public void fatalError(SAXParseException exception) throws SAXException {
                 problems.add(exception);
             }
             
+            @Override
             public void error(SAXParseException exception) throws SAXException {
                 problems.add(exception);
             }

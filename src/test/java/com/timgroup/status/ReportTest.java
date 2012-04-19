@@ -17,11 +17,11 @@ public class ReportTest {
         
         assertEquals(Status.OK, Report.worstStatus(Collections.singleton(new Report(Status.INFO, null))));
         assertEquals(Status.OK, Report.worstStatus(Collections.singleton(new Report(Status.OK, null))));
-        assertEquals(Status.ERROR, Report.worstStatus(Collections.singleton(new Report(Status.ERROR, null))));
+        assertEquals(Status.CRITICAL, Report.worstStatus(Collections.singleton(new Report(Status.CRITICAL, null))));
         
         assertEquals(Status.OK, Report.worstStatus(Arrays.asList(new Report(Status.INFO, null), new Report(Status.INFO, null))));
         assertEquals(Status.OK, Report.worstStatus(Arrays.asList(new Report(Status.INFO, null), new Report(Status.OK, null))));
-        assertEquals(Status.ERROR, Report.worstStatus(Arrays.asList(new Report(Status.OK, null), new Report(Status.ERROR, null))));
+        assertEquals(Status.CRITICAL, Report.worstStatus(Arrays.asList(new Report(Status.OK, null), new Report(Status.CRITICAL, null))));
     }
     
     @Test
@@ -38,7 +38,7 @@ public class ReportTest {
         assertFalse(new Report(Status.INFO, new Error()).isSuccessful());
         
         assertFalse(new Report(new Error()).isSuccessful());
-        assertEquals(Status.ERROR, new Report(new Error()).getStatus());
+        assertEquals(Status.CRITICAL, new Report(new Error()).getStatus());
     }
     
 }
