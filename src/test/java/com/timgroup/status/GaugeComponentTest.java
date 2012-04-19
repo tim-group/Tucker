@@ -1,7 +1,8 @@
 package com.timgroup.status;
 
-import com.yammer.metrics.core.Gauge;
 import org.junit.Test;
+
+import com.yammer.metrics.core.Gauge;
 
 import static org.junit.Assert.assertEquals;
 

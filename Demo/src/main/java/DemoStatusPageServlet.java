@@ -1,24 +1,24 @@
-package com.timgroup.status.servlet;
-
-import java.io.IOException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 
 import com.timgroup.status.StatusPage;
 import com.timgroup.status.ThresholdedGaugeComponent;
 import com.timgroup.status.VersionComponent;
+import com.timgroup.status.servlet.StatusPageServlet;
 import com.yammer.metrics.core.Gauge;
 
-public class StatusPageServletDemo {
+@SuppressWarnings("serial")
+public class DemoStatusPageServlet extends StatusPageServlet {
     
-    public static void main(String[] args) throws IOException {
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        
         StatusPage statusPage = new StatusPage("demoApp");
         statusPage.addComponent(new VersionComponent(String.class));
         statusPage.addComponent(new ThresholdedGaugeComponent<Integer>("timeUsed", "Time used this minute (sec)", timeUsedGauge(), 30, 50));
         
-        final StatusPageServlet servlet = new StatusPageServlet();
-        servlet.setStatusPage(statusPage);
-        
-        ServletContainer container = new ServletContainer(servlet, 8888, "/status");
-        container.start();
+        setStatusPage(statusPage);
     }
     
     private static Gauge<Integer> timeUsedGauge() {

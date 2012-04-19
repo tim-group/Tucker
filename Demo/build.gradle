@@ -1,0 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+repositories {
+    mavenLocal()
+    mavenRepo url: "${repoUrl}/groups/public"
+}
+
+dependencies {
+    compile fileTree('../build/libs')
+
+    compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2' // optional
+    compile group: 'javax.servlet', name: 'servlet-api', version: '2.5' // optional
+}
