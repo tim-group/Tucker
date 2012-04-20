@@ -186,7 +186,6 @@ public class StatusPageTest {
         final List<SAXParseException> problems = new ArrayList<SAXParseException>();
         
         builder.setEntityResolver(new EntityResolver() {
-            
             @Override
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
                 String filename;
@@ -201,7 +200,6 @@ public class StatusPageTest {
         });
         
         builder.setErrorHandler(new ErrorHandler() {
-            
             @Override
             public void warning(SAXParseException exception) throws SAXException {
                 problems.add(exception);

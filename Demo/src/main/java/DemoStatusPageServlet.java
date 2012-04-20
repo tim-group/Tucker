@@ -23,12 +23,10 @@ public class DemoStatusPageServlet extends StatusPageServlet {
     
     private static Gauge<Integer> timeUsedGauge() {
         return new Gauge<Integer>() {
-            
             @Override
             public Integer value() {
                 return (int) (System.currentTimeMillis() / 1000) % 60;
             }
-            
         };
     }
     
