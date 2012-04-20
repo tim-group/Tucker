@@ -7,11 +7,16 @@ repositories {
     mavenRepo url: "${repoUrl}/groups/public"
 }
 
+def slf4jVersion = '1.6.4'
+
 dependencies {
     compile fileTree('../build/libs')
 
-    compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2' // optional
-    compile group: 'javax.servlet', name: 'servlet-api', version: '2.5' // optional
+    compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2'
+    providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+    
+    runtime group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+    runtime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
 }
 
 httpPort = 8888

@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.timgroup.status.StatusPage;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,7 +37,7 @@ public class StatusPageServletTest {
         statusPageServlet.service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
-        verify(response).setContentType("text/xml+status"); // we won't need a charset here, because the container will add it
+        verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
         verify(statusPage).render(writer);
     }
     
@@ -62,9 +62,27 @@ public class StatusPageServletTest {
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
-        InputStream dtdStream = StatusPage.class.getResourceAsStream("status-page.dtd");
-        byte[] dtd = readFully(dtdStream);
-        Assert.assertArrayEquals(dtd, buffer.toByteArray());
+        assertArrayEquals(readResource("status-page.dtd"), buffer.toByteArray());
+    }
+    
+    @Test
+    public void askingForCSSGetsCSS() throws Exception {
+        HttpServletRequest request = mockRequest("/status-page.css");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
+        
+        new StatusPageServlet().service(request, response);
+        
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setContentType("text/css");
+        assertArrayEquals(readResource("status-page.css"), buffer.toByteArray());
+    }
+    
+    private byte[] readResource(String filename) throws IOException {
+        InputStream input = StatusPage.class.getResourceAsStream(filename);
+        byte[] bytes = readFully(input);
+        return bytes;
     }
     
     @Test
@@ -78,7 +96,6 @@ public class StatusPageServletTest {
     
     private ServletOutputStream newServletOutputStream(final OutputStream out) {
         return new ServletOutputStream() {
-            
             @Override
             public void write(int b) throws IOException {
                 out.write(b);

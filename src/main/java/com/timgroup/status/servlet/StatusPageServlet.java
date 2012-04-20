@@ -1,5 +1,6 @@
 package com.timgroup.status.servlet;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,17 +26,24 @@ public class StatusPageServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + request.getServletPath() + "/");
         } else if (path.equals("/")) {
             response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/xml+status");
+            response.setContentType("text/xml");
             statusPage.render(response.getWriter());
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/xml-dtd");
-            InputStream dtdStream = StatusPage.class.getResourceAsStream(StatusPage.DTD_FILENAME);
-            OutputStream output = response.getOutputStream();
-            IOUtils.copy(dtdStream, output);
+            sendResource(response, "application/xml-dtd", StatusPage.DTD_FILENAME);
+        } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
+            sendResource(response, "text/css", StatusPage.CSS_FILENAME);
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "try asking for .../status/");
         }
+    }
+    
+    private void sendResource(HttpServletResponse response, String contentType, String filename) throws IOException {
+        InputStream resource = StatusPage.class.getResourceAsStream(filename);
+        if (resource == null) throw new FileNotFoundException(filename);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType(contentType);
+        OutputStream output = response.getOutputStream();
+        IOUtils.copy(resource, output);
     }
     
     public void setStatusPage(StatusPage statusPage) {

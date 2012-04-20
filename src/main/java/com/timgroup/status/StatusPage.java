@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class StatusPage {
     
     public static final String DTD_FILENAME = "status-page.dtd";
+    public static final String CSS_FILENAME = "status-page.css";
     
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusPage.class);
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
@@ -74,6 +75,7 @@ public class StatusPage {
             XMLStreamWriter out = xmlOutputFactory.createXMLStreamWriter(writer);
             out.writeStartDocument();
             out.writeDTD(constructDTD(TAG_APPLICATION, DTD_FILENAME));
+            out.writeProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"" + CSS_FILENAME + "\"");
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
