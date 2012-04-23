@@ -9,7 +9,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.timgroup.status.demo.DemoStatusPageServlet;
+
+import com.timgroup.status.demo.DemoStatusPageServlet;
 
 public class JettyLauncher {
     private static final Logger LOGGER = LoggerFactory
