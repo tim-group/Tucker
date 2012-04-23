@@ -23,13 +23,12 @@ timestamp {
 }
 
 component[class=critical] {
-	background-color: #b0003e;
+	background-color: #ce002c;
 	color: white;
 }
 
 component[class=warning] {
-	background-color: #ec6b10;
-	color: white;
+	background-color: #eccd10;
 }
 
 component[class=info] {
