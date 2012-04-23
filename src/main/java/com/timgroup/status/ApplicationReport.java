@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamWriter;
 public class ApplicationReport {
     
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     
     private static final String TAG_APPLICATION = "application";
     private static final String TAG_COMPONENT = "component";
@@ -35,9 +36,8 @@ public class ApplicationReport {
     }
     
     public void render(Writer writer) throws IOException {
-        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         try {
-            XMLStreamWriter out = xmlOutputFactory.createXMLStreamWriter(writer);
+            XMLStreamWriter out = XML_OUTPUT_FACTORY.createXMLStreamWriter(writer);
             out.writeStartDocument();
             out.writeDTD(constructDTD(TAG_APPLICATION, StatusPage.DTD_FILENAME));
             out.writeProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"" + StatusPage.CSS_FILENAME + "\"");
