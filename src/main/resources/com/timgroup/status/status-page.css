@@ -1,1 +1,40 @@
-/* fill me in! */
+application {
+	font-family: Helvetica, Arial, sans-serif;
+	color: #444;
+	padding: 1em;
+	font-size: 200%;
+}
+
+component {
+	display: block;
+	padding: 1em;
+	background-color: #eee;
+	margin: 0 0 1em 0;
+}
+
+value {
+	font-weight: bold;
+	float: right;
+}
+
+timestamp {
+	display: block;
+	color: #999;
+}
+
+component[class=critical] {
+	background-color: #ce002c;
+	color: white;
+}
+
+component[class=warning] {
+	background-color: #eccd10;
+}
+
+component[class=info] {
+}
+
+component[class=ok] {
+	background-color: #0da237;
+	color: white;
+}
