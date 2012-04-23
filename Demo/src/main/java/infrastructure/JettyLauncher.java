@@ -4,6 +4,11 @@ import static java.lang.Integer.parseInt;
 
 import java.io.IOException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -29,6 +34,7 @@ public class JettyLauncher {
         context.getServletHandler().setStartWithUnavailable(false);
         context.addServlet(new ServletHolder(new DemoStatusPageServlet()),
                 "/status/*");
+        context.addServlet(new ServletHolder(new StopServlet()), "/stop");
         server.setHandler(context);
     }
 
@@ -51,9 +57,28 @@ public class JettyLauncher {
         }
     }
 
+    class StopServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+                throws ServletException, IOException {
+            stopQuietly();
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+                throws ServletException, IOException {
+            stopQuietly();
+        }
+
+    }
+
     private void stopQuietly() {
         try {
             server.stop();
+        } catch (InterruptedException e) {
+            LOGGER.info("Told to stop serving");
         } catch (Exception e) {
             LOGGER.error("Couldn't stop Jetty either", e);
         }
