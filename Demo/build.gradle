@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'jetty'
+apply plugin: 'eclipse'
 
 repositories {
     mavenLocal()
@@ -8,15 +9,35 @@ repositories {
 }
 
 def slf4jVersion = '1.6.4'
+def jettyVersion = '7.5.4.v20111024'
 
 dependencies {
     compile fileTree('../build/libs')
 
     compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2'
     providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-    
+
     runtime group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
     runtime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+
+    compile group: 'org.eclipse.jetty',        name: 'jetty-server',               version: jettyVersion
+    compile group: 'org.eclipse.jetty',        name: 'jetty-webapp',               version: jettyVersion
+    compile group: 'commons-io',               name: 'commons-io',                 version: '1.4'
+}
+
+jar {
+    enabled=true
+    from configurations.runtime.collect{
+        zipTree(it).matching {
+            exclude 'META-INF/METAFEST.MF'
+            exclude 'META-INF/*.SF'
+            exclude 'META-INF/*.DSA'
+            exclude 'META-INF/*.RSA'
+        }
+    }
+    exclude '*.conf'
+    from sourceSets.main.output
+    manifest { attributes("Main-Class": "infrastructure.JettyLauncher") }
 }
 
 httpPort = 8888
