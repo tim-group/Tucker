@@ -1,9 +1,31 @@
+/* Base app style */
+
 application {
 	font-family: Helvetica, Arial, sans-serif;
 	color: #444;
-	padding: 1em;
-	font-size: 200%;
+	margin: 1em;
+	padding-top: 1em;
+	border-top: 1em solid #eee;
 }
+
+/* Top border colouring for overall app state */
+
+application[class=ok] {
+}
+
+application[class=critical] {
+	border-color: #ce002c;
+}
+
+application[class=warning] {
+	border-color: #eccd10;
+}
+
+application[class=ok] {
+	border-color: #0da237;
+}
+
+/* Component styles */
 
 component {
 	display: block;
@@ -17,10 +39,7 @@ value {
 	float: right;
 }
 
-timestamp {
-	display: block;
-	color: #999;
-}
+/* Component colouring based on state */
 
 component[class=critical] {
 	background-color: #ce002c;
@@ -38,3 +57,11 @@ component[class=ok] {
 	background-color: #0da237;
 	color: white;
 }
+
+/* Timestamp */
+
+timestamp {
+	display: block;
+	color: #999;
+}
+
