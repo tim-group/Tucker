@@ -17,7 +17,7 @@ public class DemoStatusPageServlet extends StatusPageServlet {
         super.init(config);
         
         StatusPage statusPage = new StatusPage("demoApp");
-        statusPage.addComponent(new VersionComponent(String.class));
+        statusPage.addComponent(new VersionComponent(StatusPage.class));
         statusPage.addComponent(new ThresholdedGaugeComponent<Integer>("timeUsed", "Time used this minute (sec)", timeUsedGauge(), 30, 50));
         
         setStatusPage(statusPage);

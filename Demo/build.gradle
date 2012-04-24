@@ -37,7 +37,10 @@ jar {
     }
     exclude '*.conf'
     from sourceSets.main.output
-    manifest { attributes("Main-Class": "infrastructure.JettyLauncher") }
+    manifest { 
+        attributes("Main-Class": "infrastructure.JettyLauncher") 
+        attributes("Implementation-Version": project.version)
+    }
 }
 
 httpPort = 8888
