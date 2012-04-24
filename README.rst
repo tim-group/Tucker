@@ -25,14 +25,19 @@ How do i use it?
 
 You must create and configure an instance of ``com.timgroup.status.StatusPage``. You must then expose this somehow. If you are writing a web application, that probably means using ``com.timgroup.status.servlet.StatusPageServlet``.
 
-For a concrete example of how to do this, see the ``Demo`` directory of the project. This contains a small, self-contained project which sets up and displays a status page. It obtains Tucker as a normal dependency, so you will need to install it into your local Maven repository, as detailed above. Then, run (from the root directory of the Tucker project):
+For a concrete example of how to do this, see the ``Demo`` directory of the project. This contains a small, self-contained project which sets up and displays a status page. It obtains Tucker as a normal dependency, so you will need to install it into your local Maven repository, as detailed above. Then, run (from the root directory of the Tucker project)::
 
     gradle -b Demo/build.gradle clean jettyRun
 
 When it starts, it will print out a URL that you should look at.
 
-What's the bit about the runnable jar in the Demo project?
-==========================================================
+Does it really need all those dependencies?
+===========================================
+
+No. Tucker can interact with a variety of other APIs, and has compile-time dependencies on them. They are only runtime dependencies if you are using that particular interaction - they are, in a word, optional. However, Gradle does not presently let us express that. Consult the ``build.gradle`` file for hints on what might be optional.
+
+What's all this about a runnable jar in the Demo project?
+=========================================================
 
 Don't worry about that.
 
