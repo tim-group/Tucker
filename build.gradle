@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 /*
@@ -71,4 +72,3 @@ task hgignore << {
 		}
 	}
 }
-
