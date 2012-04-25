@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import com.timgroup.status.ApplicationReport;
+import com.timgroup.status.Status;
 import com.timgroup.status.StatusPage;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -27,6 +29,9 @@ public class StatusPageServletTest {
     @Test
     public void askingForStatusGetsXMLFromStatusPage() throws Exception {
         StatusPage statusPage = mock(StatusPage.class);
+        ApplicationReport applicationReport = mock(ApplicationReport.class);
+        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
+        when(applicationReport.getApplicationStatus()).thenReturn(Status.OK);
         HttpServletRequest request = mockRequest("/");
         HttpServletResponse response = mock(HttpServletResponse.class);
         PrintWriter writer = mock(PrintWriter.class);
@@ -38,7 +43,33 @@ public class StatusPageServletTest {
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
-        verify(statusPage).render(writer);
+        verify(applicationReport).render(writer);
+    }
+    
+    @Test
+    public void askingForStatusWhenTheApplicationIsNotOkayGetsXMLFromStatusPageAndAnErrorStatus() throws Exception {
+        StatusPage statusPage = mock(StatusPage.class);
+        ApplicationReport applicationReport = mock(ApplicationReport.class);
+        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
+        when(applicationReport.getApplicationStatus()).thenReturn(Status.CRITICAL);
+        HttpServletRequest request = mockRequest("/");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        PrintWriter writer = mock(PrintWriter.class);
+        when(response.getWriter()).thenReturn(writer);
+        
+        StatusPageServlet statusPageServlet = new StatusPageServlet();
+        statusPageServlet.setStatusPage(statusPage);
+        statusPageServlet.service(request, response);
+        
+        verifySetStatus(response, HttpServletResponse.SC_NOT_IMPLEMENTED);
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
+        verify(applicationReport).render(writer);
+    }
+    
+    @SuppressWarnings("deprecation")
+    private void verifySetStatus(HttpServletResponse response, int sc) {
+        verify(response).setStatus(eq(sc), anyString());
     }
     
     @Test

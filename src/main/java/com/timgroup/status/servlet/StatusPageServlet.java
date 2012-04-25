@@ -12,8 +12,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
+import com.timgroup.status.ApplicationReport;
+import com.timgroup.status.Status;
 import com.timgroup.status.StatusPage;
 
+/**
+ * Serves requests for the status page, and for its supporting media.
+ * 
+ * <p>
+ * If the application status is OK, the response status will be 200. If it is
+ * not OK, it will be 501. 501 is not an ideal choice, but it seems the most
+ * appropriate of the options available.
+ */
 @SuppressWarnings("serial")
 public class StatusPageServlet extends HttpServlet {
     
@@ -27,7 +37,12 @@ public class StatusPageServlet extends HttpServlet {
         } else if (path.equals("/")) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/xml");
-            statusPage.render(response.getWriter());
+            ApplicationReport report = statusPage.getApplicationReport();
+            Status applicationStatus = report.getApplicationStatus();
+            if (applicationStatus != Status.OK) {
+                setStatus(response, HttpServletResponse.SC_NOT_IMPLEMENTED, applicationStatus.toString());
+            }
+            report.render(response.getWriter());
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(response, "application/xml-dtd", StatusPage.DTD_FILENAME);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
@@ -35,6 +50,11 @@ public class StatusPageServlet extends HttpServlet {
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "try asking for .../status/");
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    private void setStatus(HttpServletResponse response, int sc, String sm) {
+        response.setStatus(sc, sm); // deprecated, but the only way to set the text on the status line without sending the container's error page
     }
     
     private void sendResource(HttpServletResponse response, String contentType, String filename) throws IOException {

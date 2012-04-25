@@ -7,17 +7,14 @@ repositories {
     mavenLocal()
     mavenRepo url: "${repoUrl}/groups/public"
 }
-project.version =  System.getenv('BUILD_NUMBER')
+
 def slf4jVersion = '1.6.4'
 def jettyVersion = '7.5.4.v20111024'
 
 dependencies {
-    compile fileTree('../build/libs')
-
-    compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2'
+    compile group: 'com.timgroup', name: 'Tucker', version: '+'
     providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-
-    runtime group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
+    
     runtime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
 
     compile group: 'org.eclipse.jetty',        name: 'jetty-server',               version: jettyVersion

@@ -51,6 +51,7 @@ public class StatusPageTest {
         Element root = document.getDocumentElement();
         assertEquals("myapp", root.getAttribute("id"));
         assertEquals("ok", root.getAttribute("class"));
+        assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
         assertEquals(0, root.getElementsByTagName("component").getLength());
         
@@ -63,18 +64,17 @@ public class StatusPageTest {
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.INFO, 23);
             }
-            
         });
         
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
         assertEquals("ok", root.getAttribute("class"));
+        assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -87,18 +87,17 @@ public class StatusPageTest {
     public void canAddANormativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL, 23);
             }
-            
         });
         
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -111,18 +110,17 @@ public class StatusPageTest {
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL);
             }
-            
         });
         
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -135,18 +133,17 @@ public class StatusPageTest {
     public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
-            
             @Override
             public Report getReport() {
                 throw new Error("wrong wire");
             }
-            
         });
         
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("critical", component.getAttribute("class"));
@@ -170,7 +167,7 @@ public class StatusPageTest {
     private Document render(StatusPage statusPage) throws ParserConfigurationException, SAXException, IOException {
         StringWriter writer = new StringWriter();
         
-        statusPage.render(writer);
+        statusPage.getApplicationReport().render(writer);
         
         InputSource source = new InputSource(new StringReader(writer.toString()));
         Document document = parse(source);
@@ -222,18 +219,5 @@ public class StatusPageTest {
         
         return document;
     }
-    
-    /*
-     * measure time each component takes
-     * 
-     * polling/cached components
-     * 
-     * boolean components
-     * 
-     * metric components with a threshold (use Comparable)
-     * 
-     * boolean component attached to a clicker with success() and failure()
-     * calls, and a lastClick time
-     */
     
 }

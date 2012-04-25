@@ -1,7 +1,5 @@
 package com.timgroup.status;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +27,7 @@ public class StatusPage {
         components.add(component);
     }
     
-    private Map<Component, Report> findComponentReports() {
+    public ApplicationReport getApplicationReport() {
         Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
         for (Component component : components) {
             Report report;
@@ -41,11 +39,7 @@ public class StatusPage {
             }
             componentReports.put(component, report);
         }
-        return componentReports;
-    }
-    
-    public void render(Writer writer) throws IOException {
-        new ApplicationReport(applicationId, findComponentReports()).render(writer);
+        return new ApplicationReport(applicationId, componentReports);
     }
     
 }

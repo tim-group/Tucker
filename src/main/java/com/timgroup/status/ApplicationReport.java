@@ -28,11 +28,17 @@ public class ApplicationReport {
     private final String applicationId;
     private final Map<Component, Report> componentReports;
     private final long timestamp;
+    private final Status applicationStatus;
     
     public ApplicationReport(String applicationId, Map<Component, Report> componentReports) {
+        timestamp = System.currentTimeMillis();
         this.applicationId = applicationId;
         this.componentReports = componentReports;
-        timestamp = System.currentTimeMillis();
+        applicationStatus = Report.worstStatus(componentReports.values());
+    }
+    
+    public Status getApplicationStatus() {
+        return applicationStatus;
     }
     
     public void render(Writer writer) throws IOException {
@@ -44,7 +50,6 @@ public class ApplicationReport {
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
-            Status applicationStatus = findApplicationStatus(componentReports);
             out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
             
             for (Entry<Component, Report> componentReport : componentReports.entrySet()) {
@@ -79,10 +84,6 @@ public class ApplicationReport {
         } catch (XMLStreamException e) {
             throw new IOException(e);
         }
-    }
-    
-    private Status findApplicationStatus(Map<Component, Report> componentReports) {
-        return Report.worstStatus(componentReports.values());
     }
     
     private String constructDTD(String rootElement, String systemID) {
