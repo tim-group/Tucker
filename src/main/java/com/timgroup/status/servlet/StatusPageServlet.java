@@ -27,7 +27,7 @@ public class StatusPageServlet extends HttpServlet {
         } else if (path.equals("/")) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/xml");
-            statusPage.render(response.getWriter());
+            statusPage.getApplicationReport().render(response.getWriter());
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(response, "application/xml-dtd", StatusPage.DTD_FILENAME);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {

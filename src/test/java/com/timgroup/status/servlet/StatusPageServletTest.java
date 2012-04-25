@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import com.timgroup.status.ApplicationReport;
 import com.timgroup.status.StatusPage;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -27,6 +28,8 @@ public class StatusPageServletTest {
     @Test
     public void askingForStatusGetsXMLFromStatusPage() throws Exception {
         StatusPage statusPage = mock(StatusPage.class);
+        ApplicationReport applicationReport = mock(ApplicationReport.class);
+        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
         HttpServletRequest request = mockRequest("/");
         HttpServletResponse response = mock(HttpServletResponse.class);
         PrintWriter writer = mock(PrintWriter.class);
@@ -38,7 +41,7 @@ public class StatusPageServletTest {
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
-        verify(statusPage).render(writer);
+        verify(applicationReport).render(writer);
     }
     
     @Test

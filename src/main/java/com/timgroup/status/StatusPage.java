@@ -1,7 +1,5 @@
 package com.timgroup.status;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,10 +40,6 @@ public class StatusPage {
             componentReports.put(component, report);
         }
         return new ApplicationReport(applicationId, componentReports);
-    }
-    
-    public void render(Writer writer) throws IOException {
-        getApplicationReport().render(writer);
     }
     
 }

@@ -167,7 +167,7 @@ public class StatusPageTest {
     private Document render(StatusPage statusPage) throws ParserConfigurationException, SAXException, IOException {
         StringWriter writer = new StringWriter();
         
-        statusPage.render(writer);
+        statusPage.getApplicationReport().render(writer);
         
         InputSource source = new InputSource(new StringReader(writer.toString()));
         Document document = parse(source);
