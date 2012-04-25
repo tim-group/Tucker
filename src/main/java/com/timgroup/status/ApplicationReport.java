@@ -37,6 +37,10 @@ public class ApplicationReport {
         applicationStatus = Report.worstStatus(componentReports.values());
     }
     
+    public Status getApplicationStatus() {
+        return applicationStatus;
+    }
+    
     public void render(Writer writer) throws IOException {
         try {
             XMLStreamWriter out = XML_OUTPUT_FACTORY.createXMLStreamWriter(writer);

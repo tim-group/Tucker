@@ -51,6 +51,7 @@ public class StatusPageTest {
         Element root = document.getDocumentElement();
         assertEquals("myapp", root.getAttribute("id"));
         assertEquals("ok", root.getAttribute("class"));
+        assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
         assertEquals(0, root.getElementsByTagName("component").getLength());
         
@@ -73,6 +74,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("ok", root.getAttribute("class"));
+        assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -95,6 +97,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -117,6 +120,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
@@ -139,6 +143,7 @@ public class StatusPageTest {
         
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
+        assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
         Element component = getSingleElementByTagName(root, "component");
         assertEquals("critical", component.getAttribute("class"));
@@ -214,10 +219,5 @@ public class StatusPageTest {
         
         return document;
     }
-    
-    /*
-     * boolean component attached to a clicker with success() and failure()
-     * calls, and a lastClick time
-     */
     
 }
