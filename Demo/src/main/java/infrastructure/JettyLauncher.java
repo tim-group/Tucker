@@ -2,9 +2,14 @@ package infrastructure;
 
 import static java.lang.Integer.parseInt;
 
+
 import java.io.IOException;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,11 +23,13 @@ import org.slf4j.LoggerFactory;
 import com.timgroup.status.demo.DemoStatusPageServlet;
 
 public class JettyLauncher {
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(JettyLauncher.class);
 
     private final Server server;
     private final ServletContextHandler context = new ServletContextHandler();
+    private Availability availability = Availability.AVAILABLE;
 
     public JettyLauncher(int port) {
         this.server = new Server(port);
@@ -35,6 +42,7 @@ public class JettyLauncher {
         context.addServlet(new ServletHolder(new DemoStatusPageServlet()),
                 "/status/*");
         context.addServlet(new ServletHolder(new StopServlet()), "/stop");
+        context.addServlet(new ServletHolder(new SuspendServlet()), "/suspend");
         server.setHandler(context);
     }
 
@@ -57,23 +65,6 @@ public class JettyLauncher {
         }
     }
 
-    class StopServlet extends HttpServlet {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-                throws ServletException, IOException {
-            stopQuietly();
-        }
-
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-                throws ServletException, IOException {
-            stopQuietly();
-        }
-
-    }
-
     private void stopQuietly() {
         try {
             server.stop();
@@ -84,8 +75,37 @@ public class JettyLauncher {
         }
     }
 
+    private void suspend() {
+        availability = Availability.SUSPENDED;
+    }
+
     public static void main(String[] args) throws Exception {
         new JettyLauncher(parseInt(args[0])).launch();
     }
 
+    private class SuspendServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            suspend();
+        }
+    }
+
+    private class StopServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException {
+            stopQuietly();
+        }
+    }
+
+    enum Availability {
+        SUSPENDED,
+        AVAILABLE,
+        STOPPING;
+    }
 }
+
