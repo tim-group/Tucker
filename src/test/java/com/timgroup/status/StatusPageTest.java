@@ -63,12 +63,10 @@ public class StatusPageTest {
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.INFO, 23);
             }
-            
         });
         
         Document document = render(statusPage);
@@ -87,12 +85,10 @@ public class StatusPageTest {
     public void canAddANormativeComponentStatus() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL, 23);
             }
-            
         });
         
         Document document = render(statusPage);
@@ -111,12 +107,10 @@ public class StatusPageTest {
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
-            
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL);
             }
-            
         });
         
         Document document = render(statusPage);
@@ -135,12 +129,10 @@ public class StatusPageTest {
     public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
         StatusPage statusPage = new StatusPage("myapp");
         statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
-            
             @Override
             public Report getReport() {
                 throw new Error("wrong wire");
             }
-            
         });
         
         Document document = render(statusPage);
@@ -224,14 +216,6 @@ public class StatusPageTest {
     }
     
     /*
-     * measure time each component takes
-     * 
-     * polling/cached components
-     * 
-     * boolean components
-     * 
-     * metric components with a threshold (use Comparable)
-     * 
      * boolean component attached to a clicker with success() and failure()
      * calls, and a lastClick time
      */
