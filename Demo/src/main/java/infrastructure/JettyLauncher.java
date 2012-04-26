@@ -1,15 +1,8 @@
 package infrastructure;
 
-import static java.lang.Integer.parseInt;
-
-
 import java.io.IOException;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,16 +13,20 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.status.demo.DemoStatusPageServlet;
+import com.timgroup.status.AvailableComponent;
+import com.timgroup.status.StatusPage;
+import com.timgroup.status.VersionComponent;
+import com.timgroup.status.servlet.StatusPageServlet;
+
+import static java.lang.Integer.parseInt;
 
 public class JettyLauncher {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(JettyLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyLauncher.class);
 
     private final Server server;
     private final ServletContextHandler context = new ServletContextHandler();
-    private Availability availability = Availability.AVAILABLE;
+    private final AvailableComponent availableComponent = new AvailableComponent();
 
     public JettyLauncher(int port) {
         this.server = new Server(port);
@@ -38,11 +35,18 @@ public class JettyLauncher {
     private void setupWebApp() throws IOException {
         context.setContextPath("/");
         context.setMaxFormContentSize(0);
+
+        StatusPage statusPage = new StatusPage("reference-implementation");
+        statusPage.addComponent(availableComponent);
+        statusPage.addComponent(new VersionComponent(StatusPage.class));
+
+        StatusPageServlet statusPageServlet = new StatusPageServlet();
+        statusPageServlet.setStatusPage(statusPage);
+
         context.getServletHandler().setStartWithUnavailable(false);
-        context.addServlet(new ServletHolder(new DemoStatusPageServlet()),
-                "/status/*");
+        context.addServlet(new ServletHolder(statusPageServlet), "/status/*");
         context.addServlet(new ServletHolder(new StopServlet()), "/stop");
-        context.addServlet(new ServletHolder(new SuspendServlet()), "/suspend");
+        context.addServlet(new ServletHolder(new MakeAvailableServlet()), "/makeavailable");
         server.setHandler(context);
     }
 
@@ -75,20 +79,16 @@ public class JettyLauncher {
         }
     }
 
-    private void suspend() {
-        availability = Availability.SUSPENDED;
-    }
-
     public static void main(String[] args) throws Exception {
         new JettyLauncher(parseInt(args[0])).launch();
     }
 
-    private class SuspendServlet extends HttpServlet {
+    private class MakeAvailableServlet extends HttpServlet {
         private static final long serialVersionUID = 1L;
 
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            suspend();
+            availableComponent.makeAvailable();
         }
     }
 
@@ -96,16 +96,9 @@ public class JettyLauncher {
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             stopQuietly();
         }
     }
 
-    enum Availability {
-        SUSPENDED,
-        AVAILABLE,
-        STOPPING;
-    }
 }
-
