@@ -17,7 +17,11 @@ public class AvailableComponent extends Component {
         available.set(true);
     }
 
-    @Override
+    public void makeUnavailable() {
+        available.set(false);
+    }
+
+   @Override
     public Report getReport() {
         return new Report(Status.INFO, available);
     }

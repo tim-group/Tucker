@@ -47,6 +47,7 @@ public class JettyLauncher {
         context.addServlet(new ServletHolder(statusPageServlet), "/status/*");
         context.addServlet(new ServletHolder(new StopServlet()), "/stop");
         context.addServlet(new ServletHolder(new MakeAvailableServlet()), "/makeavailable");
+        context.addServlet(new ServletHolder(new MakeUnvailableServlet()), "/makeunavailable");
         server.setHandler(context);
     }
 
@@ -89,6 +90,15 @@ public class JettyLauncher {
         @Override
         protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             availableComponent.makeAvailable();
+        }
+    }
+
+    private class MakeUnvailableServlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            availableComponent.makeUnavailable();
         }
     }
 
