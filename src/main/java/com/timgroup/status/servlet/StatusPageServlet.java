@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 
 import com.timgroup.status.ApplicationReport;
-import com.timgroup.status.Status;
 import com.timgroup.status.StatusPage;
 
 /**
@@ -38,10 +37,6 @@ public class StatusPageServlet extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("text/xml");
             ApplicationReport report = statusPage.getApplicationReport();
-            Status applicationStatus = report.getApplicationStatus();
-            if (applicationStatus != Status.OK) {
-                setStatus(response, HttpServletResponse.SC_NOT_IMPLEMENTED, applicationStatus.toString());
-            }
             report.render(response.getWriter());
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(response, "application/xml-dtd", StatusPage.DTD_FILENAME);
@@ -50,11 +45,6 @@ public class StatusPageServlet extends HttpServlet {
         } else {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "try asking for .../status/");
         }
-    }
-    
-    @SuppressWarnings("deprecation")
-    private void setStatus(HttpServletResponse response, int sc, String sm) {
-        response.setStatus(sc, sm); // deprecated, but the only way to set the text on the status line without sending the container's error page
     }
     
     private void sendResource(HttpServletResponse response, String contentType, String filename) throws IOException {

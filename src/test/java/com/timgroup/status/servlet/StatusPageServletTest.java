@@ -47,7 +47,7 @@ public class StatusPageServletTest {
     }
     
     @Test
-    public void askingForStatusWhenTheApplicationIsNotOkayGetsXMLFromStatusPageAndAnErrorStatus() throws Exception {
+    public void askingForStatusWhenTheApplicationIsNotOkayGetsXMLFromStatusPag() throws Exception {
         StatusPage statusPage = mock(StatusPage.class);
         ApplicationReport applicationReport = mock(ApplicationReport.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
@@ -61,15 +61,9 @@ public class StatusPageServletTest {
         statusPageServlet.setStatusPage(statusPage);
         statusPageServlet.service(request, response);
         
-        verifySetStatus(response, HttpServletResponse.SC_NOT_IMPLEMENTED);
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
         verify(applicationReport).render(writer);
-    }
-    
-    @SuppressWarnings("deprecation")
-    private void verifySetStatus(HttpServletResponse response, int sc) {
-        verify(response).setStatus(eq(sc), anyString());
     }
     
     @Test
