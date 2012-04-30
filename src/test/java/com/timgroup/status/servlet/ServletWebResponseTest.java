@@ -39,4 +39,14 @@ public class ServletWebResponseTest {
         verify(servletOut).close();
     }
     
+    @Test
+    public void rejectCallsSendError() throws Exception {
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        
+        WebResponse response = new ServletWebResponse(servletResponse);
+        response.reject(HttpServletResponse.SC_NOT_FOUND, "gone");
+        
+        verify(servletResponse).sendError(HttpServletResponse.SC_NOT_FOUND, "gone");
+    }
+    
 }

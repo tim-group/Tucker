@@ -20,4 +20,9 @@ public class ServletWebResponse implements WebResponse {
         return response.getOutputStream();
     }
     
+    @Override
+    public void reject(int status, String message) throws IOException {
+        response.sendError(status, message);
+    }
+    
 }
