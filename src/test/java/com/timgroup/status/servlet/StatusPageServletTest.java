@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.Writer;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -12,14 +12,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.timgroup.status.ApplicationReport;
-import com.timgroup.status.Status;
 import com.timgroup.status.StatusPage;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,11 +35,11 @@ public class StatusPageServletTest {
         StatusPage statusPage = mock(StatusPage.class);
         ApplicationReport applicationReport = mock(ApplicationReport.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        when(applicationReport.getApplicationStatus()).thenReturn(Status.OK);
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(Matchers.any(Writer.class));
         HttpServletRequest request = mockRequest("/");
         HttpServletResponse response = mock(HttpServletResponse.class);
-        PrintWriter writer = mock(PrintWriter.class);
-        when(response.getWriter()).thenReturn(writer);
+        GoldfishServletOutputStream out = new GoldfishServletOutputStream();
+        when(response.getOutputStream()).thenReturn(out);
         
         StatusPageServlet statusPageServlet = new StatusPageServlet();
         statusPageServlet.setStatusPage(statusPage);
@@ -43,27 +47,32 @@ public class StatusPageServletTest {
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
-        verify(applicationReport).render(writer);
+        assertEquals('a', out.lastByte);
     }
     
-    @Test
-    public void askingForStatusWhenTheApplicationIsNotOkayGetsXMLFromStatusPag() throws Exception {
-        StatusPage statusPage = mock(StatusPage.class);
-        ApplicationReport applicationReport = mock(ApplicationReport.class);
-        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        when(applicationReport.getApplicationStatus()).thenReturn(Status.CRITICAL);
-        HttpServletRequest request = mockRequest("/");
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        PrintWriter writer = mock(PrintWriter.class);
-        when(response.getWriter()).thenReturn(writer);
+    private final class WriteOneCharacter implements Answer<Void> {
+        private final char ch;
         
-        StatusPageServlet statusPageServlet = new StatusPageServlet();
-        statusPageServlet.setStatusPage(statusPage);
-        statusPageServlet.service(request, response);
+        private WriteOneCharacter(char ch) {
+            this.ch = ch;
+        }
         
-        verify(response).setCharacterEncoding("UTF-8");
-        verify(response).setContentType("text/xml"); // must be simply text/xml so Firefox applies CSS; the container will add a charset
-        verify(applicationReport).render(writer);
+        @Override
+        public Void answer(InvocationOnMock invocation) throws Throwable {
+            Writer writer = (Writer) invocation.getArguments()[0];
+            writer.write(ch);
+            writer.close();
+            return null;
+        }
+    }
+    
+    private final class GoldfishServletOutputStream extends ServletOutputStream {
+        public int lastByte;
+        
+        @Override
+        public void write(int b) throws IOException {
+            lastByte = b;
+        }
     }
     
     @Test
