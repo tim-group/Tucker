@@ -18,9 +18,8 @@ public class ServletWebResponseTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         
         WebResponse response = new ServletWebResponse(servletResponse);
-        response.respond(HttpServletResponse.SC_NOT_FOUND, "text/rtf", "UTF-8");
+        response.respond("text/rtf", "UTF-8");
         
-        verify(servletResponse).setStatus(HttpServletResponse.SC_NOT_FOUND);
         verify(servletResponse).setCharacterEncoding("UTF-8");
         verify(servletResponse).setContentType("text/rtf");
     }
@@ -32,7 +31,7 @@ public class ServletWebResponseTest {
         when(servletResponse.getOutputStream()).thenReturn(servletOut);
         
         WebResponse response = new ServletWebResponse(servletResponse);
-        OutputStream out = response.respond(HttpServletResponse.SC_NOT_FOUND, "text/rtf", "UTF-8");
+        OutputStream out = response.respond("text/rtf", "UTF-8");
         out.write(0x23);
         out.close();
         

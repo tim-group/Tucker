@@ -14,8 +14,7 @@ public class ServletWebResponse implements WebResponse {
     }
     
     @Override
-    public OutputStream respond(int status, String contentType, String characterEncoding) throws IOException {
-        response.setStatus(status);
+    public OutputStream respond(String contentType, String characterEncoding) throws IOException {
         response.setCharacterEncoding(characterEncoding);
         response.setContentType(contentType);
         return response.getOutputStream();

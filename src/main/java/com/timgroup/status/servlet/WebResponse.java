@@ -5,6 +5,6 @@ import java.io.OutputStream;
 
 public interface WebResponse {
     
-    public OutputStream respond(int status, String contentType, String characterEncoding) throws IOException;
+    public OutputStream respond(String contentType, String characterEncoding) throws IOException;
     
 }
