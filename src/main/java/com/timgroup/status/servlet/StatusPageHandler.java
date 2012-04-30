@@ -25,6 +25,9 @@ public class StatusPageHandler {
             OutputStream out = response.respond("text/xml", UTF_8);
             ApplicationReport report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
+        } else if (path.equals("/version")) {
+            OutputStream out = response.respond("text/plain", UTF_8);
+            out.write("".getBytes());
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(StatusPage.DTD_FILENAME, "application/xml-dtd", response);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
