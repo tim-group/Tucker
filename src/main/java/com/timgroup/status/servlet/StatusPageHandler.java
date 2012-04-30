@@ -14,15 +14,17 @@ import com.timgroup.status.StatusPage;
 
 public class StatusPageHandler {
     
+    private static final String UTF_8 = "UTF-8";
+    
     private StatusPage statusPage;
     
     public void handle(String path, WebResponse response) throws IOException {
         if (path == null) {
             response.redirect("/");
         } else if (path.equals("/")) {
-            OutputStream out = response.respond("text/xml", "UTF-8");
+            OutputStream out = response.respond("text/xml", UTF_8);
             ApplicationReport report = statusPage.getApplicationReport();
-            report.render(new OutputStreamWriter(out, "UTF-8"));
+            report.render(new OutputStreamWriter(out, UTF_8));
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(StatusPage.DTD_FILENAME, "application/xml-dtd", response);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
@@ -38,7 +40,7 @@ public class StatusPageHandler {
             response.reject(HttpServletResponse.SC_NOT_FOUND, "could not find resource with name " + filename);
             return;
         }
-        OutputStream output = response.respond(contentType, "UTF-8");
+        OutputStream output = response.respond(contentType, UTF_8);
         IOUtils.copy(resource, output);
     }
     
