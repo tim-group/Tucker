@@ -1,6 +1,5 @@
 package com.timgroup.status.servlet;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +34,10 @@ public class StatusPageHandler {
     
     private void sendResource(String filename, String contentType, WebResponse response) throws IOException {
         InputStream resource = StatusPage.class.getResourceAsStream(filename);
-        if (resource == null) throw new FileNotFoundException(filename);
+        if (resource == null) {
+            response.reject(HttpServletResponse.SC_NOT_FOUND, "could not find resource with name " + filename);
+            return;
+        }
         OutputStream output = response.respond(contentType, "UTF-8");
         IOUtils.copy(resource, output);
     }
