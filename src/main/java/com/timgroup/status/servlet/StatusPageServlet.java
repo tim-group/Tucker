@@ -17,11 +17,6 @@ import com.timgroup.status.StatusPage;
 
 /**
  * Serves requests for the status page, and for its supporting media.
- * 
- * <p>
- * If the application status is OK, the response status will be 200. If it is
- * not OK, it will be 501. 501 is not an ideal choice, but it seems the most
- * appropriate of the options available.
  */
 @SuppressWarnings("serial")
 public class StatusPageServlet extends HttpServlet {
