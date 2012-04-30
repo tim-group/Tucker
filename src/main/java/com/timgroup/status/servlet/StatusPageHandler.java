@@ -19,9 +19,9 @@ public class StatusPageHandler {
     private StatusPage statusPage;
     
     public void handle(String path, WebResponse response) throws IOException {
-        if (path == null) {
-            response.redirect("/");
-        } else if (path.equals("/")) {
+        if (path == null || path.isEmpty()) {
+            response.redirect("/status");
+        } else if (path.equals("/status")) {
             OutputStream out = response.respond("text/xml", UTF_8);
             ApplicationReport report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));

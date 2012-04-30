@@ -44,7 +44,7 @@ public class JettyLauncher {
         statusPageServlet.setStatusPage(statusPage);
 
         context.getServletHandler().setStartWithUnavailable(false);
-        context.addServlet(new ServletHolder(statusPageServlet), "/status/*");
+        context.addServlet(new ServletHolder(statusPageServlet), "/info/*");
         context.addServlet(new ServletHolder(new StopServlet()), "/stop");
         context.addServlet(new ServletHolder(new MakeAvailableServlet()), "/makeavailable");
         context.addServlet(new ServletHolder(new MakeUnvailableServlet()), "/makeunavailable");

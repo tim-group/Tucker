@@ -36,7 +36,7 @@ public class StatusPageServletTest {
         ApplicationReport applicationReport = mock(ApplicationReport.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
         doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(Matchers.any(Writer.class));
-        HttpServletRequest request = mockRequest("/");
+        HttpServletRequest request = mockRequest("/status");
         HttpServletResponse response = mock(HttpServletResponse.class);
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
         when(response.getOutputStream()).thenReturn(out);
@@ -76,13 +76,13 @@ public class StatusPageServletTest {
     }
     
     @Test
-    public void askingForStatusWithoutATrailingSlashGetsARedirectToStatusWithATrailingSlash() throws Exception {
+    public void askingForRootResourceRedirectsToStatusResource() throws Exception {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
         
         new StatusPageServlet().service(request, response);
         
-        verify(response).sendRedirect("/Foo/status/");
+        verify(response).sendRedirect("/Foo/info/status");
     }
     
     @Test
@@ -148,7 +148,7 @@ public class StatusPageServletTest {
         when(request.getProtocol()).thenReturn("http");
         when(request.getMethod()).thenReturn("GET");
         when(request.getContextPath()).thenReturn("/Foo");
-        when(request.getServletPath()).thenReturn("/status");
+        when(request.getServletPath()).thenReturn("/info");
         when(request.getPathInfo()).thenReturn(pathInfo);
         return request;
     }
