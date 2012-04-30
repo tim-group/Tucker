@@ -9,4 +9,6 @@ public interface WebResponse {
     
     public void reject(int status, String message) throws IOException;
     
+    public void redirect(String relativePath) throws IOException;
+    
 }
