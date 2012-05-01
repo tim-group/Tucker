@@ -17,11 +17,11 @@ public class ThresholdedGaugeComponent<T extends Comparable<T>> extends GaugeCom
     protected Status getStatus(T value) {
         if (value.compareTo(criticalThreshold) > 0) {
             return Status.CRITICAL;
-        } else if (value.compareTo(warningThreshold) > 0) {
-            return Status.WARNING;
-        } else {
-            return Status.OK;
         }
+        if (value.compareTo(warningThreshold) > 0) {
+            return Status.WARNING;
+        }
+        return Status.OK;
     }
     
 }
