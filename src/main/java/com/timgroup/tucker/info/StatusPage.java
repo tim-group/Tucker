@@ -12,7 +12,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-public class ApplicationReport {
+public class StatusPage {
     
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
@@ -30,7 +30,7 @@ public class ApplicationReport {
     private final long timestamp;
     private final Status applicationStatus;
     
-    public ApplicationReport(String applicationId, Map<Component, Report> componentReports) {
+    public StatusPage(String applicationId, Map<Component, Report> componentReports) {
         timestamp = System.currentTimeMillis();
         this.applicationId = applicationId;
         this.componentReports = componentReports;

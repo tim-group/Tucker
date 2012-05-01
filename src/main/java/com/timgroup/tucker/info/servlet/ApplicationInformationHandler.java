@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-import com.timgroup.tucker.info.ApplicationReport;
+import com.timgroup.tucker.info.StatusPage;
 import com.timgroup.tucker.info.StatusPageGenerator;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -65,7 +65,7 @@ public class ApplicationInformationHandler {
         
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/xml", UTF_8);
-            ApplicationReport report = statusPage.getApplicationReport();
+            StatusPage report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
         }
     }

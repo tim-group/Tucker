@@ -27,7 +27,7 @@ public class StatusPageGenerator {
         components.add(component);
     }
     
-    public ApplicationReport getApplicationReport() {
+    public StatusPage getApplicationReport() {
         Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
         for (Component component : components) {
             Report report;
@@ -39,7 +39,7 @@ public class StatusPageGenerator {
             }
             componentReports.put(component, report);
         }
-        return new ApplicationReport(applicationId, componentReports);
+        return new StatusPage(applicationId, componentReports);
     }
     
 }

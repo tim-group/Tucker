@@ -16,7 +16,7 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.timgroup.tucker.info.ApplicationReport;
+import com.timgroup.tucker.info.StatusPage;
 import com.timgroup.tucker.info.StatusPageGenerator;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -33,7 +33,7 @@ public class ApplicationInformationServletTest {
     @Test
     public void askingForStatusGetsXMLFromStatusPage() throws Exception {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
-        ApplicationReport applicationReport = mock(ApplicationReport.class);
+        StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
         doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(Matchers.any(Writer.class));
         HttpServletRequest request = mockRequest("/status");
