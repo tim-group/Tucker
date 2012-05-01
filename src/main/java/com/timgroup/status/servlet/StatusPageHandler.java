@@ -8,12 +8,12 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 
 import com.timgroup.status.ApplicationReport;
 import com.timgroup.status.StatusPage;
+
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class StatusPageHandler {
 
@@ -36,7 +36,7 @@ public class StatusPageHandler {
         if (dispatch.containsKey(path)) {
             dispatch.get(path).handle(response);
         } else {
-            response.reject(HttpServletResponse.SC_NOT_FOUND, "try asking for .../status/");
+            response.reject(HTTP_NOT_FOUND, "try asking for .../status/");
         }
     }
 
@@ -100,7 +100,7 @@ public class StatusPageHandler {
         @Override public void handle(WebResponse response) throws IOException {
             InputStream resource = StatusPage.class.getResourceAsStream(resourceName);
             if (resource == null) {
-                response.reject(HttpServletResponse.SC_NOT_FOUND, "could not find resource with name " + resourceName);
+                response.reject(HTTP_NOT_FOUND, "could not find resource with name " + resourceName);
                 return;
             }
             OutputStream output = response.respond(contentType, UTF_8);
