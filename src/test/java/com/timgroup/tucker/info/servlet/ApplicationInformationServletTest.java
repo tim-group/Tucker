@@ -16,8 +16,8 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.timgroup.tucker.info.StatusPage;
-import com.timgroup.tucker.info.StatusPageGenerator;
+import com.timgroup.tucker.info.status.StatusPage;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

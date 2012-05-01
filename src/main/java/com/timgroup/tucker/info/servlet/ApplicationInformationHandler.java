@@ -10,8 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-import com.timgroup.tucker.info.StatusPage;
-import com.timgroup.tucker.info.StatusPageGenerator;
+import com.timgroup.tucker.info.status.StatusPage;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 

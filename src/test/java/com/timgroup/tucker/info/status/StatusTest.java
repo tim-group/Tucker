@@ -1,6 +1,8 @@
-package com.timgroup.tucker.info;
+package com.timgroup.tucker.info.status;
 
 import org.junit.Test;
+
+import com.timgroup.tucker.info.Status;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

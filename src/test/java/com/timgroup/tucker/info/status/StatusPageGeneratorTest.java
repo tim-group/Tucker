@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info;
+package com.timgroup.tucker.info.status;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,11 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static org.junit.Assert.assertEquals;
 

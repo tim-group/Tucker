@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
 
-import com.timgroup.tucker.info.StatusPageGenerator;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

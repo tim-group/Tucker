@@ -3,7 +3,7 @@ package com.timgroup.tucker.demo;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import com.timgroup.tucker.info.StatusPageGenerator;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 import com.timgroup.tucker.info.component.ThresholdedGaugeComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;

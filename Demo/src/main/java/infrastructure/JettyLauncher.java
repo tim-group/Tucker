@@ -13,7 +13,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.tucker.info.StatusPageGenerator;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 import com.timgroup.tucker.info.component.AvailableComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;

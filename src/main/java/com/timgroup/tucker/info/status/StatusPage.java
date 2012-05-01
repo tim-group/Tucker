@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info;
+package com.timgroup.tucker.info.status;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -11,6 +11,10 @@ import java.util.TimeZone;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
 
 public class StatusPage {
     
