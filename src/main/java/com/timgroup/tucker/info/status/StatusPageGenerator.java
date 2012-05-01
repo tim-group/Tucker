@@ -20,10 +20,12 @@ public class StatusPageGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusPageGenerator.class);
     
     private final String applicationId;
+    private final VersionComponent versionComponent;
     private final List<Component> components = new ArrayList<Component>();
     
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
         this.applicationId = applicationId;
+        this.versionComponent = versionComponent;
         components.add(versionComponent);
     }
     
@@ -45,5 +47,8 @@ public class StatusPageGenerator {
         }
         return new StatusPage(applicationId, componentReports);
     }
-    
+
+    public Component getVersionComponent() {
+        return versionComponent;
+    }
 }

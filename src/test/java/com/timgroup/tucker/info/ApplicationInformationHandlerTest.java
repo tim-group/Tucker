@@ -34,7 +34,7 @@ public class ApplicationInformationHandlerTest {
         handler.handle("/version", response);
         
         verify(response).respond("text/plain", "UTF-8");
-        assertEquals("0.0.0", responseContent.toString());
+        assertEquals("0.0.1", responseContent.toString());
     }
     
     @Test

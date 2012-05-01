@@ -27,7 +27,7 @@ public class ApplicationInformationHandler {
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new TextWriter("healthy")); // or "unwell"
         dispatch.put("/stoppable", new TextWriter("safe")); // or "ill"
-        dispatch.put("/version", new TextWriter("0.0.0"));
+        dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
         dispatch.put("/status", new StatusPageWriter(statusPage));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
@@ -81,6 +81,20 @@ public class ApplicationInformationHandler {
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/plain", UTF_8);
             out.write(text.getBytes(Charset.forName(UTF_8)));
+            out.close();
+        }
+    }
+    
+    private static final class ComponentWriter implements Handler {
+        private final Component component;
+
+        public ComponentWriter(Component component) {
+            this.component = component;
+        }
+        
+        @Override public void handle(WebResponse response) throws IOException {
+            OutputStream out = response.respond("text/plain", UTF_8);
+            out.write(component.getReport().getValue().toString().getBytes(Charset.forName(UTF_8)));
             out.close();
         }
     }
