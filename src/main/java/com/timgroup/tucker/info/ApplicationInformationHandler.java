@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info.servlet;
+package com.timgroup.tucker.info;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
+import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 

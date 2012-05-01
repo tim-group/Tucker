@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 /**

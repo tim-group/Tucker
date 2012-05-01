@@ -1,9 +1,11 @@
-package com.timgroup.tucker.info.servlet;
+package com.timgroup.tucker.info;
 
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
 
+import com.timgroup.tucker.info.ApplicationInformationHandler;
+import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static org.junit.Assert.assertEquals;
