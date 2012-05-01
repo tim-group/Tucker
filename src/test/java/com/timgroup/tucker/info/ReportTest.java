@@ -28,6 +28,7 @@ public class ReportTest {
     @Test
     public void reportMightNotHaveAValue() throws Exception {
         assertTrue(new Report(Status.INFO, "foo").hasValue());
+        assertFalse(new Report(Status.INFO, null).hasValue());
         assertFalse(new Report(Status.INFO).hasValue());
     }
     

@@ -93,8 +93,10 @@ public class ApplicationInformationHandler {
         }
         
         @Override public void handle(WebResponse response) throws IOException {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(component.getReport().getValue().toString().getBytes(Charset.forName(UTF_8)));
+            final OutputStream out = response.respond("text/plain", UTF_8);
+            final Report versionReport = component.getReport();
+            final String versionString = versionReport.hasValue() ? versionReport.getValue().toString() : "";
+            out.write(versionString.getBytes(Charset.forName(UTF_8)));
             out.close();
         }
     }

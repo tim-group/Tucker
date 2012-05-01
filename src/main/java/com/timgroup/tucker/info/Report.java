@@ -17,7 +17,7 @@ public final class Report {
     
     public Report(Status status, Object value) {
         this.status = status;
-        this.value = value;
+        this.value = (value == null) ? NO_VALUE : value;
     }
     
     public Report(Status status) {
