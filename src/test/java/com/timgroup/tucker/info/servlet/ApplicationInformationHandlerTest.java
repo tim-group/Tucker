@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
 
-import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.StatusPageGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class ApplicationInformationHandlerTest {
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPage("appId"));
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId"));
     
     @Test
     public void responds_to_version_request() throws Exception {

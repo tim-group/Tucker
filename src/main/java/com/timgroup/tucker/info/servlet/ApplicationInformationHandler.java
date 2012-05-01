@@ -11,7 +11,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.timgroup.tucker.info.ApplicationReport;
-import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.StatusPageGenerator;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
@@ -21,15 +21,15 @@ public class ApplicationInformationHandler {
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
 
-    public ApplicationInformationHandler(StatusPage statusPage) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new TextWriter("healthy")); // or "unwell"
         dispatch.put("/stoppable", new TextWriter("safe")); // or "ill"
         dispatch.put("/version", new TextWriter("0.0.0"));
         dispatch.put("/status", new StatusPageWriter(statusPage));
-        dispatch.put("/status-page.dtd", new ResourceWriter(StatusPage.DTD_FILENAME, "application/xml-dtd"));
-        dispatch.put("/status-page.css", new ResourceWriter(StatusPage.CSS_FILENAME, "text/css"));
+        dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
+        dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
     }
 
     public void handle(String path, WebResponse response) throws IOException {
@@ -57,9 +57,9 @@ public class ApplicationInformationHandler {
     }
 
     private static final class StatusPageWriter implements Handler {
-        private final StatusPage statusPage;
+        private final StatusPageGenerator statusPage;
 
-        public StatusPageWriter(StatusPage statusPage) {
+        public StatusPageWriter(StatusPageGenerator statusPage) {
             this.statusPage = statusPage;
         }
         
@@ -94,7 +94,7 @@ public class ApplicationInformationHandler {
         }
         
         @Override public void handle(WebResponse response) throws IOException {
-            InputStream resource = StatusPage.class.getResourceAsStream(resourceName);
+            InputStream resource = StatusPageGenerator.class.getResourceAsStream(resourceName);
             if (resource == null) {
                 response.reject(HTTP_NOT_FOUND, "could not find resource with name " + resourceName);
                 return;

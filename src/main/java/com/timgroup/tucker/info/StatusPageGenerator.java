@@ -8,17 +8,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatusPage {
+public class StatusPageGenerator {
     
     public static final String DTD_FILENAME = "status-page.dtd";
     public static final String CSS_FILENAME = "status-page.css";
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatusPage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatusPageGenerator.class);
     
     private final String applicationId;
     private final List<Component> components;
     
-    public StatusPage(String applicationId) {
+    public StatusPageGenerator(String applicationId) {
         this.applicationId = applicationId;
         components = new ArrayList<Component>();
     }

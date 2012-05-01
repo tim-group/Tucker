@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.StatusPageGenerator;
 
 /**
  * Serves requests for application information and supporting media.
@@ -17,7 +17,7 @@ public class ApplicationInformationServlet extends HttpServlet {
     
     private final ApplicationInformationHandler handler;
     
-    public ApplicationInformationServlet(StatusPage statusPage) {
+    public ApplicationInformationServlet(StatusPageGenerator statusPage) {
         handler = new ApplicationInformationHandler(statusPage);
     }
     

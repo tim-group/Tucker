@@ -45,8 +45,8 @@ public class ApplicationReport {
         try {
             XMLStreamWriter out = XML_OUTPUT_FACTORY.createXMLStreamWriter(writer);
             out.writeStartDocument();
-            out.writeDTD(constructDTD(TAG_APPLICATION, StatusPage.DTD_FILENAME));
-            out.writeProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"" + StatusPage.CSS_FILENAME + "\"");
+            out.writeDTD(constructDTD(TAG_APPLICATION, StatusPageGenerator.DTD_FILENAME));
+            out.writeProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"" + StatusPageGenerator.CSS_FILENAME + "\"");
             
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);

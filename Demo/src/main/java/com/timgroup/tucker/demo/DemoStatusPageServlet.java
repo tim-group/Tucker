@@ -3,7 +3,7 @@ package com.timgroup.tucker.demo;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.StatusPageGenerator;
 import com.timgroup.tucker.info.component.ThresholdedGaugeComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
@@ -16,9 +16,9 @@ public class DemoStatusPageServlet extends ApplicationInformationServlet {
         super(statusPage());
     }
     
-    private static StatusPage statusPage() {
-        final StatusPage statusPage = new StatusPage("demoApp");
-        statusPage.addComponent(new JarVersionComponent(StatusPage.class));
+    private static StatusPageGenerator statusPage() {
+        final StatusPageGenerator statusPage = new StatusPageGenerator("demoApp");
+        statusPage.addComponent(new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(new ThresholdedGaugeComponent<Integer>("timeUsed", "Time used this minute (sec)", timeUsedGauge(), 30, 50));
         return statusPage;
     }

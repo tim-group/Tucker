@@ -17,7 +17,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.timgroup.tucker.info.ApplicationReport;
-import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.StatusPageGenerator;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -32,7 +32,7 @@ public class ApplicationInformationServletTest {
     
     @Test
     public void askingForStatusGetsXMLFromStatusPage() throws Exception {
-        StatusPage statusPage = mock(StatusPage.class);
+        StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         ApplicationReport applicationReport = mock(ApplicationReport.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
         doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(Matchers.any(Writer.class));
@@ -79,7 +79,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
         
         verify(response).sendRedirect("/Foo/info/status");
     }
@@ -91,7 +91,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
@@ -105,7 +105,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/css");
@@ -113,7 +113,7 @@ public class ApplicationInformationServletTest {
     }
     
     private byte[] readResource(String filename) throws IOException {
-        InputStream input = StatusPage.class.getResourceAsStream(filename);
+        InputStream input = StatusPageGenerator.class.getResourceAsStream(filename);
         byte[] bytes = readFully(input);
         return bytes;
     }
@@ -123,7 +123,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/rubbish");
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), anyString());
     }
     

@@ -31,7 +31,7 @@ import org.xml.sax.SAXParseException;
 
 import static org.junit.Assert.assertEquals;
 
-public class StatusPageTest {
+public class StatusPageGeneratorTest {
     
     private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY;
     static {
@@ -43,7 +43,7 @@ public class StatusPageTest {
     
     @Test
     public void unconfiguredStatusPageRendersBasicXMLStructure() throws Exception {
-        StatusPage statusPage = new StatusPage("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
         
         long renderTime = System.currentTimeMillis();
         Document document = render(statusPage);
@@ -62,7 +62,7 @@ public class StatusPageTest {
     
     @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
-        StatusPage statusPage = new StatusPage("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             @Override
             public Report getReport() {
@@ -85,7 +85,7 @@ public class StatusPageTest {
     
     @Test
     public void canAddANormativeComponentStatus() throws Exception {
-        StatusPage statusPage = new StatusPage("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             @Override
             public Report getReport() {
@@ -108,7 +108,7 @@ public class StatusPageTest {
     
     @Test
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
-        StatusPage statusPage = new StatusPage("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
         statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
             @Override
             public Report getReport() {
@@ -131,7 +131,7 @@ public class StatusPageTest {
     
     @Test
     public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
-        StatusPage statusPage = new StatusPage("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
         statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             @Override
             public Report getReport() {
@@ -164,7 +164,7 @@ public class StatusPageTest {
         return (Element) elementsByTagName.item(0);
     }
     
-    private Document render(StatusPage statusPage) throws ParserConfigurationException, SAXException, IOException {
+    private Document render(StatusPageGenerator statusPage) throws ParserConfigurationException, SAXException, IOException {
         StringWriter writer = new StringWriter();
         
         statusPage.getApplicationReport().render(writer);
@@ -191,7 +191,7 @@ public class StatusPageTest {
                 } catch (URISyntaxException e) {
                     throw new SAXException(e);
                 }
-                InputStream stream = StatusPage.class.getResourceAsStream(filename);
+                InputStream stream = StatusPageGenerator.class.getResourceAsStream(filename);
                 return (stream != null) ? new InputSource(stream) : null;
             }
         });
