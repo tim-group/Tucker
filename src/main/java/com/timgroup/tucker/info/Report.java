@@ -1,6 +1,6 @@
 package com.timgroup.tucker.info;
 
-public class Report {
+public final class Report {
     
     private static final Object NO_VALUE = new Object();
     

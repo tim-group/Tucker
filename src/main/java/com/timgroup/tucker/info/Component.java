@@ -10,11 +10,11 @@ public abstract class Component {
         this.label = label;
     }
     
-    public String getId() {
+    public final String getId() {
         return id;
     }
     
-    public String getLabel() {
+    public final String getLabel() {
         return label;
     }
     
