@@ -27,17 +27,11 @@ public class StatusPageHandler {
             ApplicationReport report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
         } else if (path.equals("/health")) {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write("healthy".getBytes(Charset.forName(UTF_8))); //or "unwell"
-            out.close();
+            sendText("healthy", response); //or "unwell"
         } else if (path.equals("/stoppable")) {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write("safe".getBytes(Charset.forName(UTF_8))); //or "ill"
-            out.close();
+            sendText("safe", response); //or "ill"
         } else if (path.equals("/version")) {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write("0.0.0".getBytes(Charset.forName(UTF_8)));
-            out.close();
+            sendText("0.0.0", response);
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(StatusPage.DTD_FILENAME, "application/xml-dtd", response);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
@@ -45,6 +39,12 @@ public class StatusPageHandler {
         } else {
             response.reject(HttpServletResponse.SC_NOT_FOUND, "try asking for .../status/");
         }
+    }
+
+    private void sendText(final String text, WebResponse response) throws IOException {
+        OutputStream out = response.respond("text/plain", UTF_8);
+        out.write(text.getBytes(Charset.forName(UTF_8)));
+        out.close();
     }
     
     private void sendResource(String filename, String contentType, WebResponse response) throws IOException {
