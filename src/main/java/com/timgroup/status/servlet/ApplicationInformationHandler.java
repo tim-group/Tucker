@@ -15,13 +15,13 @@ import com.timgroup.status.StatusPage;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
-public class StatusPageHandler {
+public class ApplicationInformationHandler {
 
     private static final String UTF_8 = "UTF-8";
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
 
-    public StatusPageHandler() {
+    public ApplicationInformationHandler() {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new TextWriter("healthy")); // or "unwell"

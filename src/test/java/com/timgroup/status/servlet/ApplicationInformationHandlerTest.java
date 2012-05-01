@@ -12,9 +12,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class StatusPageHandlerTest {
+public class ApplicationInformationHandlerTest {
 
-    private final StatusPageHandler handler = new StatusPageHandler();
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler();
     
     @Before
     public void setup() {

@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.timgroup.status.StatusPage;
 
 /**
- * Serves requests for the status page, and for its supporting media.
+ * Serves requests for application information and supporting media.
  */
 @SuppressWarnings("serial")
-public class StatusPageServlet extends HttpServlet {
+public class ApplicationInformationServlet extends HttpServlet {
     
-    private final StatusPageHandler handler = new StatusPageHandler();
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler();
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

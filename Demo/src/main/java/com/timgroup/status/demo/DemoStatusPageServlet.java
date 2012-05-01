@@ -6,11 +6,11 @@ import javax.servlet.ServletException;
 import com.timgroup.status.StatusPage;
 import com.timgroup.status.ThresholdedGaugeComponent;
 import com.timgroup.status.VersionComponent;
-import com.timgroup.status.servlet.StatusPageServlet;
+import com.timgroup.status.servlet.ApplicationInformationServlet;
 import com.yammer.metrics.core.Gauge;
 
 @SuppressWarnings("serial")
-public class DemoStatusPageServlet extends StatusPageServlet {
+public class DemoStatusPageServlet extends ApplicationInformationServlet {
     
     @Override
     public void init(ServletConfig config) throws ServletException {
