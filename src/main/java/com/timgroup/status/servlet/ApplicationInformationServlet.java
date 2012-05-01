@@ -15,15 +15,14 @@ import com.timgroup.status.StatusPage;
 @SuppressWarnings("serial")
 public class ApplicationInformationServlet extends HttpServlet {
     
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler();
+    private final ApplicationInformationHandler handler;
+    
+    public ApplicationInformationServlet(StatusPage statusPage) {
+        handler = new ApplicationInformationHandler(statusPage);
+    }
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         handler.handle(request.getPathInfo(), new ServletWebResponse(request, response));
     }
-    
-    public void setStatusPage(StatusPage statusPage) {
-        handler.setStatusPage(statusPage);
-    }
-    
 }

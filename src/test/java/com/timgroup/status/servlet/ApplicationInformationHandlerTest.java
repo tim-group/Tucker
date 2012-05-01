@@ -2,7 +2,6 @@ package com.timgroup.status.servlet;
 
 import java.io.ByteArrayOutputStream;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.timgroup.status.StatusPage;
@@ -14,12 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class ApplicationInformationHandlerTest {
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler();
-    
-    @Before
-    public void setup() {
-        handler.setStatusPage(new StatusPage("appId"));
-    }
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPage("appId"));
     
     @Test
     public void responds_to_version_request() throws Exception {

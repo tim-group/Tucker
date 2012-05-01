@@ -41,8 +41,7 @@ public class ApplicationInformationServletTest {
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
         when(response.getOutputStream()).thenReturn(out);
         
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet();
-        statusPageServlet.setStatusPage(statusPage);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage);
         statusPageServlet.service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
@@ -80,7 +79,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet().service(request, response);
+        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
         
         verify(response).sendRedirect("/Foo/info/status");
     }
@@ -92,7 +91,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet().service(request, response);
+        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
@@ -106,7 +105,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet().service(request, response);
+        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/css");
@@ -124,7 +123,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/rubbish");
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet().service(request, response);
+        new ApplicationInformationServlet(new StatusPage("")).service(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), anyString());
     }
     

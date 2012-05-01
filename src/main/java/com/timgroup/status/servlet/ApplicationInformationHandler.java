@@ -21,13 +21,13 @@ public class ApplicationInformationHandler {
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
 
-    public ApplicationInformationHandler() {
+    public ApplicationInformationHandler(StatusPage statusPage) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new TextWriter("healthy")); // or "unwell"
         dispatch.put("/stoppable", new TextWriter("safe")); // or "ill"
         dispatch.put("/version", new TextWriter("0.0.0"));
-        dispatch.put("/status", new StatusPageWriter(null));
+        dispatch.put("/status", new StatusPageWriter(statusPage));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPage.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPage.CSS_FILENAME, "text/css"));
     }
@@ -38,10 +38,6 @@ public class ApplicationInformationHandler {
         } else {
             response.reject(HTTP_NOT_FOUND, "try asking for .../status/");
         }
-    }
-
-    public void setStatusPage(StatusPage statusPage) {
-        dispatch.put("/status", new StatusPageWriter(statusPage));
     }
 
     private interface Handler {
