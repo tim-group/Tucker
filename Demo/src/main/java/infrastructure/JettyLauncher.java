@@ -13,9 +13,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.status.AvailableComponent;
 import com.timgroup.status.StatusPage;
-import com.timgroup.status.JarVersionComponent;
+import com.timgroup.status.component.AvailableComponent;
+import com.timgroup.status.component.JarVersionComponent;
 import com.timgroup.status.servlet.ApplicationInformationServlet;
 
 import static java.lang.Integer.parseInt;

@@ -1,6 +1,9 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
 
 import org.junit.Test;
+
+import com.timgroup.status.Status;
+import com.timgroup.status.component.JarVersionComponent;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,4 +1,7 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
+
+import com.timgroup.status.Report;
+import com.timgroup.status.Status;
 
 /**
  * Reports a version based on the metadata for a specified anchor class. The

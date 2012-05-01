@@ -1,7 +1,9 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
 
 import org.junit.Test;
 
+import com.timgroup.status.Status;
+import com.timgroup.status.component.ThresholdedGaugeComponent;
 import com.yammer.metrics.core.Gauge;
 
 import static org.junit.Assert.assertEquals;

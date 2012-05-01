@@ -1,4 +1,6 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
+
+import com.timgroup.status.Component;
 
 public abstract class VersionComponent extends Component {
 

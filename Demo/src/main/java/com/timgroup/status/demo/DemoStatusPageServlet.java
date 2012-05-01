@@ -4,8 +4,8 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import com.timgroup.status.StatusPage;
-import com.timgroup.status.ThresholdedGaugeComponent;
-import com.timgroup.status.JarVersionComponent;
+import com.timgroup.status.component.ThresholdedGaugeComponent;
+import com.timgroup.status.component.JarVersionComponent;
 import com.timgroup.status.servlet.ApplicationInformationServlet;
 import com.yammer.metrics.core.Gauge;
 

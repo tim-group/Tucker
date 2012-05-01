@@ -1,5 +1,6 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
 
+import com.timgroup.status.Status;
 import com.yammer.metrics.core.Gauge;
 
 public class ThresholdedGaugeComponent<T extends Comparable<T>> extends GaugeComponent<T> {

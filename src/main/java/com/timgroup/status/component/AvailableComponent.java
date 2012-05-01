@@ -1,6 +1,10 @@
-package com.timgroup.status;
+package com.timgroup.status.component;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.timgroup.status.Component;
+import com.timgroup.status.Report;
+import com.timgroup.status.Status;
 
 /**
  * Reports whether the application is accepting requests.
