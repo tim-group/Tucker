@@ -31,7 +31,32 @@ public class StatusPageHandlerTest {
         handler.handle("/version", response);
         
         verify(response).respond("text/plain", "UTF-8");
-        assertEquals("", responseContent.toString());
+        assertEquals("0.0.0", responseContent.toString());
     }
-
+    
+    @Test
+    public void responds_to_health_request() throws Exception {
+        final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
+        
+        final WebResponse response = mock(WebResponse.class);
+        when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
+        
+        handler.handle("/health", response);
+        
+        verify(response).respond("text/plain", "UTF-8");
+        assertEquals("healthy", responseContent.toString());
+    }
+    
+    @Test
+    public void responds_to_stoppable_request() throws Exception {
+        final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
+        
+        final WebResponse response = mock(WebResponse.class);
+        when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
+        
+        handler.handle("/stoppable", response);
+        
+        verify(response).respond("text/plain", "UTF-8");
+        assertEquals("safe", responseContent.toString());
+    }
 }

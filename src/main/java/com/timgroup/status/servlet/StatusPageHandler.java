@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,9 +26,18 @@ public class StatusPageHandler {
             OutputStream out = response.respond("text/xml", UTF_8);
             ApplicationReport report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
+        } else if (path.equals("/health")) {
+            OutputStream out = response.respond("text/plain", UTF_8);
+            out.write("healthy".getBytes(Charset.forName(UTF_8))); //or "unwell"
+            out.close();
+        } else if (path.equals("/stoppable")) {
+            OutputStream out = response.respond("text/plain", UTF_8);
+            out.write("safe".getBytes(Charset.forName(UTF_8))); //or "ill"
+            out.close();
         } else if (path.equals("/version")) {
             OutputStream out = response.respond("text/plain", UTF_8);
-            out.write("".getBytes());
+            out.write("0.0.0".getBytes(Charset.forName(UTF_8)));
+            out.close();
         } else if (path.equals("/" + StatusPage.DTD_FILENAME)) {
             sendResource(StatusPage.DTD_FILENAME, "application/xml-dtd", response);
         } else if (path.equals("/" + StatusPage.CSS_FILENAME)) {
