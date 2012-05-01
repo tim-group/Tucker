@@ -17,8 +17,7 @@ public class DemoStatusPageServlet extends ApplicationInformationServlet {
     }
     
     private static StatusPageGenerator statusPage() {
-        final StatusPageGenerator statusPage = new StatusPageGenerator("demoApp");
-        statusPage.addComponent(new JarVersionComponent(StatusPageGenerator.class));
+        final StatusPageGenerator statusPage = new StatusPageGenerator("demoApp", new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(new ThresholdedGaugeComponent<Integer>("timeUsed", "Time used this minute (sec)", timeUsedGauge(), 30, 50));
         return statusPage;
     }

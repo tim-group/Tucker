@@ -32,6 +32,7 @@ import org.xml.sax.SAXParseException;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import static org.junit.Assert.assertEquals;
@@ -46,9 +47,15 @@ public class StatusPageGeneratorTest {
     
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     
+    private final VersionComponent version = new VersionComponent() {
+        @Override public Report getReport() {
+            return new Report(Status.INFO, "0.0.1");
+        }
+    };
+    
     @Test
     public void unconfiguredStatusPageRendersBasicXMLStructure() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         
         long renderTime = System.currentTimeMillis();
         Document document = render(statusPage);
@@ -58,7 +65,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        assertEquals(0, root.getElementsByTagName("component").getLength());
+        assertEquals(1, root.getElementsByTagName("component").getLength());
         
         Element timestamp = getSingleElementByTagName(root, "timestamp");
         
@@ -67,7 +74,7 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             @Override
             public Report getReport() {
@@ -81,7 +88,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSingleElementByTagName(root, "component");
+        Element component = getSecondElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -90,7 +97,7 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void canAddANormativeComponentStatus() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
             @Override
             public Report getReport() {
@@ -104,7 +111,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSingleElementByTagName(root, "component");
+        Element component = getSecondElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -113,7 +120,7 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
             @Override
             public Report getReport() {
@@ -127,7 +134,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSingleElementByTagName(root, "component");
+        Element component = getSecondElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Eschatological immanency", component.getTextContent());
@@ -136,7 +143,7 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp");
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             @Override
             public Report getReport() {
@@ -150,7 +157,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSingleElementByTagName(root, "component");
+        Element component = getSecondElementByTagName(root, "component");
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Red wire or green wire: wrong wire", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
@@ -167,6 +174,12 @@ public class StatusPageGeneratorTest {
         NodeList elementsByTagName = element.getElementsByTagName(name);
         assertEquals(1, elementsByTagName.getLength());
         return (Element) elementsByTagName.item(0);
+    }
+    
+    private Element getSecondElementByTagName(Element element, String name) {
+        NodeList elementsByTagName = element.getElementsByTagName(name);
+        assertEquals(2, elementsByTagName.getLength());
+        return (Element) elementsByTagName.item(1);
     }
     
     private Document render(StatusPageGenerator statusPage) throws ParserConfigurationException, SAXException, IOException {

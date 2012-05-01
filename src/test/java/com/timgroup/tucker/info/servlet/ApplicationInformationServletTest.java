@@ -16,6 +16,9 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
@@ -29,6 +32,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ApplicationInformationServletTest {
+    
+    private final VersionComponent version = new VersionComponent() {
+        @Override public Report getReport() {
+            return new Report(Status.INFO, "0.0.1");
+        }
+    };
     
     @Test
     public void askingForStatusGetsXMLFromStatusPage() throws Exception {
@@ -79,7 +88,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version)).service(request, response);
         
         verify(response).sendRedirect("/Foo/info/status");
     }
@@ -91,7 +100,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version)).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
@@ -105,7 +114,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
         
-        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version)).service(request, response);
         
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/css");
@@ -123,7 +132,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/rubbish");
         HttpServletResponse response = mock(HttpServletResponse.class);
         
-        new ApplicationInformationServlet(new StatusPageGenerator("")).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version)).service(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), anyString());
     }
     

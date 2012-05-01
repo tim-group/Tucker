@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.component.VersionComponent;
 
 public class StatusPageGenerator {
     
@@ -19,11 +20,11 @@ public class StatusPageGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusPageGenerator.class);
     
     private final String applicationId;
-    private final List<Component> components;
+    private final List<Component> components = new ArrayList<Component>();
     
-    public StatusPageGenerator(String applicationId) {
+    public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
         this.applicationId = applicationId;
-        components = new ArrayList<Component>();
+        components.add(versionComponent);
     }
     
     public void addComponent(Component component) {

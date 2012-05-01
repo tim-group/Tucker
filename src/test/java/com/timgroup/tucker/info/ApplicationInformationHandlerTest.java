@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import org.junit.Test;
 
 import com.timgroup.tucker.info.ApplicationInformationHandler;
+import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
@@ -15,7 +16,13 @@ import static org.mockito.Mockito.when;
 
 public class ApplicationInformationHandlerTest {
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId"));
+    private final VersionComponent version = new VersionComponent() {
+        @Override public Report getReport() {
+            return new Report(Status.INFO, "0.0.1");
+        }
+    };
+    
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version));
     
     @Test
     public void responds_to_version_request() throws Exception {

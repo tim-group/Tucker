@@ -36,9 +36,8 @@ public class JettyLauncher {
         context.setContextPath("/");
         context.setMaxFormContentSize(0);
 
-        StatusPageGenerator statusPage = new StatusPageGenerator("reference-implementation");
+        StatusPageGenerator statusPage = new StatusPageGenerator("reference-implementation", new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(availableComponent);
-        statusPage.addComponent(new JarVersionComponent(StatusPageGenerator.class));
 
         ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage);
 
