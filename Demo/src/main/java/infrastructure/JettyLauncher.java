@@ -13,10 +13,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.status.StatusPage;
-import com.timgroup.status.component.AvailableComponent;
-import com.timgroup.status.component.JarVersionComponent;
-import com.timgroup.status.servlet.ApplicationInformationServlet;
+import com.timgroup.tucker.info.StatusPage;
+import com.timgroup.tucker.info.component.AvailableComponent;
+import com.timgroup.tucker.info.component.JarVersionComponent;
+import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
 
 import static java.lang.Integer.parseInt;
 

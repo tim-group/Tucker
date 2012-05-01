@@ -5,17 +5,12 @@
 	
 	<servlet>
 		<servlet-name>StatusServlet</servlet-name>
-		<servlet-class>com.timgroup.status.demo.DemoStatusPageServlet</servlet-class>
+		<servlet-class>com.timgroup.tucker.demo.DemoStatusPageServlet</servlet-class>
 	</servlet>
  
 	<servlet-mapping>
 		<servlet-name>StatusServlet</servlet-name>
-		<url-pattern>/status/*</url-pattern>
-	</servlet-mapping>
- 
-	<servlet-mapping>
-		<servlet-name>StatusServlet</servlet-name>
-		<url-pattern>/status</url-pattern>
+		<url-pattern>/info/*</url-pattern>
 	</servlet-mapping>
  
 </web-app>
