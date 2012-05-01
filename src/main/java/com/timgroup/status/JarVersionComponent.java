@@ -8,17 +8,13 @@ package com.timgroup.status;
  * <p>
  * See {@link http://docs.oracle.com/javase/6/docs/technotes/guides/jar/jar.html}
  */
-public class VersionComponent extends Component {
+public class JarVersionComponent extends Component {
     
     private final Class<?> anchorClass;
     
-    public VersionComponent(String id, String label, Class<?> anchorClass) {
-        super(id, label);
+    public JarVersionComponent(Class<?> anchorClass) {
+        super("version", "Version");
         this.anchorClass = anchorClass;
-    }
-    
-    public VersionComponent(Class<?> anchorClass) {
-        this("version", "Version", anchorClass);
     }
     
     @Override

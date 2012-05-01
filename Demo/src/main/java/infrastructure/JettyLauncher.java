@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.timgroup.status.AvailableComponent;
 import com.timgroup.status.StatusPage;
-import com.timgroup.status.VersionComponent;
+import com.timgroup.status.JarVersionComponent;
 import com.timgroup.status.servlet.ApplicationInformationServlet;
 
 import static java.lang.Integer.parseInt;
@@ -38,7 +38,7 @@ public class JettyLauncher {
 
         StatusPage statusPage = new StatusPage("reference-implementation");
         statusPage.addComponent(availableComponent);
-        statusPage.addComponent(new VersionComponent(StatusPage.class));
+        statusPage.addComponent(new JarVersionComponent(StatusPage.class));
 
         ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage);
 

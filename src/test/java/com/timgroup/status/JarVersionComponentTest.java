@@ -4,23 +4,23 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class VersionComponentTest {
+public class JarVersionComponentTest {
     
     @Test
     public void defaultIdAndLabelAreSuitable() throws Exception {
-        assertEquals("version", new VersionComponent(String.class).getId());
-        assertEquals("Version", new VersionComponent(String.class).getLabel());
+        assertEquals("version", new JarVersionComponent(String.class).getId());
+        assertEquals("Version", new JarVersionComponent(String.class).getLabel());
     }
     
     @Test
     public void reportStatusIsInfo() throws Exception {
-        assertEquals(Status.INFO, new VersionComponent(String.class).getReport().getStatus());
+        assertEquals(Status.INFO, new JarVersionComponent(String.class).getReport().getStatus());
     }
     
     @Test
     public void reportValueIsImplementationVersionOfPackageContainingAnchorClass() throws Exception {
         String jdkVersion = System.getProperty("java.version");
-        assertEquals(jdkVersion, new VersionComponent(String.class).getReport().getValue());
+        assertEquals(jdkVersion, new JarVersionComponent(String.class).getReport().getValue());
     }
     
 }
