@@ -10,7 +10,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
@@ -147,7 +146,11 @@ public class ApplicationInformationServletTest {
     
     private byte[] readFully(InputStream input) throws IOException {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        IOUtils.copy(input, output);
+        final byte[] buffer = new byte[1024];
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+        }
         return output.toByteArray();
     }
     

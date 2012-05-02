@@ -39,7 +39,6 @@ def slf4jVersion = '1.6.4'
 
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
 dependencies {
-    compile group: 'commons-io', name: 'commons-io', version: '2.3'
     compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
     compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2' // optional
     compile group: 'javax.servlet', name: 'servlet-api', version: '2.5' // optional

@@ -8,8 +8,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-
 import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -117,8 +115,16 @@ public class ApplicationInformationHandler {
                 return;
             }
             OutputStream out = response.respond(contentType, UTF_8);
-            IOUtils.copy(resource, out);
+            copy(resource, out);
             out.close();
+        }
+
+        private void copy(InputStream input, OutputStream output) throws IOException {
+            final byte[] buffer = new byte[1024];
+            int n = 0;
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+            }
         }
     }
 }
