@@ -3,7 +3,6 @@ package com.timgroup.tucker.info.component;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import javax.servlet.GenericServlet;
 import javax.servlet.ServletConfig;
 
 import com.timgroup.tucker.info.Report;
