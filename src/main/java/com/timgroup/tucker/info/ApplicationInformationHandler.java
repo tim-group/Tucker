@@ -116,8 +116,9 @@ public class ApplicationInformationHandler {
                 response.reject(HTTP_NOT_FOUND, "could not find resource with name " + resourceName);
                 return;
             }
-            OutputStream output = response.respond(contentType, UTF_8);
-            IOUtils.copy(resource, output);
+            OutputStream out = response.respond(contentType, UTF_8);
+            IOUtils.copy(resource, out);
+            out.close();
         }
     }
 }
