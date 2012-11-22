@@ -1,5 +1,7 @@
 package infrastructure;
 
+import static java.lang.Integer.parseInt;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -13,12 +15,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.tucker.info.status.StatusPageGenerator;
+import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.AvailableComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
-
-import static java.lang.Integer.parseInt;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class JettyLauncher {
 
@@ -39,7 +40,7 @@ public class JettyLauncher {
         StatusPageGenerator statusPage = new StatusPageGenerator("reference-implementation", new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(availableComponent);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE);
 
         context.getServletHandler().setStartWithUnavailable(false);
         context.addServlet(new ServletHolder(statusPageServlet), "/info/*");
