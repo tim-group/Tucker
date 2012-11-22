@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.timgroup.tucker.info.ApplicationInformationHandler;
+import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
@@ -16,24 +17,30 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
  */
 @SuppressWarnings("serial")
 public class ApplicationInformationServlet extends HttpServlet {
-    
+
     private final ApplicationInformationHandler handler;
     private final StatusPageGenerator statusPage;
-    
-    public ApplicationInformationServlet(StatusPageGenerator statusPage) {
+
+    /**
+     * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
+     */
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable) {
         this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable);
     }
-    
-    public ApplicationInformationServlet(String applicationId) {
+
+    /**
+     * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
+     */
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable) {
         this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable);
     }
-    
+
     public final StatusPageGenerator getStatusPageGenerator() {
         return statusPage;
     }
-    
+
     @Override
     protected final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         handler.handle(request.getPathInfo(), new ServletWebResponse(request, response));
