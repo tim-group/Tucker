@@ -1,5 +1,9 @@
 package com.timgroup.tucker.info;
 
+import static com.timgroup.tucker.info.Health.State.healthy;
+import static com.timgroup.tucker.info.Health.State.ill;
+import static com.timgroup.tucker.info.Stoppable.State.safe;
+import static com.timgroup.tucker.info.Stoppable.State.unwise;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,7 +14,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 
-import com.timgroup.tucker.info.Stoppable.State;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -18,6 +21,7 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 public class ApplicationInformationHandlerTest {
 
     private final Stoppable stoppable = mock(Stoppable.class);
+    private final Health health = mock(Health.class);
     private final AtomicReference<String> versionString = new AtomicReference<String>("0");
     private final VersionComponent version = new VersionComponent() {
         @Override public Report getReport() {
@@ -25,7 +29,7 @@ public class ApplicationInformationHandlerTest {
         }
     };
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable);
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health);
 
     @Test
     public void responds_to_version_request_when_null_version() throws Exception {
@@ -56,7 +60,9 @@ public class ApplicationInformationHandlerTest {
     }
 
     @Test
-    public void responds_to_health_request() throws Exception {
+    public void when_application_is_healthy_returns_healthy() throws Exception {
+        when(health.get()).thenReturn(healthy);
+
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
         final WebResponse response = mock(WebResponse.class);
@@ -69,9 +75,23 @@ public class ApplicationInformationHandlerTest {
     }
 
     @Test
-    public void when_application_is_stoppable_returns_safe() throws Exception {
+    public void when_application_is_not_healthy_returns_ill() throws Exception {
+        when(health.get()).thenReturn(ill);
+    	
+    	final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
-        when(stoppable.get()).thenReturn(State.safe);
+        final WebResponse response = mock(WebResponse.class);
+        when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
+
+        handler.handle("/health", response);
+
+        verify(response).respond("text/plain", "UTF-8");
+        assertEquals("ill", responseContent.toString());
+    }
+    
+    @Test
+    public void when_application_is_stoppable_returns_safe() throws Exception {
+        when(stoppable.get()).thenReturn(safe);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -87,7 +107,7 @@ public class ApplicationInformationHandlerTest {
     @Test
     public void when_application_is_not_stoppable_returns_unwise() throws Exception {
 
-        when(stoppable.get()).thenReturn(State.unwise);
+        when(stoppable.get()).thenReturn(unwise);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.timgroup.tucker.info.ApplicationInformationHandler;
+import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -24,17 +25,19 @@ public class ApplicationInformationServlet extends HttpServlet {
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable) {
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, 
+    									 Stoppable stoppable,
+    									 Health health) {
         this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }
 
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(String applicationId, Stoppable stoppable) {
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
         this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }
 
     public final StatusPageGenerator getStatusPageGenerator() {

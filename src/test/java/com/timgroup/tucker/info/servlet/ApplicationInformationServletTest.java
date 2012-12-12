@@ -1,6 +1,8 @@
 package com.timgroup.tucker.info.servlet;
 
+import static com.timgroup.tucker.info.Health.ALWAYS_HEALTHY;
 import static com.timgroup.tucker.info.Status.INFO;
+import static com.timgroup.tucker.info.Stoppable.ALWAYS_STOPPABLE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -26,7 +28,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -50,7 +51,7 @@ public class ApplicationInformationServletTest {
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
         when(response.getOutputStream()).thenReturn(out);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
         statusPageServlet.service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
@@ -88,7 +89,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), Stoppable.ALWAYS_STOPPABLE).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
 
         verify(response).sendRedirect("/Foo/info/status");
     }
@@ -100,7 +101,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), Stoppable.ALWAYS_STOPPABLE).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
@@ -114,7 +115,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), Stoppable.ALWAYS_STOPPABLE).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/css");
@@ -132,7 +133,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/rubbish");
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), Stoppable.ALWAYS_STOPPABLE).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), anyString());
     }
 

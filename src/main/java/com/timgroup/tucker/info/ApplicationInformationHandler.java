@@ -20,10 +20,10 @@ public class ApplicationInformationHandler {
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
 
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
-        dispatch.put("/health", new TextWriter("healthy")); // or "unwell"
+        dispatch.put("/health", new HealthWriter(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
         dispatch.put("/status", new StatusPageWriter(statusPage));
@@ -31,7 +31,7 @@ public class ApplicationInformationHandler {
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
     }
 
-    public void handle(String path, WebResponse response) throws IOException {
+	public void handle(String path, WebResponse response) throws IOException {
         if (dispatch.containsKey(path)) {
             dispatch.get(path).handle(response);
         } else {
@@ -69,16 +69,16 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class TextWriter implements Handler {
-        private final String text;
+    private static final class HealthWriter implements Handler {
+		private Health health;
 
-        public TextWriter(String text) {
-            this.text = text;
+        public HealthWriter(Health health) {
+            this.health = health;
         }
 
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(text.getBytes(Charset.forName(UTF_8)));
+            out.write(health.get().name().getBytes(Charset.forName(UTF_8)));
             out.close();
         }
     }
