@@ -69,7 +69,7 @@ uploadArchives {
 
 eclipse {
     classpath {
-        defaultOutputDir = project.sourceSets.main.output.classesDir
+        defaultOutputDir = file('.eclipse')
     }
 }
 

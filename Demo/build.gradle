@@ -41,3 +41,9 @@ jar {
 }
 
 httpPort = 8888
+
+eclipse {
+    classpath {
+        defaultOutputDir = file('.eclipse')
+    }
+}
