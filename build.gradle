@@ -42,13 +42,19 @@ dependencies {
     testRuntime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
 }
 
-task sourcesJar(type: Jar, dependsOn:classes) {
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+ 
+task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
 
 uploadArchives {
