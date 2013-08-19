@@ -7,6 +7,7 @@ if (doSigning) {
 apply plugin: 'eclipse'
 
 group = 'com.timgroup'
+ext.url = 'https://github.com/youdevise/Tucker'
 
 def majorVersion = 1
 def minorVersion = 0
@@ -38,7 +39,7 @@ jar {
             'Implementation-Version': project.version,
             'Implementation-Vendor': 'youDevise Ltd',
             'Implementation-Vendor-Id': project.group,
-            'Implementation-URL': 'https://github.com/youdevise/Tucker'
+            'Implementation-URL': project.url
         )
     }
 }
@@ -77,6 +78,40 @@ artifacts {
     archives javadocJar
 }
 
+task pom {
+    ext.pom = pom {
+        project {
+            name project.name
+            description 'Tucker is a small library for gently and politely helping with the communication and management of application status.'
+            url project.url
+            
+            packaging 'jar'
+            
+            scm {
+                url "scm:${project.url}"
+                connection 'scm:git:https://github.com/youdevise/Tucker.git'
+                developerConnection 'scm:git:git://github.com/youdevise/Tucker.git'
+            }
+            
+            licenses {
+                license {
+                    name 'The BSD 2-Clause License'
+                    url 'http://opensource.org/licenses/BSD-2-Clause'
+                    distribution 'repo'
+                }
+            }
+            
+            developers {
+                developer {
+                    email 'opensource@timgroup.com'
+                }
+            }
+        }
+    }
+} << {
+    pom.writeTo("$buildDir/pom.xml")
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -89,9 +124,12 @@ uploadArchives {
             repository(url: "${project.repoUrl}/repositories/yd-release-candidates") {
                 authentication(userName: project.repoUsername, password: project.repoPassword)
             }
+            
+            pom = tasks.pom.pom
         }
     }
 }
+uploadArchives.dependsOn pom
 
 if (doSigning) {
     signing {
