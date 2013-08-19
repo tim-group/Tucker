@@ -80,6 +80,12 @@ artifacts {
 uploadArchives {
     repositories {
         mavenDeployer {
+            if (doSigning) {
+                beforeDeployment { deployment ->
+                    signing.signPom(deployment)
+                }
+            }
+            
             repository(url: "${project.repoUrl}/repositories/yd-release-candidates") {
                 authentication(userName: project.repoUsername, password: project.repoPassword)
             }
