@@ -10,10 +10,21 @@ group = 'com.timgroup'
 
 def majorVersion = 1
 def minorVersion = 0
-def isReleaseVersion = System.getenv('BUILD_NUMBER') != null
-def patchVersion = isReleaseVersion ? System.getenv('BUILD_NUMBER') : new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone('UTC'))
-def patchSeparator = isReleaseVersion ? '.' : '-'
-version = "${majorVersion}.${minorVersion}${patchSeparator}${patchVersion}"
+
+if ("".equals(System.getenv('BUILD_NUMBER'))) {
+    // release builds; manually bump major and/or minor version numbers before building
+    version = "${majorVersion}.${minorVersion}"
+}
+else if (System.getenv('BUILD_NUMBER') != null) {
+    // CI builds
+    def buildNumber = System.getenv('BUILD_NUMBER')
+    version = "${majorVersion}.${minorVersion}.${buildNumber}"
+}
+else {
+    // dev builds
+    def timestamp = new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone('UTC'))
+    version = "${majorVersion}.${minorVersion}-${timestamp}"
+}
 
 jar {
     manifest { 
