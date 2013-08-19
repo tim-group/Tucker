@@ -11,17 +11,22 @@ group = 'com.timgroup'
 def majorVersion = 1
 def minorVersion = 0
 
-if ("".equals(System.getenv('BUILD_NUMBER'))) {
-    // release builds; manually bump major and/or minor version numbers before building
-    version = "${majorVersion}.${minorVersion}"
+/** for Maven Central; manually bump major and/or minor version numbers before building */
+def isPublicRelease() {
+    return "".equals(System.getenv('BUILD_NUMBER'))
 }
-else if (System.getenv('BUILD_NUMBER') != null) {
-    // CI builds
+
+/** CI builds */
+def isPrivateRelease() {
+    return !isPublicRelease() && System.getenv('BUILD_NUMBER') != null
+}
+
+if (isPublicRelease()) {
+    version = "${majorVersion}.${minorVersion}"
+} else if (isPrivateRelease()) {
     def buildNumber = System.getenv('BUILD_NUMBER')
     version = "${majorVersion}.${minorVersion}.${buildNumber}"
-}
-else {
-    // dev builds
+} else /* dev build */ {
     def timestamp = new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone('UTC'))
     version = "${majorVersion}.${minorVersion}-${timestamp}"
 }
