@@ -4,3 +4,4 @@ build
 .classpath
 .project
 .eclipse
+gradle.properties

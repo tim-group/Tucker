@@ -20,6 +20,44 @@ This builds a jar file in ``build/libs``. To use this in other projects, you mig
 
 The build scripts are written to work in the authors' development environment. If you are not in the authors' development environment, you might need to tweak them slightly. In particular, the ``mavenRepo`` lines should be replaced with ``mavenCentral()``. The authors are working on making this better.
 
+How do i know the artifacts are kosher?
+=======================================
+
+The artifacts are signed with GPG key 83C61133, fingerprint 03EE E3B3 8FC8 2905 71C7  A7AA 7BB1 B35B 83C6 1133, `owned by`_ Tom Anderson <tom.anderson@timgroup.com>::
+
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: GnuPG v1.4.11 (GNU/Linux)
+    
+    mQENBFIOSpYBCACVf65DevXFOCQSzuUoKvMxYvIQAbwXzl7Zmnq2qR8M4E6IpHK+
+    fqgD0Dn0vTV9j2uYZZjCCYS3ZqB3n/6lmmUBgZtOYHyD51RUK9W3wzQxS9w+RQ38
+    bD1S9zRBDWUdMKf87GyzUDXu2lSPIvacntwdJM8vsgyjxxBtTbwMM+dCG4+aD0x7
+    0CQib1/3tyo8tWcrZy+BiPdEZQMTkCr7oYWnKB8Z8K3aPyNPCxu4xBqc8kn9aWHd
+    c0j6WLfaYhgdhLY5qNaPWwxgt6F+3exMlcThAG10na4mREHjs/mArCl/Y+64sy1o
+    xX4IIeEa96ZtKbNwwHj32RisCxDAc/GTHM45ABEBAAG0KFRvbSBBbmRlcnNvbiA8
+    dG9tLmFuZGVyc29uQHRpbWdyb3VwLmNvbT6JATgEEwECACIFAlIOSpYCGwMGCwkI
+    BwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEHuxs1uDxhEz+XoH/0Y1zB8Bc3aWmnv9
+    Xg25mK4oVc/nZjmhHYuAhIKC+x7XmwAnxQcsOZsIPfoPv4BTngDkAQxjQHTlE3QG
+    xVGGhAwPlVETrR2e7VqV0vs+14+4gGGEzvO1l+Y8mlBvb5HewvoZm+x6aTMQJJsq
+    ZtGJp1sjWGPuFGqwj7MzTV+DJJRbWbz8JSDd3ETRbJvWCfwhtrHKbS9wZ8P64Zk/
+    plfpszdizdIcFIwO6Py9KwZwDIL5r9ilF4eOtDwL7H9uEcsL9rnaOJZWdh/6EHC3
+    +qMnpUOV1w+z2v4Bz1nxE8ygPYi/+B0zvEmc3w+BuH3iwzt09EqzCRMd3QQf1QRX
+    2KEuXbm5AQ0EUg5KlgEIAL+0CP62xvYRzxSi4f/H3faf/h7VgVFIafxNqwiyEUxs
+    vWgxwy8y7s5z8pTUWbGO40ZlGRqkRkine9OP3d2HZwYK8IHAenjB4TWDGeN68qih
+    FH7OmjvXIYgUFMgqBfj77QW/swuIPkbPsObIZ3r7/l/+i+4r2bZJkn9gBik7+ecA
+    VVsZYoc13+kvHi0Pf++6stS7XzRShFHejzJb1hT67R522lPoUNP5VDPKJ/P0EaeQ
+    C/QQAo4UQYbngteXOIvTAyCOzMoZQaQogsytxRJOc98X6pLbS7MHUT3bIZG6Zgii
+    EYQhwp3qkGN5XdpDarvVhgQuaG4HgjPNLFqs/Fcks1UAEQEAAYkBHwQYAQIACQUC
+    Ug5KlgIbDAAKCRB7sbNbg8YRM3IMCACPA2X6IOzpiEJXErKpXdpJv/D4boZuKWno
+    LSwQwSFx5A0HjN58WiimOWkH8lHqZEv89k7Z84Z26yceISnjTDW3mP6IHR6nTZp+
+    bwIhfvVbnv7AW4Zm7wO8WILOjnYa57KnKarv4UDlqw2IgNFn0ckpHJ5r1DCW3TXU
+    cLEB9y2hKZVRgMBpMHSIT4wbsREECwGRi0X6Vb6hpxDPU1hVjN7bRmNM/375bqST
+    RuHUEWTcHaoAz1ydsmDM+OXxcZ7kqLC2eaJO/GqdW9yRlLouAbQnaFQ4GarabRlU
+    m5aVshxAVJVttP5uiKDyKtQmP0d8doeyCh3MeyCSvrpzW5AwcDH+
+    =VGX1
+    -----END PGP PUBLIC KEY BLOCK-----
+
+.. _owned by: http://pool.sks-keyservers.net:11371/pks/lookup?op=vindex&search=tom.anderson%40timgroup.com
+
 How do i use it?
 ================
 

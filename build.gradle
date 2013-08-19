@@ -1,5 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+def doSigning = gradle.startParameter.taskNames.contains("signArchives")
+if (doSigning) {
+    apply plugin: 'signing'
+}
 apply plugin: 'eclipse'
 
 group = 'com.timgroup'
@@ -64,6 +68,16 @@ uploadArchives {
                 authentication(userName: project.repoUsername, password: project.repoPassword)
             }
         }
+    }
+}
+
+if (doSigning) {
+    signing {
+        sign configurations.archives
+    }
+    
+    signArchives.doFirst {
+        assert file('gradle.properties').isFile(), "in order to sign anything, you need to supply signing properties via gradle.properties - see http://www.gradle.org/docs/current/userguide/signing_plugin.html"
     }
 }
 
