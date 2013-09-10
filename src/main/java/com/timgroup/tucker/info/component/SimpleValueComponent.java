@@ -6,7 +6,7 @@ import com.timgroup.tucker.info.Status;
 
 public final class SimpleValueComponent extends Component {
 
-    private Report state = new Report(Status.INFO, "");
+    private volatile Report state = new Report(Status.INFO, "");
 
     public SimpleValueComponent(String id, String label) {
         super(id, label);
