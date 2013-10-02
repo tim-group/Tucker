@@ -7,19 +7,21 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
 public final class ServletVersionComponent extends VersionComponent {
-    static private final String UNINITIALIZED = "Uninitialized version";
+    private static final String UNINITIALIZED = "Uninitialized version";
+
     private final ServletConfig servlet;
     private String version = UNINITIALIZED;
 
     public ServletVersionComponent(ServletConfig servlet) {
         this.servlet = servlet;
     }
-    
+
     @Override
     public Report getReport() {
         return new Report(Status.INFO, getVersion());
@@ -27,21 +29,22 @@ public final class ServletVersionComponent extends VersionComponent {
 
     private String getVersion() {
         if (version == UNINITIALIZED) {
-            InputStream manifestStream = null;
-            try {
-                manifestStream = servlet.getServletContext().getResourceAsStream("/META-INF/MANIFEST.MF");
-                Manifest manifest = new Manifest(manifestStream);
-                Attributes attributes = manifest.getMainAttributes();
-                version = attributes.getValue("Implementation-Version");
-            } catch (Exception e) {
-                version = null; 
-            } finally {
-                if (manifestStream != null) {
-                    closeSilently(manifestStream);
-                }
-            }
+            version = loadVersion(servlet.getServletContext());
         }
         return version;
+    }
+
+    public static String loadVersion(ServletContext servletContext) {
+        InputStream manifestStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
+        try {
+            Manifest manifest = new Manifest(manifestStream);
+            Attributes attributes = manifest.getMainAttributes();
+            return attributes.getValue("Implementation-Version");
+        } catch (Exception e) {
+            return null;
+        } finally {
+            closeSilently(manifestStream);
+        }
     }
 
     private static void closeSilently(Closeable closeable) {
