@@ -15,11 +15,11 @@ import com.timgroup.tucker.info.Status;
 public final class ServletVersionComponent extends VersionComponent {
     private static final String UNINITIALIZED = "Uninitialized version";
 
-    private final ServletConfig servlet;
+    private final ServletContext context;
     private String version = UNINITIALIZED;
 
     public ServletVersionComponent(ServletConfig servlet) {
-        this.servlet = servlet;
+        this.context = servlet.getServletContext();
     }
 
     @Override
@@ -29,21 +29,26 @@ public final class ServletVersionComponent extends VersionComponent {
 
     private String getVersion() {
         if (version == UNINITIALIZED) {
-            version = loadVersion(servlet.getServletContext());
+            version = loadVersion(context);
         }
         return version;
     }
 
     public static String loadVersion(ServletContext servletContext) {
-        InputStream manifestStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
         try {
-            Manifest manifest = new Manifest(manifestStream);
-            Attributes attributes = manifest.getMainAttributes();
-            return attributes.getValue("Implementation-Version");
+            InputStream manifestStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
+            if (manifestStream == null) {
+                return null;
+            }
+            try {
+                Manifest manifest = new Manifest(manifestStream);
+                Attributes attributes = manifest.getMainAttributes();
+                return attributes.getValue("Implementation-Version");
+            } finally {
+                closeSilently(manifestStream);
+            }
         } catch (Exception e) {
             return null;
-        } finally {
-            closeSilently(manifestStream);
         }
     }
 

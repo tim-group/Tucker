@@ -1,9 +1,9 @@
 package com.timgroup.tucker.info.component;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +52,9 @@ public final class ServletVersionComponentTest {
     @Test
     public void reportHasNoValueIfExceptionThrown() throws Exception {
         final ServletConfig servlet = mock(ServletConfig.class);
-     
-        when(servlet.getServletContext()).thenThrow(new RuntimeException("Failed"));
+        final ServletContext context = mock(ServletContext.class);
+        when(servlet.getServletContext()).thenReturn(context);
+        when(context.getResourceAsStream("/META-INF/MANIFEST.MF")).thenThrow(new RuntimeException("Failed"));
 
         assertFalse(new ServletVersionComponent(servlet).getReport().hasValue());
     }
