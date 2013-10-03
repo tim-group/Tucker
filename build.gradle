@@ -46,7 +46,12 @@ jar {
 
 repositories {
     mavenLocal()
-    mavenRepo url: "${repoUrl}/groups/public"
+    if (project.hasProperty('repoUrl')) {
+        mavenRepo url: "${project.repoUrl}/groups/public"
+    }
+    else {
+        mavenCentral()
+    }
 }
 
 def slf4jVersion = '1.6.4'
@@ -121,8 +126,10 @@ uploadArchives {
                 }
             }
             
-            repository(url: "${project.repoUrl}/repositories/yd-release-candidates") {
-                authentication(userName: project.repoUsername, password: project.repoPassword)
+            if (project.hasProperty('repoUrl')) {
+                repository(url: "${project.repoUrl}/repositories/yd-release-candidates") {
+                    authentication(userName: project.repoUsername, password: project.repoPassword)
+                }
             }
             
             pom = tasks.pom.pom
