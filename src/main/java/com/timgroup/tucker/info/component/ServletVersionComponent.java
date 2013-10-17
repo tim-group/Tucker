@@ -15,11 +15,11 @@ import com.timgroup.tucker.info.Status;
 public final class ServletVersionComponent extends VersionComponent {
     private static final String UNINITIALIZED = "Uninitialized version";
 
-    private final ServletContext context;
+    private final ServletConfig config;
     private String version = UNINITIALIZED;
 
-    public ServletVersionComponent(ServletConfig servlet) {
-        this.context = servlet.getServletContext();
+    public ServletVersionComponent(ServletConfig config) {
+        this.config = config;
     }
 
     @Override
@@ -29,7 +29,7 @@ public final class ServletVersionComponent extends VersionComponent {
 
     private String getVersion() {
         if (version == UNINITIALIZED) {
-            version = loadVersion(context);
+            version = loadVersion(config.getServletContext());
         }
         return version;
     }
