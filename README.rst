@@ -18,8 +18,6 @@ This builds a jar file in ``build/libs``. To use this in other projects, you mig
 
     gradle install
 
-The build scripts are written to work in the authors' development environment. If you are not in the authors' development environment, you might need to tweak them slightly. In particular, the ``mavenRepo`` lines should be replaced with ``mavenCentral()``. The authors are working on making this better.
-
 How do i know the artifacts are kosher?
 =======================================
 
