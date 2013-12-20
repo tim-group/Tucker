@@ -54,7 +54,7 @@ repositories {
     }
 }
 
-def slf4jVersion = '1.6.4'
+def slf4jVersion = '1.7.5'
 
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
 dependencies {
@@ -62,7 +62,7 @@ dependencies {
     compile group: 'com.yammer.metrics', name: 'metrics-core', version: '2.0.2' // optional
     compile group: 'javax.servlet', name: 'servlet-api', version: '2.5' // optional
     
-    testCompile group: 'junit', name: 'junit', version: '4.10'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.8.5'
     
     testRuntime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
