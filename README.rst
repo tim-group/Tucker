@@ -10,7 +10,7 @@ The second part does not yet exist.
 How do i build it?
 ==================
 
-With Gradle (http://www.gradle.org/). We are using milestone 9, and we suggest you use that. To build, simply do::
+With Gradle (http://www.gradle.org/). We are using version 1.7. To build, simply do::
 
     gradle clean build
 
