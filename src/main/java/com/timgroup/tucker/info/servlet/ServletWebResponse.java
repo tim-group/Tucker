@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.timgroup.tucker.info.WebResponse;
+
 public class ServletWebResponse implements WebResponse {
     
     private final HttpServletRequest request;

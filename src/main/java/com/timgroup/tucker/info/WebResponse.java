@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info.servlet;
+package com.timgroup.tucker.info;
 
 import java.io.IOException;
 import java.io.OutputStream;

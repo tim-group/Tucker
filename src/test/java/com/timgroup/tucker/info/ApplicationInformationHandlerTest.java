@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 import com.timgroup.tucker.info.component.VersionComponent;
-import com.timgroup.tucker.info.servlet.WebResponse;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class ApplicationInformationHandlerTest {
