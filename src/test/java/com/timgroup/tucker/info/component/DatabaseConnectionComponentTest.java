@@ -13,7 +13,9 @@ import com.timgroup.tucker.info.component.DatabaseConnectionComponent.Connection
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public final class DatabaseConnectionComponentTest {
@@ -74,7 +76,7 @@ public final class DatabaseConnectionComponentTest {
         when(connection.createStatement()).thenThrow(new SQLException("foo"));
 
         new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     @Test
@@ -82,7 +84,7 @@ public final class DatabaseConnectionComponentTest {
         final Connection connection = mock(Connection.class);
         when(connectionProvider.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenAnswer(RETURNS_MOCKS);
-        Mockito.doThrow(new SQLException("boz")).when(connection).close();
+        doThrow(new SQLException("boz")).when(connection).close();
 
         final Report report = new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         assertEquals(Status.CRITICAL, report.getStatus());
