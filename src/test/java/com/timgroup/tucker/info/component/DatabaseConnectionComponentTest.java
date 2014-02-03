@@ -1,10 +1,5 @@
 package com.timgroup.tucker.info.component;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,16 +11,14 @@ import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.DatabaseConnectionComponent.ConnectionProvider;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public final class DatabaseConnectionComponentTest {
 
     private final ConnectionProvider connectionProvider = mock(ConnectionProvider.class);
-
-    @Test
-    public void hasSuitableDefaultIdAndLabel() throws Exception {
-        final DatabaseConnectionComponent component = new DatabaseConnectionComponent(connectionProvider);
-        assertEquals("databaseConnection", component.getId());
-        assertEquals("Connection to Database", component.getLabel());
-    }
 
     @Test
     public void canBeGivenCustomisedIdAndLabel() throws Exception {
@@ -38,14 +31,14 @@ public final class DatabaseConnectionComponentTest {
     public void reportsOkIfAllIsWell() throws Exception {
         when(connectionProvider.getConnection()).thenAnswer(RETURNS_MOCKS);
 
-        assertEquals(Status.OK, new DatabaseConnectionComponent(connectionProvider).getReport().getStatus());
+        assertEquals(Status.OK, new DatabaseConnectionComponent("id", "label", connectionProvider).getReport().getStatus());
     }
 
     @Test
     public void reportsCriticalIfConnectionCannotBeObtained() throws Exception {
         when(connectionProvider.getConnection()).thenThrow(new SQLException("foo"));
-        
-        final Report report = new DatabaseConnectionComponent(connectionProvider).getReport();
+
+        final Report report = new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         assertEquals(Status.CRITICAL, report.getStatus());
         assertEquals("foo", report.getValue());
     }
@@ -56,7 +49,7 @@ public final class DatabaseConnectionComponentTest {
         when(connectionProvider.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenThrow(new SQLException("bar"));
 
-        final Report report = new DatabaseConnectionComponent(connectionProvider).getReport();
+        final Report report = new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         assertEquals(Status.CRITICAL, report.getStatus());
         assertEquals("bar", report.getValue());
     }
@@ -69,7 +62,7 @@ public final class DatabaseConnectionComponentTest {
         when(connection.createStatement()).thenReturn(statement);
         when(statement.executeQuery(Mockito.anyString())).thenThrow(new SQLException("baz"));
 
-        final Report report = new DatabaseConnectionComponent(connectionProvider).getReport();
+        final Report report = new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         assertEquals(Status.CRITICAL, report.getStatus());
         assertEquals("baz", report.getValue());
     }
@@ -80,7 +73,7 @@ public final class DatabaseConnectionComponentTest {
         when(connectionProvider.getConnection()).thenReturn(connection);
         when(connection.createStatement()).thenThrow(new SQLException("foo"));
 
-        new DatabaseConnectionComponent(connectionProvider).getReport();
+        new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         Mockito.verify(connection).close();
     }
 
@@ -91,7 +84,7 @@ public final class DatabaseConnectionComponentTest {
         when(connection.createStatement()).thenAnswer(RETURNS_MOCKS);
         Mockito.doThrow(new SQLException("boz")).when(connection).close();
 
-        final Report report = new DatabaseConnectionComponent(connectionProvider).getReport();
+        final Report report = new DatabaseConnectionComponent("id", "label", connectionProvider).getReport();
         assertEquals(Status.CRITICAL, report.getStatus());
         assertEquals("boz", report.getValue());
     }

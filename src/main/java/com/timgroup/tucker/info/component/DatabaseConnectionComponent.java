@@ -9,17 +9,12 @@ import com.timgroup.tucker.info.Status;
 
 /**
  * Reports whether the application can connect to the database.
- * 
  */
 public final class DatabaseConnectionComponent extends Component {
     private final ConnectionProvider connectionProvider;
 
     public interface ConnectionProvider {
         Connection getConnection() throws SQLException;
-    }
-
-    public DatabaseConnectionComponent(ConnectionProvider connectionProvider) {
-        this("databaseConnection", "Connection to Database", connectionProvider);
     }
 
     public DatabaseConnectionComponent(String id, String label, ConnectionProvider connectionProvider) {
