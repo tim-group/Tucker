@@ -27,8 +27,10 @@ public final class DatabaseConnectionComponent extends Component {
         Connection dbConnection = null;
         try {
             dbConnection = connectionProvider.getConnection();
+            final long before = System.currentTimeMillis();
             dbConnection.createStatement().executeQuery("select 1;");
-            return new Report(Status.OK);
+            final long after = System.currentTimeMillis();
+            return new Report(Status.OK, (after - before) + "ms" );
         } catch (SQLException e) {
             return new Report(Status.CRITICAL, e.getMessage());
         } finally {
