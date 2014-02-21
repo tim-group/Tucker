@@ -16,6 +16,10 @@ import com.timgroup.tucker.info.Report;
 public class FileDescriptorComponent extends Component {
     private FileDescriptorProvider fileDescriptorProvider;
 
+    public FileDescriptorComponent() {
+        this(new FileDescriptorProvider());
+    }
+    
     public FileDescriptorComponent(FileDescriptorProvider fileDescriptorProvider) {
         super("FileDescriptorComponent", "Used file descriptors");
         this.fileDescriptorProvider = fileDescriptorProvider;
