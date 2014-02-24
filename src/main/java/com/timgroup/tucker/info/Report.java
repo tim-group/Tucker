@@ -75,4 +75,9 @@ public final class Report {
 			return false;
 		return true;
 	}
+
+    @Override
+    public String toString() {
+        return "Report [status=" + status + ", value=" + value + "]";
+    }
 }
