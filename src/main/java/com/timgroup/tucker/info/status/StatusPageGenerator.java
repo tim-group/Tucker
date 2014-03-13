@@ -17,7 +17,10 @@ public class StatusPageGenerator {
     
     public static final String DTD_FILENAME = "status-page.dtd";
     public static final String CSS_FILENAME = "status-page.css";
-    
+
+    public static final String COMPONENT_STATUS_FORMAT = "{\"eventType\": \"ComponentStatus\", "
+            +" \"event\": {\"id\": \"{}\", \"label\": \"{}\", \"status\": \"{}\", \"value\": \"{}\"}}";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusPageGenerator.class);
     
     private final String applicationId;
@@ -46,7 +49,7 @@ public class StatusPageGenerator {
             }
 
             if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {
-                LOGGER.info("{\"eventType\": \"ComponentStatus\", \"event\": {\"id\": \"{}\", \"label\": \"{}\", \"status\": \"{}\", \"value\": \"{}\"}}", component.getId(), component.getLabel(), report.getStatus(), report.getValue());
+                LOGGER.info(COMPONENT_STATUS_FORMAT, component.getId(), component.getLabel(), report.getStatus(), report.getValue());
             }
 
             componentReports.put(component, report);
