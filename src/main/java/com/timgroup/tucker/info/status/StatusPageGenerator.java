@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.timgroup.tucker.info.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,11 @@ public class StatusPageGenerator {
                 LOGGER.error("exception getting report from component {}", component.getId(), e);
                 report = new Report(e);
             }
+
+            if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {
+                LOGGER.info("{\"eventType\": \"ComponentStatus\", \"event\": {\"id\": \"{}\", \"label\": \"{}\", \"status\": \"{}\", \"value\": \"{}\"}}", component.getId(), component.getLabel(), report.getStatus(), report.getValue());
+            }
+
             componentReports.put(component, report);
         }
         return new StatusPage(applicationId, componentReports);
