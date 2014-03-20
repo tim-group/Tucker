@@ -65,6 +65,7 @@ public class ApplicationInformationHandler {
             OutputStream out = response.respond("text/xml", UTF_8);
             StatusPage report = statusPage.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
+            out.close();
         }
     }
 

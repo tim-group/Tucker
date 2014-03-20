@@ -5,17 +5,21 @@ import static com.timgroup.tucker.info.Health.State.ill;
 import static com.timgroup.tucker.info.Stoppable.State.safe;
 import static com.timgroup.tucker.info.Stoppable.State.unwise;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import org.mockito.Mockito;
 
 public class ApplicationInformationHandlerTest {
 
@@ -117,5 +121,17 @@ public class ApplicationInformationHandlerTest {
 
         verify(response).respond("text/plain", "UTF-8");
         assertEquals("unwise", responseContent.toString());
+    }
+
+    @Test
+    public void when_status_page_is_served_the_stream_is_closed() throws IOException {
+        final OutputStream responseContent = mock(OutputStream.class);
+
+        final WebResponse response = mock(WebResponse.class);
+        when(response.respond(anyString(), anyString())).thenReturn(responseContent);
+
+        handler.handle("/status", response);
+
+        verify(responseContent).close();
     }
 }
