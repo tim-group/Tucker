@@ -19,12 +19,12 @@ public class PermGenComponent extends Component {
     public PermGenComponent() {
         this(new PermGenProvider());
     }
-    
+
     public PermGenComponent(PermGenProvider permGenProvider) {
-        super("PermGenComponent", "PermGenComponent");
+        super("permGenUsage", "PermGen Memory Usage");
         this.permGenProvider = permGenProvider;
     }
-    
+
     public static class PermGenProvider {
         private MemoryPoolMXBean permGenPool;
 
