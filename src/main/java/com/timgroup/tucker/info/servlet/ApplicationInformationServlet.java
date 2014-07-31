@@ -11,6 +11,7 @@ import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;
+import com.timgroup.tucker.info.status.ApplicationReportGenerator;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 /**
@@ -40,7 +41,7 @@ public class ApplicationInformationServlet extends HttpServlet {
         this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }
 
-    public final StatusPageGenerator getStatusPageGenerator() {
+    public final ApplicationReportGenerator getStatusPageGenerator() {
         return statusPage;
     }
 
