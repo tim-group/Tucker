@@ -69,7 +69,7 @@ public class ApplicationInformationServer {
 
         @Override
         public Thread newThread(Runnable r) {
-            Thread thread = new Thread("Tucker-" + threadNumber.getAndIncrement());
+            Thread thread = new Thread(r, "Tucker-" + threadNumber.getAndIncrement());
             thread.setDaemon(false);
             return thread;
         }
