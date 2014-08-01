@@ -56,5 +56,4 @@ public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
             throw consolidatedException;
         }
     }
-
 }

@@ -21,12 +21,12 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 public class ApplicationInformationServlet extends HttpServlet {
 
     private final ApplicationInformationHandler handler;
-    private final ApplicationReportGenerator statusPage;
+    private final StatusPageGenerator statusPage;
 
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(ApplicationReportGenerator statusPage, Stoppable stoppable, Health health) {
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         this.statusPage = statusPage;
         this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }
@@ -44,7 +44,8 @@ public class ApplicationInformationServlet extends HttpServlet {
     }
 
     @Override
-    protected final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+            IOException {
         handler.handle(request.getPathInfo(), new ServletWebResponse(request, response));
     }
 }

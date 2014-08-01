@@ -1,12 +1,13 @@
 package com.timgroup.tucker.info.httpserver;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,8 +16,6 @@ import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.status.ApplicationReportGenerator;
-
-import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class ApplicationInformationServer {
 
