@@ -11,6 +11,7 @@ import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;
+import com.timgroup.tucker.info.status.ApplicationReportGenerator;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 /**
@@ -20,12 +21,12 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 public class ApplicationInformationServlet extends HttpServlet {
 
     private final ApplicationInformationHandler handler;
-    private final StatusPageGenerator statusPage;
+    private final ApplicationReportGenerator statusPage;
 
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, 
+    public ApplicationInformationServlet(ApplicationReportGenerator statusPage, 
     									 Stoppable stoppable,
     									 Health health) {
         this.statusPage = statusPage;
@@ -40,7 +41,7 @@ public class ApplicationInformationServlet extends HttpServlet {
         this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }
 
-    public final StatusPageGenerator getStatusPageGenerator() {
+    public final ApplicationReportGenerator getStatusPageGenerator() {
         return statusPage;
     }
 

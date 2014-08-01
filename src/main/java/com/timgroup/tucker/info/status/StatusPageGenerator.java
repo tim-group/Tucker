@@ -13,7 +13,7 @@ import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.component.VersionComponent;
 
-public class StatusPageGenerator {
+public class StatusPageGenerator implements ApplicationReportGenerator {
     
     public static final String DTD_FILENAME = "status-page.dtd";
     public static final String CSS_FILENAME = "status-page.css";
@@ -37,6 +37,7 @@ public class StatusPageGenerator {
         components.add(component);
     }
     
+    @Override
     public StatusPage getApplicationReport() {
         Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
         for (Component component : components) {
@@ -57,6 +58,7 @@ public class StatusPageGenerator {
         return new StatusPage(applicationId, componentReports);
     }
 
+    @Override
     public Component getVersionComponent() {
         return versionComponent;
     }

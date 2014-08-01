@@ -1,0 +1,159 @@
+package com.timgroup.tucker.info.status;
+
+import static com.timgroup.tucker.info.Status.WARNING;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
+
+public class AsyncComponent extends Component {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
+
+    private final AtomicReference<Report> current = new AtomicReference<Report>();
+    private final AtomicReference<Date> lastRunTimeStamp;
+    
+    private final Component wrapped;
+    private final ScheduledExecutorService executor;
+    private final Clock clock;
+    private final Consumer statusUpdateHook;
+    private final long repeat;
+    private final TimeUnit repeatTimeUnit;
+    private final long stalenessLimit;
+    private final TimeUnit stalenessTimeUnit;
+    
+    public AsyncComponent(Builder builder) {
+        super(builder.wrapped.getId(), builder.wrapped.getLabel());
+        this.wrapped = builder.wrapped;
+        this.executor = builder.executor;
+        this.clock = builder.clock;
+        this.repeat = builder.repeat;
+        this.repeatTimeUnit = builder.repeatTimeUnit;
+        this.statusUpdateHook = builder.statusUpdateHook;
+        this.stalenessLimit = builder.stalenessLimit;
+        this.stalenessTimeUnit = builder.stalenessTimeUnit;
+        
+        this.lastRunTimeStamp = new AtomicReference<Date>(clock.now());
+        this.current.set(new Report(Status.INFO, "Pending"));
+    }
+
+    public static AsyncComponent.Builder wrapping(Component wrapped) {
+        return new Builder(wrapped);
+    }
+    
+    public static final class Builder {
+        private final Component wrapped;
+        private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        private Clock clock = new SystemClock();
+        private long repeat = 30;
+        private TimeUnit repeatTimeUnit = TimeUnit.SECONDS;
+        private Consumer statusUpdateHook = Consumer.NOOP;
+        private long stalenessLimit = 5;
+        private TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
+        
+        private Builder(Component wrapped) {
+            this.wrapped = wrapped;
+        }
+    
+        public AsyncComponent build() {
+            return new AsyncComponent(this);
+        }
+        
+        public Builder withExecutor(ScheduledExecutorService executor) { this.executor = executor; return this; }
+        public Builder withClock(Clock clock) { this.clock = clock; return this; }
+        public Builder withRepeatSchedule(long time, TimeUnit units) { this.repeat = time; this.repeatTimeUnit = units; return this; }
+        public Builder withUpdateHook(Consumer statusUpdated) { this.statusUpdateHook = statusUpdated; return this; }
+        public Builder withStalenessLimit(long time, TimeUnit units) { this.stalenessLimit = time; this.stalenessTimeUnit = units; return this; }
+        
+    }
+    
+
+    public void stop() throws InterruptedException {
+        executor.shutdown();
+        executor.awaitTermination(1, TimeUnit.SECONDS);
+    }
+
+    public void start() {
+        executor.schedule(new UpdateComponentStatusRunnable(), repeat, repeatTimeUnit);
+    }
+    
+    final class UpdateComponentStatusRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            Report report = safeGetWrappedReport();
+            current.set(report);
+            lastRunTimeStamp.set(clock.now());
+            safelyInvokeUpdateHook(report);
+            executor.schedule(this, repeat, repeatTimeUnit);
+        }
+
+        private Report safeGetWrappedReport() {
+            try {
+                return wrapped.getReport();
+            } catch (Throwable t) {
+                return new Report(t);
+            }
+        }
+        
+        private void safelyInvokeUpdateHook(Report report) {
+            try {
+                statusUpdateHook.apply(report);
+            } catch (Throwable t) {
+                LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), t);
+            }
+        }
+    }
+
+    @Override
+    public Report getReport() {
+        Report report = current.get();
+        Date lastRun = lastRunTimeStamp.get();
+
+        if ((clock.now().getTime() - lastRun.getTime()) > stalenessTimeUnit.toMillis(stalenessLimit)) {
+            return new Report(WARNING, 
+                    String.format("Last run at %s (over %s %s ago): %s",
+                            isoFormatted(lastRun), stalenessLimit, stalenessTimeUnit.name().toLowerCase(), report.getValue()));
+        }
+        return report;
+    }
+
+    private String isoFormatted(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return df.format(date);
+    }
+
+    public interface Clock {
+        Date now();
+    }
+
+    public static class SystemClock implements Clock {
+        @Override
+        public Date now() {
+            return new Date();
+        }
+    }
+    
+    public static interface Consumer {
+        void apply(Report report);
+        
+        public static final Consumer NOOP = new Consumer() {
+            @Override public void apply(Report report) { }
+        };
+    }
+
+
+}
