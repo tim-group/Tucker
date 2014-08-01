@@ -1,6 +1,6 @@
 package com.timgroup.tucker.info.status;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static com.timgroup.tucker.info.Status.WARNING;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,6 +25,8 @@ public class AsyncComponent extends Component {
     private final Clock clock;
     private final long repeat;
     private final TimeUnit repeatTimeUnit;
+    private final long stalenessLimit = 5;
+    private final TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
 
     public AsyncComponent(Component wrapped, ScheduledExecutorService executor, Clock clock, long repeat,
             TimeUnit repeatTimeUnit, Consumer statusUpdateHook) {
@@ -35,7 +37,7 @@ public class AsyncComponent extends Component {
         this.repeat = repeat;
         this.repeatTimeUnit = repeatTimeUnit;
         this.statusUpdateHook = statusUpdateHook;
-        this.lastRunTimeStamp = new AtomicReference<Date>(getNow("initialisation"));
+        this.lastRunTimeStamp = new AtomicReference<Date>(clock.now());
         this.current.set(new Report(Status.INFO, "Pending"));
     }
 
@@ -66,7 +68,7 @@ public class AsyncComponent extends Component {
         public void run() {
             Report report = wrapped.getReport();
             current.set(report);
-            lastRunTimeStamp.set(getNow("update"));
+            lastRunTimeStamp.set(clock.now());
             statusUpdateHook.apply(report);
             executor.schedule(this, repeat, repeatTimeUnit);
         }
@@ -78,17 +80,12 @@ public class AsyncComponent extends Component {
         Report report = current.get();
         Date lastRun = lastRunTimeStamp.get();
 
-        if ((getNow("getReport").getTime() - lastRun.getTime()) > MINUTES.toMillis(5)) {
-            return new Report(Status.WARNING, String.format("Last run at %s (over 5 minutes ago): %s",
-                    isoFormatted(lastRun), report.getValue()));
+        if ((clock.now().getTime() - lastRun.getTime()) > stalenessTimeUnit.toMillis(stalenessLimit)) {
+            return new Report(WARNING, 
+                    String.format("Last run at %s (over %s %s ago): %s",
+                            isoFormatted(lastRun), stalenessLimit, stalenessTimeUnit.name().toLowerCase(), report.getValue()));
         }
         return report;
-    }
-
-    private Date getNow(String purpose) {
-        Date date = clock.now();
-        System.out.println(String.format("Retrieved now for %s: %s", purpose, isoFormatted(date)));
-        return date;
     }
 
     private String isoFormatted(Date date) {
