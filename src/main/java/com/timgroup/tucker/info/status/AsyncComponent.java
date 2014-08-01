@@ -11,11 +11,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
 public class AsyncComponent extends Component {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
 
     private final Consumer statusUpdateHook;
     private final AtomicReference<Report> current = new AtomicReference<Report>();
@@ -62,14 +67,14 @@ public class AsyncComponent extends Component {
         executor.schedule(new UpdateComponentStatusRunnable(), repeat, repeatTimeUnit);
     }
     
-    class UpdateComponentStatusRunnable implements Runnable {
+    final class UpdateComponentStatusRunnable implements Runnable {
 
         @Override
         public void run() {
             Report report = safeGetWrappedReport();
             current.set(report);
             lastRunTimeStamp.set(clock.now());
-            statusUpdateHook.apply(report);
+            safelyInvokeUpdateHook(report);
             executor.schedule(this, repeat, repeatTimeUnit);
         }
 
@@ -81,6 +86,13 @@ public class AsyncComponent extends Component {
             }
         }
         
+        private void safelyInvokeUpdateHook(Report report) {
+            try {
+                statusUpdateHook.apply(report);
+            } catch (Throwable t) {
+                LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), t);
+            }
+        }
     }
 
     @Override

@@ -35,14 +35,14 @@ public class AsyncComponentTest {
 
     @Test
     public void returnsIdOfWrappedComponent() {
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(hardcodedComponent());
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
         assertEquals("my-test-component-id", asyncComponent.getId());
         assertEquals("My Test Component Label", asyncComponent.getLabel());
     }
     
     @Test
     public void returnsReportForComponentThatIsStillPending() {
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(hardcodedComponent());
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
 
         Report report = asyncComponent.getReport();
 
@@ -50,7 +50,7 @@ public class AsyncComponentTest {
         assertEquals(report.getValue(), "Pending");
     }
     
-    private Component hardcodedComponent() {
+    private Component healthyWellBehavedComponent() {
         return new Component("my-test-component-id", "My Test Component Label") {
             @Override
             public Report getReport() {
@@ -192,14 +192,12 @@ public class AsyncComponentTest {
         asyncComponent.start();
         
         componentInvoked.waitFor("Component to be invoked");
-        
         Report report = asyncComponent.getReport();
         assertEquals(CRITICAL, report.getStatus());
         assertThat(report.getException(), is(instanceOf(NoClassDefFoundError.class)));
         assertionSemaphore.completed();
         
         componentInvoked.waitFor("Component to be invoked");
-        
         assertEquals(new Report(OK, "Recovered"), asyncComponent.getReport());
     }
     
@@ -219,7 +217,25 @@ public class AsyncComponentTest {
 
     @Test
     public void reschedulesUpdateAfterUpdateHookThrowsException() {
+        final TestingSemaphore componentInvoked = new TestingSemaphore();
+        Consumer onUpdate = new Consumer() {
+            private final AtomicInteger timesCalled = new AtomicInteger(0);
+            @Override public void apply(Report report) {
+                componentInvoked.completed();
+                if (timesCalled.getAndIncrement() == 0) {
+                    throw new NoSuchMethodError();
+                }
+            }
+        };
+
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent(), new SystemClock(), 1, NANOSECONDS, onUpdate);
+        asyncComponent.start();
         
+        componentInvoked.waitFor("Component to be invoked");
+        assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
+        
+        componentInvoked.waitFor("Component to be invoked");
+        assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
     }
     
     @Test
