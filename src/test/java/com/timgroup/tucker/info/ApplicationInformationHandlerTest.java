@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import org.mockito.Mockito;
 
 public class ApplicationInformationHandlerTest {
 
