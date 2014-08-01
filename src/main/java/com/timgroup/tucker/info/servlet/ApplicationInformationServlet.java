@@ -21,12 +21,12 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 public class ApplicationInformationServlet extends HttpServlet {
 
     private final ApplicationInformationHandler handler;
-    private final StatusPageGenerator statusPage;
+    private final ApplicationReportGenerator statusPage;
 
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, 
+    public ApplicationInformationServlet(ApplicationReportGenerator statusPage, 
     									 Stoppable stoppable,
     									 Health health) {
         this.statusPage = statusPage;

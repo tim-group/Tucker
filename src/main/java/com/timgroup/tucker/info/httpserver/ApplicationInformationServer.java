@@ -11,7 +11,7 @@ import com.sun.net.httpserver.HttpServer;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
+import com.timgroup.tucker.info.status.ApplicationReportGenerator;
 
 public class ApplicationInformationServer {
 
@@ -19,11 +19,11 @@ public class ApplicationInformationServer {
         return new ApplicationInformationServer(port, handler);
     }
 
-    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
+    public static ApplicationInformationServer create(int port, ApplicationReportGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
         return create(port, new ApplicationInformationHandler(statusPage, stoppable, health));
     }
 
-    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
+    public static ApplicationInformationServer create(int port, ApplicationReportGenerator statusPage, Health health) throws IOException {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
