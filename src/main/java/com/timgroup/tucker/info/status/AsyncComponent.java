@@ -22,41 +22,61 @@ public class AsyncComponent extends Component {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
 
-    private final Consumer statusUpdateHook;
     private final AtomicReference<Report> current = new AtomicReference<Report>();
     private final AtomicReference<Date> lastRunTimeStamp;
+    
     private final Component wrapped;
     private final ScheduledExecutorService executor;
     private final Clock clock;
+    private final Consumer statusUpdateHook;
     private final long repeat;
     private final TimeUnit repeatTimeUnit;
-    private final long stalenessLimit = 5;
-    private final TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
-
-    public AsyncComponent(Component wrapped, ScheduledExecutorService executor, Clock clock, long repeat,
-            TimeUnit repeatTimeUnit, Consumer statusUpdateHook) {
-        super(wrapped.getId(), wrapped.getLabel());
-        this.wrapped = wrapped;
-        this.executor = executor;
-        this.clock = clock;
-        this.repeat = repeat;
-        this.repeatTimeUnit = repeatTimeUnit;
-        this.statusUpdateHook = statusUpdateHook;
+    private final long stalenessLimit;
+    private final TimeUnit stalenessTimeUnit;
+    
+    public AsyncComponent(Builder builder) {
+        super(builder.wrapped.getId(), builder.wrapped.getLabel());
+        this.wrapped = builder.wrapped;
+        this.executor = builder.executor;
+        this.clock = builder.clock;
+        this.repeat = builder.repeat;
+        this.repeatTimeUnit = builder.repeatTimeUnit;
+        this.statusUpdateHook = builder.statusUpdateHook;
+        this.stalenessLimit = builder.stalenessLimit;
+        this.stalenessTimeUnit = builder.stalenessTimeUnit;
+        
         this.lastRunTimeStamp = new AtomicReference<Date>(clock.now());
         this.current.set(new Report(Status.INFO, "Pending"));
     }
 
-    public static AsyncComponent wrapping(Component wrapped) {
-        return new AsyncComponent(wrapped, Executors.newScheduledThreadPool(1), new SystemClock(), 1, TimeUnit.MINUTES, Consumer.NOOP);
+    public static AsyncComponent.Builder wrapping(Component wrapped) {
+        return new Builder(wrapped);
     }
-
-    public static AsyncComponent wrapping(Component wrapped, Clock clock, long repeat, TimeUnit repeatTimeUnit, Consumer statusUpdateHook) {
-        return new AsyncComponent(wrapped, Executors.newScheduledThreadPool(1), clock, repeat, repeatTimeUnit, statusUpdateHook);
-    }
-
-    public static AsyncComponent wrapping(Component wrapped, ScheduledExecutorService executor, Clock clock, long repeat, TimeUnit repeatTimeUnit,
-            Consumer statusUpdateHook) {
-        return new AsyncComponent(wrapped, executor, clock, repeat, repeatTimeUnit, statusUpdateHook);
+    
+    public static final class Builder {
+        private final Component wrapped;
+        private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        private Clock clock = new SystemClock();
+        private long repeat = 30;
+        private TimeUnit repeatTimeUnit = TimeUnit.SECONDS;
+        private Consumer statusUpdateHook = Consumer.NOOP;
+        private long stalenessLimit = 5;
+        private TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
+        
+        Builder(Component wrapped) {
+            this.wrapped = wrapped;
+        }
+    
+        public AsyncComponent build() {
+            return new AsyncComponent(this);
+        }
+        
+        public Builder withExecutor(ScheduledExecutorService executor) { this.executor = executor; return this; }
+        public Builder withClock(Clock clock) { this.clock = clock; return this; }
+        public Builder withRepeatSchedule(long time, TimeUnit units) { this.repeat = time; this.repeatTimeUnit = units; return this; }
+        public Builder withUpdateHook(Consumer statusUpdated) { this.statusUpdateHook = statusUpdated; return this; }
+        public Builder withStalenessLimit(long time, TimeUnit units) { this.stalenessLimit = time; this.stalenessTimeUnit = units; return this; }
+        
     }
     
 

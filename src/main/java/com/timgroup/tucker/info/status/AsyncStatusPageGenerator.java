@@ -20,7 +20,7 @@ public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
     private List<AsyncComponent> wrapInAsync(List<Component> wrapped) {
         List<AsyncComponent> runnableComponents = new ArrayList<AsyncComponent>(wrapped.size());
         for (Component component: wrapped) {
-            AsyncComponent async = AsyncComponent.wrapping(component);
+            AsyncComponent async = AsyncComponent.wrapping(component).build();
             runnableComponents.add(async);
             statusPageGenerator.addComponent(async);
         }
