@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.status;
 
+import static com.timgroup.tucker.info.Status.OK;
 import static java.util.Calendar.JULY;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,57 +22,36 @@ import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.status.AsyncComponent.Clock;
+import com.timgroup.tucker.info.status.AsyncComponent.SystemClock;
 import com.timgroup.tucker.info.status.AsyncComponent.Consumer;
 
 public class AsyncComponentTest {
 
-    private final Component hardcodedComponent = new Component("my-test-component-id", "My Test Component Label") {
-        @Override
-        public Report getReport() {
-            return new Report(Status.OK, "It's all good.");
-        }
-    };
-
-    private Component neverReturnsComponent(final Semaphore invoked) {
-        return new Component("my-never-returning-component-id", "My Never Returning Component") {
-            @Override
-            public Report getReport() {
-                try {
-                    invoked.release();
-                    new CountDownLatch(1).await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                throw new IllegalStateException("Should never have completed");
-            }
-        };
+    @Test
+    public void returnsIdOfWrappedComponent() {
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(hardcodedComponent());
+        assertEquals("my-test-component-id", asyncComponent.getId());
+        assertEquals("My Test Component Label", asyncComponent.getLabel());
     }
-
-    private Component nthCallNeverReturns(final int callsThatWillReturnQuickly) {
-        return new Component("my-eventually-never-returns-component-id", "My Eventually Never Returns Component") {
-            private final Semaphore quickReturnSemaphore = new Semaphore(callsThatWillReturnQuickly);
-
-            @Override
-            public Report getReport() {
-                try {
-                    quickReturnSemaphore.acquire();
-                    return new Report(Status.OK, "Everything's fine");
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-    }
-
+    
     @Test
     public void returnsReportForComponentThatIsStillPending() {
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(hardcodedComponent);
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(hardcodedComponent());
 
         Report report = asyncComponent.getReport();
 
         assertEquals(report.getStatus(), Status.INFO);
         assertEquals(report.getValue(), "Pending");
     }
+    
+    private Component hardcodedComponent() {
+        return new Component("my-test-component-id", "My Test Component Label") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.OK, "It's all good.");
+            }
+        };
+    };
 
     @Test
     public void returnsWarningStatusWhenReportHasNeverBeenReturnedWithinTimeThreshold() throws InterruptedException {
@@ -91,6 +71,21 @@ public class AsyncComponentTest {
         assertEquals(Status.WARNING, report.getStatus());
         assertThat(report.getValue().toString(),
                 CoreMatchers.containsString("Last run at 2014-07-12T01:00:00 (over 5 minutes ago): Pending"));
+    }
+    
+    private Component neverReturnsComponent(final Semaphore invoked) {
+        return new Component("my-never-returning-component-id", "My Never Returning Component") {
+            @Override
+            public Report getReport() {
+                try {
+                    invoked.release();
+                    new CountDownLatch(1).await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                throw new IllegalStateException("Should never have completed");
+            }
+        };
     }
 
     @Test
@@ -134,17 +129,49 @@ public class AsyncComponentTest {
                 report);
 
     }
+    
+    private Component nthCallNeverReturns(final int callsThatWillReturnQuickly) {
+        return new Component("my-eventually-never-returns-component-id", "My Eventually Never Returns Component") {
+            private final Semaphore quickReturnSemaphore = new Semaphore(callsThatWillReturnQuickly);
 
-    private Date minutesAfterInitialisation(int minutes) {
-        Calendar calender = Calendar.getInstance();
-        calender.setTimeZone(TimeZone.getTimeZone("UTC"));
-        calender.set(2014, JULY, 12, 1, minutes, 0);
-        return calender.getTime();
+            @Override
+            public Report getReport() {
+                try {
+                    quickReturnSemaphore.acquire();
+                    return new Report(Status.OK, "Everything's fine");
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    @Test
+    public void returnsReportCreatedByWrappedComponent() throws InterruptedException {
+        final Semaphore componentInvoked = new Semaphore(0);
+        Consumer onUpdate = new Consumer() {
+            @Override public void apply(Report report) {
+                componentInvoked.release();
+            }
+        };
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(fastComponent(), new SystemClock(), 1, TimeUnit.NANOSECONDS, onUpdate);
+        asyncComponent.start();
+        
+        componentInvoked.acquire();
+        
+        assertEquals(
+            asyncComponent.getReport(), 
+            new Report(OK, "Quickly returned"));
     }
     
-    @Test
-    public void goodCase() {
-        
+    private Component fastComponent() {
+        return new Component("my-fast-component-id", "My Fast Component") {
+
+            @Override
+            public Report getReport() {
+                return new Report(Status.OK, "Quickly returned");
+            }
+        };
     }
     
     @Test
@@ -155,5 +182,12 @@ public class AsyncComponentTest {
     @Test
     public void reschedulesUpdateAfterUpdateHookThrowsException() {
         
+    }
+
+    private Date minutesAfterInitialisation(int minutes) {
+        Calendar calender = Calendar.getInstance();
+        calender.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calender.set(2014, JULY, 12, 1, minutes, 0);
+        return calender.getTime();
     }
 }
