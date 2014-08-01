@@ -66,11 +66,19 @@ public class AsyncComponent extends Component {
 
         @Override
         public void run() {
-            Report report = wrapped.getReport();
+            Report report = safeGetWrappedReport();
             current.set(report);
             lastRunTimeStamp.set(clock.now());
             statusUpdateHook.apply(report);
             executor.schedule(this, repeat, repeatTimeUnit);
+        }
+
+        private Report safeGetWrappedReport() {
+            try {
+                return wrapped.getReport();
+            } catch (Throwable t) {
+                return new Report(t);
+            }
         }
         
     }
