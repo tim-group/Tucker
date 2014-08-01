@@ -60,7 +60,7 @@ public class AsyncStatusPageGeneratorTest {
     }
     
     @Test
-    public void attemptsToStopAllComponentsAndGathersErrorsWhenAnyFail() {
+    public void attemptsToStopAllComponentsAndConsoliatesExceptions() {
         AsyncComponent first = spy(AsyncComponent.wrapping(component("first-id")).build());
         AsyncComponent second = spy(AsyncComponent.wrapping(component("second-id")).build());
         AsyncComponent third = spy(AsyncComponent.wrapping(component("third-id")).build());

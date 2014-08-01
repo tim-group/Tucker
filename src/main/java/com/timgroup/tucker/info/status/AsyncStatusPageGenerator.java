@@ -40,19 +40,19 @@ public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
     
     public void stop() throws InterruptedException {
         List<String> failedToStop = new ArrayList<String>();
-        InterruptedException first = null;
+        InterruptedException lastThrown = null;
         for (AsyncComponent asyncComponent: components) {
             try {
                 asyncComponent.stop();
             } catch (InterruptedException e) {
                 failedToStop.add(asyncComponent.getId());
-                first = e;
+                lastThrown = e;
             }
         }
         if (!failedToStop.isEmpty()) {
-            String message = format("Failed to stop components: %s. Last failure: %s", failedToStop, first.getMessage());
+            String message = format("Failed to stop components: %s. Last failure: %s", failedToStop, lastThrown.getMessage());
             InterruptedException consolidatedException = new InterruptedException(message);
-            consolidatedException.initCause(first);
+            consolidatedException.initCause(lastThrown);
             throw consolidatedException;
         }
     }
