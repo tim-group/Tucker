@@ -12,6 +12,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +21,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -52,8 +57,7 @@ public class AsyncComponentTest {
     
     private Component healthyWellBehavedComponent() {
         return new Component("my-test-component-id", "My Test Component Label") {
-            @Override
-            public Report getReport() {
+            @Override public Report getReport() {
                 return new Report(OK, "It's all good.");
             }
         };
@@ -82,8 +86,7 @@ public class AsyncComponentTest {
     
     private Component neverReturnsComponent(final TestingSemaphore invoked) {
         return new Component("my-never-returning-component-id", "My Never Returning Component") {
-            @Override
-            public Report getReport() {
+            @Override public Report getReport() {
                 try {
                     invoked.completed();
                     new CountDownLatch(1).await();
@@ -137,8 +140,7 @@ public class AsyncComponentTest {
         return new Component("my-eventually-never-returns-component-id", "My Eventually Never Returns Component") {
             private final Semaphore quickReturnSemaphore = new Semaphore(callsThatWillReturnQuickly);
 
-            @Override
-            public Report getReport() {
+            @Override public Report getReport() {
                 try {
                     quickReturnSemaphore.acquire();
                     return new Report(OK, "Everything's fine");
@@ -169,9 +171,7 @@ public class AsyncComponentTest {
     
     private Component fastComponent() {
         return new Component("my-fast-component-id", "My Fast Component") {
-
-            @Override
-            public Report getReport() {
+            @Override public Report getReport() {
                 return new Report(OK, "Quickly returned");
             }
         };
@@ -239,8 +239,24 @@ public class AsyncComponentTest {
     }
     
     @Test
-    public void doesNotRetrieveComponentStatusAfterBeingStopped() {
+    public void doesNotRetrieveComponentStatusAfterBeingStopped() throws InterruptedException {
+        final TestingSemaphore componentInvoked = new TestingSemaphore();
+        Consumer onUpdate = new Consumer() {
+            @Override public void apply(Report report) {
+                componentInvoked.completed();
+            }
+        };
+
+        ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent(), threadPool, new SystemClock(), 1, NANOSECONDS, onUpdate);
+        asyncComponent.start();
         
+        componentInvoked.waitFor("Component to be invoked");
+        assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
+        
+        asyncComponent.stop();
+        assertTrue(threadPool.isTerminated());
+        assertFalse(componentInvoked.completedAgainIn(100, NANOSECONDS));
     }
 
     private Date minutesAfterInitialisation(int minutes) {
@@ -255,7 +271,7 @@ public class AsyncComponentTest {
         
         void waitFor(String somethingToHappen) {
             try {
-                if (!semaphore.tryAcquire(10, SECONDS)) {
+                if (!semaphore.tryAcquire(5, SECONDS)) {
                     throw new AssertionError(new TimeoutException("Timed out waiting for " + somethingToHappen));
                 }
             } catch (InterruptedException e) {
@@ -265,6 +281,15 @@ public class AsyncComponentTest {
         
         void completed() {
             semaphore.release();
+        }
+        
+        boolean completedAgainIn(long timeout, TimeUnit unit) {
+            try {
+                semaphore.drainPermits();
+                return semaphore.tryAcquire(timeout, unit);
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            }
         }
     }
 }

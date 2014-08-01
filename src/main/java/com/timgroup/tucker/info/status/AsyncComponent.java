@@ -50,13 +50,15 @@ public class AsyncComponent extends Component {
         return new AsyncComponent(wrapped, Executors.newScheduledThreadPool(1), new SystemClock(), 1, TimeUnit.MINUTES, Consumer.NOOP);
     }
 
-    public static AsyncComponent wrapping(Component wrapped, Clock clock) {
-        return new AsyncComponent(wrapped, Executors.newScheduledThreadPool(1), clock, 1, TimeUnit.MINUTES, Consumer.NOOP);
-    }
-
     public static AsyncComponent wrapping(Component wrapped, Clock clock, long repeat, TimeUnit repeatTimeUnit, Consumer statusUpdateHook) {
         return new AsyncComponent(wrapped, Executors.newScheduledThreadPool(1), clock, repeat, repeatTimeUnit, statusUpdateHook);
     }
+
+    public static AsyncComponent wrapping(Component wrapped, ScheduledExecutorService executor, Clock clock, long repeat, TimeUnit repeatTimeUnit,
+            Consumer statusUpdateHook) {
+        return new AsyncComponent(wrapped, executor, clock, repeat, repeatTimeUnit, statusUpdateHook);
+    }
+    
 
     public void stop() throws InterruptedException {
         executor.shutdown();
@@ -114,10 +116,6 @@ public class AsyncComponent extends Component {
         return df.format(date);
     }
 
-    public void update() {
-        this.current.set(wrapped.getReport());
-    }
-
     public interface Clock {
         Date now();
     }
@@ -136,4 +134,6 @@ public class AsyncComponent extends Component {
             @Override public void apply(Report report) { }
         };
     }
+
+
 }
