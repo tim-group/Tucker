@@ -1,5 +1,8 @@
 package com.timgroup.tucker.info.status;
 
+import static java.lang.String.format;
+import static java.util.Collections.unmodifiableList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,21 +13,13 @@ public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
 
     private final StatusPageGenerator statusPageGenerator;
     private final List<AsyncComponent> components;
-   
 
-    public AsyncStatusPageGenerator(String applicationId, VersionComponent versionComponent, List<Component> components) {
+    public AsyncStatusPageGenerator(String applicationId, VersionComponent versionComponent, List<AsyncComponent> components) {
+        this.components = unmodifiableList(new ArrayList<AsyncComponent>(components));
         this.statusPageGenerator = new StatusPageGenerator(applicationId, versionComponent);
-        this.components = wrapInAsync(components);
-    }
-
-    private List<AsyncComponent> wrapInAsync(List<Component> wrapped) {
-        List<AsyncComponent> runnableComponents = new ArrayList<AsyncComponent>(wrapped.size());
-        for (Component component: wrapped) {
-            AsyncComponent async = AsyncComponent.wrapping(component).build();
-            runnableComponents.add(async);
-            statusPageGenerator.addComponent(async);
+        for (AsyncComponent component: components) {
+            statusPageGenerator.addComponent(component);
         }
-        return runnableComponents;
     }
 
     @Override
@@ -44,9 +39,21 @@ public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
     }
     
     public void stop() throws InterruptedException {
-        // TODO: exception handling
+        List<String> failedToStop = new ArrayList<String>();
+        InterruptedException first = null;
         for (AsyncComponent asyncComponent: components) {
-            asyncComponent.stop();
+            try {
+                asyncComponent.stop();
+            } catch (InterruptedException e) {
+                failedToStop.add(asyncComponent.getId());
+                first = e;
+            }
+        }
+        if (!failedToStop.isEmpty()) {
+            String message = format("Failed to stop components: %s. Last failure: %s", failedToStop, first.getMessage());
+            InterruptedException consolidatedException = new InterruptedException(message);
+            consolidatedException.initCause(first);
+            throw consolidatedException;
         }
     }
 

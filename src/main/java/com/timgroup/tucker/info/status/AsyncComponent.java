@@ -63,7 +63,7 @@ public class AsyncComponent extends Component {
         private long stalenessLimit = 5;
         private TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
         
-        Builder(Component wrapped) {
+        private Builder(Component wrapped) {
             this.wrapped = wrapped;
         }
     
