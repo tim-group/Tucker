@@ -39,14 +39,14 @@ import com.timgroup.tucker.info.status.AsyncComponent.SystemClock;
 public class AsyncComponentTest {
 
     @Test
-    public void returnsIdOfWrappedComponent() {
+    public void returnsIdAndLabelOfWrappedComponent() {
         AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
         assertEquals("my-test-component-id", asyncComponent.getId());
         assertEquals("My Test Component Label", asyncComponent.getLabel());
     }
     
     @Test
-    public void returnsReportForComponentThatIsStillPending() {
+    public void returnsPendingReportForWrappedComponentThatHasNotReturnedYet() {
         AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
 
         Report report = asyncComponent.getReport();
@@ -205,8 +205,7 @@ public class AsyncComponentTest {
         return new Component("my-fast-component-id", "My Fast Component") {
             private AtomicInteger timesCalled = new AtomicInteger(0);
 
-            @Override
-            public Report getReport() {
+            @Override public Report getReport() {
                 if (timesCalled.getAndIncrement() == 0) {
                     throw new NoClassDefFoundError("Haha");
                 }
@@ -239,7 +238,7 @@ public class AsyncComponentTest {
     }
     
     @Test
-    public void doesNotRetrieveComponentStatusAfterBeingStopped() throws InterruptedException {
+    public void shutsDownThreadPoolAndDoesNotRetrieveComponentStatusAfterBeingStopped() throws InterruptedException {
         final TestingSemaphore componentInvoked = new TestingSemaphore();
         Consumer onUpdate = new Consumer() {
             @Override public void apply(Report report) {
