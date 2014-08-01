@@ -79,8 +79,8 @@ public class ApplicationInformationHandlerTest {
     @Test
     public void when_application_is_not_healthy_returns_ill() throws Exception {
         when(health.get()).thenReturn(ill);
-    	
-    	final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
+
+        final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
         final WebResponse response = mock(WebResponse.class);
         when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);

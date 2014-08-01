@@ -26,9 +26,7 @@ public class ApplicationInformationServlet extends HttpServlet {
     /**
      * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
      */
-    public ApplicationInformationServlet(ApplicationReportGenerator statusPage, 
-    									 Stoppable stoppable,
-    									 Health health) {
+    public ApplicationInformationServlet(ApplicationReportGenerator statusPage, Stoppable stoppable, Health health) {
         this.statusPage = statusPage;
         this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
     }

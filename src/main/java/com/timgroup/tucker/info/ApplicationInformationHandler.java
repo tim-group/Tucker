@@ -31,7 +31,7 @@ public class ApplicationInformationHandler {
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
     }
 
-	public void handle(String path, WebResponse response) throws IOException {
+    public void handle(String path, WebResponse response) throws IOException {
         if (dispatch.containsKey(path)) {
             dispatch.get(path).handle(response);
         } else {
@@ -71,7 +71,7 @@ public class ApplicationInformationHandler {
     }
 
     private static final class HealthWriter implements Handler {
-		private Health health;
+        private Health health;
 
         public HealthWriter(Health health) {
             this.health = health;
