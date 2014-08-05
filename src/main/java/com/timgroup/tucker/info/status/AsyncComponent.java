@@ -46,7 +46,7 @@ public class AsyncComponent extends Component {
         this.stalenessTimeUnit = builder.stalenessTimeUnit;
         
         this.lastRunTimeStamp = new AtomicReference<Date>(clock.now());
-        this.current.set(new Report(Status.INFO, "Pending"));
+        this.current.set(new Report(Status.WARNING, "Pending"));
     }
 
     public static AsyncComponent.Builder wrapping(Component wrapped) {

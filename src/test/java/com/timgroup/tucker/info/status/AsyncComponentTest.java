@@ -1,7 +1,6 @@
 package com.timgroup.tucker.info.status;
 
 import static com.timgroup.tucker.info.Status.CRITICAL;
-import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Calendar.JULY;
@@ -51,7 +50,7 @@ public class AsyncComponentTest {
 
         Report report = asyncComponent.getReport();
 
-        assertEquals(report.getStatus(), INFO);
+        assertEquals(report.getStatus(), WARNING);
         assertEquals(report.getValue(), "Pending");
     }
     
