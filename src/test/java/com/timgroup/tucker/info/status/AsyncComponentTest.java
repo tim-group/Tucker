@@ -33,14 +33,14 @@ public class AsyncComponentTest {
 
     @Test
     public void returnsIdAndLabelOfWrappedComponent() {
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent()).build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
         assertEquals("my-test-component-id", asyncComponent.getId());
         assertEquals("My Test Component Label", asyncComponent.getLabel());
     }
     
     @Test
     public void returnsPendingReportForWrappedComponentThatHasNotReturnedYet() {
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent()).build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent());
 
         Report report = asyncComponent.getReport();
 
@@ -65,11 +65,11 @@ public class AsyncComponentTest {
         when(clock.now()).thenReturn(initialisation, sixMinutesLater);
 
         TestingSemaphore invoked = new TestingSemaphore();
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked))
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked),
+                new AsyncComponent.Settings()
                 .withClock(clock)
                 .withRepeatSchedule(1, NANOSECONDS)
-                .withStalenessLimit(4, MINUTES)
-                .build();
+                .withStalenessLimit(4, MINUTES));
         
         schedule(asyncComponent);
         
@@ -120,11 +120,11 @@ public class AsyncComponentTest {
             }
             
         };
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(nthCallNeverReturns(2))
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(nthCallNeverReturns(2),
+                new AsyncComponent.Settings()
                 .withClock(clock)
                 .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(statusUpdated)
-                .build();
+                .withUpdateHook(statusUpdated));
         schedule(asyncComponent);
 
         componentUpdated.waitFor("Component to be invoked");
@@ -166,10 +166,8 @@ public class AsyncComponentTest {
                 componentInvoked.completed();
             }
         };
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(fastComponent())
-                .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(onUpdate)
-                .build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(fastComponent(),
+                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         schedule(asyncComponent);
         
         componentInvoked.waitFor("Component to be invoked");
@@ -198,10 +196,8 @@ public class AsyncComponentTest {
             }
         };
 
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(initiallyThrowsExceptionComponent())
-                .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(onUpdate)
-                .build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(initiallyThrowsExceptionComponent(),
+                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
         schedule(asyncComponent);
         
@@ -241,10 +237,9 @@ public class AsyncComponentTest {
             }
         };
 
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent())
-                .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(onUpdate)
-                .build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(
+                healthyWellBehavedComponent(),
+                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
         schedule(asyncComponent);
         

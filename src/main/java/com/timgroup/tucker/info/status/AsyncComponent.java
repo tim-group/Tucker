@@ -23,27 +23,34 @@ public class AsyncComponent extends Component {
     final long repeat;
     final TimeUnit repeatTimeUnit;
     
-    public AsyncComponent(Builder builder) {
-        super(builder.wrapped.getId(), builder.wrapped.getLabel());
-        this.wrapped = builder.wrapped;
-        this.repeat = builder.repeat;
-        this.repeatTimeUnit = builder.repeatTimeUnit;
-        this.statusUpdateHook = builder.statusUpdateHook;
+    private AsyncComponent(Component wrapped) {
+        this(wrapped, new Settings());
+    }
+    
+    private AsyncComponent(Component wrapped, Settings settings) {
+        super(wrapped.getId(), wrapped.getLabel());
+        this.wrapped = wrapped;
+        this.repeat = settings.repeat;
+        this.repeatTimeUnit = settings.repeatTimeUnit;
+        this.statusUpdateHook = settings.statusUpdateHook;
         
         PerishableReport initialReport = new PerishableReport(
                 new Report(WARNING, "Pending"), 
-                builder.clock, 
-                builder.stalenessLimit, 
-                builder.stalenessTimeUnit);
+                settings.clock, 
+                settings.stalenessLimit, 
+                settings.stalenessTimeUnit);
         this.currentReport = new AtomicReference<PerishableReport>(initialReport);
     }
-
-    public static AsyncComponent.Builder wrapping(Component wrapped) {
-        return new Builder(wrapped);
-    }
     
-    public static final class Builder {
-        private final Component wrapped;
+    public static AsyncComponent wrapping(Component component) {
+        return new AsyncComponent(component, new Settings());
+    }
+
+    public static AsyncComponent wrapping(Component component, Settings settings) {
+        return new AsyncComponent(component, settings);
+    }
+
+    public static final class Settings {
         private Clock clock = new SystemClock();
         private long repeat = 30;
         private TimeUnit repeatTimeUnit = TimeUnit.SECONDS;
@@ -51,19 +58,10 @@ public class AsyncComponent extends Component {
         private long stalenessLimit = 5;
         private TimeUnit stalenessTimeUnit = TimeUnit.MINUTES;
         
-        private Builder(Component wrapped) {
-            this.wrapped = wrapped;
-        }
-    
-        public AsyncComponent build() {
-            return new AsyncComponent(this);
-        }
-        
-        public Builder withClock(Clock clock) { this.clock = clock; return this; }
-        public Builder withRepeatSchedule(long time, TimeUnit units) { this.repeat = time; this.repeatTimeUnit = units; return this; }
-        public Builder withUpdateHook(Consumer statusUpdated) { this.statusUpdateHook = statusUpdated; return this; }
-        public Builder withStalenessLimit(long time, TimeUnit units) { this.stalenessLimit = time; this.stalenessTimeUnit = units; return this; }
-        
+        public Settings withClock(Clock clock) { this.clock = clock; return this; }
+        public Settings withRepeatSchedule(long time, TimeUnit units) { this.repeat = time; this.repeatTimeUnit = units; return this; }
+        public Settings withUpdateHook(Consumer statusUpdated) { this.statusUpdateHook = statusUpdated; return this; }
+        public Settings withStalenessLimit(long time, TimeUnit units) { this.stalenessLimit = time; this.stalenessTimeUnit = units; return this; }
     }
     
     final class UpdateComponentStatusRunnable implements Runnable {
@@ -120,6 +118,5 @@ public class AsyncComponent extends Component {
     public Runnable updateStatusRunnable() {
         return new UpdateComponentStatusRunnable();
     }
-
 
 }

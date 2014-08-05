@@ -34,7 +34,9 @@ public class AsyncStatusPageGeneratorTest {
     }
 
     private AsyncComponent quicklyScheduledComponent(String id, CountDownLatch scheduledNotification) {
-        return AsyncComponent.wrapping(new SchedulingTestComponent(id, scheduledNotification)).withRepeatSchedule(1, MILLISECONDS).build();
+        return AsyncComponent.wrapping(
+                new SchedulingTestComponent(id, scheduledNotification),
+                new AsyncComponent.Settings().withRepeatSchedule(1, MILLISECONDS));
     }
     
     
@@ -47,10 +49,9 @@ public class AsyncStatusPageGeneratorTest {
             }
         };
 
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent())
-                .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(onUpdate)
-                .build();
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(
+                healthyWellBehavedComponent(),
+                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
         AsyncStatusPageGenerator generator = new AsyncStatusPageGenerator(asList(asyncComponent));
         generator.start();

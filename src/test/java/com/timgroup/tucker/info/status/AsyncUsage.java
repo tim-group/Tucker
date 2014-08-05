@@ -16,8 +16,8 @@ public class AsyncUsage {
 
     public static void main(String[] args) throws Exception {
         final AsyncStatusPageGenerator asyncStatusPageGenerator = new AsyncStatusPageGenerator(asList(
-                AsyncComponent.wrapping(new SlowComponent()).withRepeatSchedule(10, TimeUnit.SECONDS).build(), 
-                AsyncComponent.wrapping(new QuickComponent()).withRepeatSchedule(3, TimeUnit.SECONDS).build()));
+                AsyncComponent.wrapping(new SlowComponent(), new AsyncComponent.Settings().withRepeatSchedule(10, TimeUnit.SECONDS)),
+                AsyncComponent.wrapping(new QuickComponent(), new AsyncComponent.Settings().withRepeatSchedule(3, TimeUnit.SECONDS))));
         
         
         StatusPageGenerator generator = new StatusPageGenerator("my-app", versionComponent());
