@@ -66,7 +66,7 @@ public class AsyncComponentTest {
 
         TestingSemaphore invoked = new TestingSemaphore();
         AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked),
-                new AsyncComponent.Settings()
+                AsyncComponent.settings()
                 .withClock(clock)
                 .withRepeatSchedule(1, NANOSECONDS)
                 .withStalenessLimit(4, MINUTES));
@@ -83,8 +83,8 @@ public class AsyncComponentTest {
     }
 
     private void schedule(AsyncComponent asyncComponent) {
-        AsyncStatusPageGenerator asyncGenerator = new AsyncStatusPageGenerator(Arrays.asList(asyncComponent));
-        asyncGenerator.start();
+        AsyncComponentScheduler scheduler = new AsyncComponentScheduler(Arrays.asList(asyncComponent));
+        scheduler.start();
     }
     
     private Component neverReturnsComponent(final TestingSemaphore invoked) {
@@ -121,7 +121,7 @@ public class AsyncComponentTest {
             
         };
         AsyncComponent asyncComponent = AsyncComponent.wrapping(nthCallNeverReturns(2),
-                new AsyncComponent.Settings()
+                AsyncComponent.settings()
                 .withClock(clock)
                 .withRepeatSchedule(1, NANOSECONDS)
                 .withUpdateHook(statusUpdated));
@@ -167,7 +167,7 @@ public class AsyncComponentTest {
             }
         };
         AsyncComponent asyncComponent = AsyncComponent.wrapping(fastComponent(),
-                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
+                AsyncComponent.settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         schedule(asyncComponent);
         
         componentInvoked.waitFor("Component to be invoked");
@@ -197,7 +197,7 @@ public class AsyncComponentTest {
         };
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(initiallyThrowsExceptionComponent(),
-                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
+                AsyncComponent.settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
         schedule(asyncComponent);
         
@@ -239,7 +239,7 @@ public class AsyncComponentTest {
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(
                 healthyWellBehavedComponent(),
-                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
+                AsyncComponent.settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
         schedule(asyncComponent);
         

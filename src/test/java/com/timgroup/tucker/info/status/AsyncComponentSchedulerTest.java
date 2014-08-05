@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info.status;
 
 import static com.timgroup.tucker.info.Status.OK;
+import static com.timgroup.tucker.info.status.AsyncComponent.settings;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
@@ -17,7 +18,7 @@ import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.status.AsyncComponent.Consumer;
 
-public class AsyncStatusPageGeneratorTest {
+public class AsyncComponentSchedulerTest {
 
     @Test
     public void startsAllComponents() throws InterruptedException {
@@ -26,9 +27,9 @@ public class AsyncStatusPageGeneratorTest {
         AsyncComponent second = quicklyScheduledComponent("second", scheduledNotification);
         AsyncComponent third = quicklyScheduledComponent("third", scheduledNotification);
         
-        AsyncStatusPageGenerator generator = new AsyncStatusPageGenerator(asList(first, second, third));
+        AsyncComponentScheduler scheduler = new AsyncComponentScheduler(asList(first, second, third));
         
-        generator.start();
+        scheduler.start();
         
         assertTrue("Should schedule repeated updates", scheduledNotification.await(5, MILLISECONDS));
     }
@@ -36,7 +37,7 @@ public class AsyncStatusPageGeneratorTest {
     private AsyncComponent quicklyScheduledComponent(String id, CountDownLatch scheduledNotification) {
         return AsyncComponent.wrapping(
                 new SchedulingTestComponent(id, scheduledNotification),
-                new AsyncComponent.Settings().withRepeatSchedule(1, MILLISECONDS));
+                settings().withRepeatSchedule(1, MILLISECONDS));
     }
     
     
@@ -51,15 +52,15 @@ public class AsyncStatusPageGeneratorTest {
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(
                 healthyWellBehavedComponent(),
-                new AsyncComponent.Settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
+                settings().withRepeatSchedule(1, NANOSECONDS).withUpdateHook(onUpdate));
         
-        AsyncStatusPageGenerator generator = new AsyncStatusPageGenerator(asList(asyncComponent));
-        generator.start();
+        AsyncComponentScheduler scheduler = new AsyncComponentScheduler(asList(asyncComponent));
+        scheduler.start();
         
         componentInvoked.waitFor("Component to be invoked");
         assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
         
-        generator.stop();
+        scheduler.stop();
         assertFalse(componentInvoked.completedAgainIn(100, NANOSECONDS));
     }
     

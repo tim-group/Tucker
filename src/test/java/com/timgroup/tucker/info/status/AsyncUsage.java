@@ -2,8 +2,7 @@ package com.timgroup.tucker.info.status;
 
 import static com.timgroup.tucker.info.Status.INFO;
 import static java.util.Arrays.asList;
-
-import java.util.concurrent.TimeUnit;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
@@ -15,15 +14,15 @@ import com.timgroup.tucker.info.httpserver.ApplicationInformationServer;
 public class AsyncUsage {
 
     public static void main(String[] args) throws Exception {
-        final AsyncStatusPageGenerator asyncStatusPageGenerator = new AsyncStatusPageGenerator(asList(
-                AsyncComponent.wrapping(new SlowComponent(), new AsyncComponent.Settings().withRepeatSchedule(10, TimeUnit.SECONDS)),
-                AsyncComponent.wrapping(new QuickComponent(), new AsyncComponent.Settings().withRepeatSchedule(3, TimeUnit.SECONDS))));
+        final AsyncComponentScheduler scheduler = new AsyncComponentScheduler(asList(
+                AsyncComponent.wrapping(new SlowComponent(), AsyncComponent.settings().withRepeatSchedule(10, SECONDS)),
+                AsyncComponent.wrapping(new QuickComponent(), AsyncComponent.settings().withRepeatSchedule(3, SECONDS))));
         
         
         StatusPageGenerator generator = new StatusPageGenerator("my-app", versionComponent());
         
-        asyncStatusPageGenerator.addAll(generator);
-        asyncStatusPageGenerator.start();
+        scheduler.addComponentsTo(generator);
+        scheduler.start();
 
         final ApplicationInformationServer server = ApplicationInformationServer.create(8001, generator, Health.ALWAYS_HEALTHY);
         server.start();
@@ -33,7 +32,7 @@ public class AsyncUsage {
             @Override
             public void run() {
                 try {
-                    asyncStatusPageGenerator.stop();
+                    scheduler.stop();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
