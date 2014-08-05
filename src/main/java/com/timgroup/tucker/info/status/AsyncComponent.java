@@ -2,10 +2,7 @@ package com.timgroup.tucker.info.status;
 
 import static com.timgroup.tucker.info.Status.WARNING;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,37 +13,33 @@ import org.slf4j.LoggerFactory;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.Status;
 
 public class AsyncComponent extends Component {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
 
-    private final AtomicReference<Report> current = new AtomicReference<Report>();
-    private final AtomicReference<Date> lastRunTimeStamp;
+    private final AtomicReference<PerishableReport> currentReport;
     
     private final Component wrapped;
     private final ScheduledExecutorService executor;
-    private final Clock clock;
     private final Consumer statusUpdateHook;
     private final long repeat;
     private final TimeUnit repeatTimeUnit;
-    private final long stalenessLimit;
-    private final TimeUnit stalenessTimeUnit;
     
     public AsyncComponent(Builder builder) {
         super(builder.wrapped.getId(), builder.wrapped.getLabel());
         this.wrapped = builder.wrapped;
         this.executor = builder.executor;
-        this.clock = builder.clock;
         this.repeat = builder.repeat;
         this.repeatTimeUnit = builder.repeatTimeUnit;
         this.statusUpdateHook = builder.statusUpdateHook;
-        this.stalenessLimit = builder.stalenessLimit;
-        this.stalenessTimeUnit = builder.stalenessTimeUnit;
         
-        this.lastRunTimeStamp = new AtomicReference<Date>(clock.now());
-        this.current.set(new Report(Status.WARNING, "Pending"));
+        PerishableReport initialReport = new PerishableReport(
+                new Report(WARNING, "Pending"), 
+                builder.clock, 
+                builder.stalenessLimit, 
+                builder.stalenessTimeUnit);
+        this.currentReport = new AtomicReference<PerishableReport>(initialReport);
     }
 
     public static AsyncComponent.Builder wrapping(Component wrapped) {
@@ -79,7 +72,6 @@ public class AsyncComponent extends Component {
         
     }
     
-
     public void stop() throws InterruptedException {
         executor.shutdown();
         executor.awaitTermination(1, TimeUnit.SECONDS);
@@ -94,8 +86,7 @@ public class AsyncComponent extends Component {
         @Override
         public void run() {
             Report report = safeGetWrappedReport();
-            current.set(report);
-            lastRunTimeStamp.set(clock.now());
+            currentReport.set(currentReport.get().updatedWith(report));
             safelyInvokeUpdateHook(report);
             executor.schedule(this, repeat, repeatTimeUnit);
         }
@@ -116,24 +107,11 @@ public class AsyncComponent extends Component {
             }
         }
     }
+    
 
     @Override
     public Report getReport() {
-        Report report = current.get();
-        Date lastRun = lastRunTimeStamp.get();
-
-        if ((clock.now().getTime() - lastRun.getTime()) > stalenessTimeUnit.toMillis(stalenessLimit)) {
-            return new Report(WARNING, 
-                    String.format("Last run at %s (over %s %s ago): %s",
-                            isoFormatted(lastRun), stalenessLimit, stalenessTimeUnit.name().toLowerCase(), report.getValue()));
-        }
-        return report;
-    }
-
-    private String isoFormatted(Date date) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return df.format(date);
+        return currentReport.get().getPotentiallyStaleReport();
     }
 
     public interface Clock {
