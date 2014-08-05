@@ -1,59 +1,43 @@
 package com.timgroup.tucker.info.status;
 
-import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.component.VersionComponent;
+public class AsyncStatusPageGenerator {
 
-public class AsyncStatusPageGenerator implements ApplicationReportGenerator {
-
-    private final StatusPageGenerator statusPageGenerator;
-    private final List<AsyncComponent> components;
-
-    public AsyncStatusPageGenerator(String applicationId, VersionComponent versionComponent, List<AsyncComponent> components) {
-        this.components = unmodifiableList(new ArrayList<AsyncComponent>(components));
-        this.statusPageGenerator = new StatusPageGenerator(applicationId, versionComponent);
-        for (AsyncComponent component: components) {
-            statusPageGenerator.addComponent(component);
-        }
-    }
-
-    @Override
-    public Component getVersionComponent() {
-        return statusPageGenerator.getVersionComponent();
-    }
-
-    @Override
-    public StatusPage getApplicationReport() {
-        return statusPageGenerator.getApplicationReport();
-    }
+    private static final long NO_INITIAL_DELAY = 0;
     
+    private final List<AsyncComponent> components;
+    private final ScheduledExecutorService executor;
+
+    public AsyncStatusPageGenerator(List<AsyncComponent> components) {
+        this.components = unmodifiableList(new ArrayList<AsyncComponent>(components));
+        this.executor = Executors.newScheduledThreadPool(components.size());
+    }
+
     public void start() {
         for (AsyncComponent asyncComponent: components) {
-            asyncComponent.start();
+            executor.scheduleWithFixedDelay(
+                    asyncComponent.updateStatusRunnable(), 
+                    NO_INITIAL_DELAY, 
+                    asyncComponent.repeat, 
+                    asyncComponent.repeatTimeUnit);
+        }
+    }
+    
+    public void addAll(StatusPageGenerator generator) {
+        for (AsyncComponent asyncComponent: components) {
+            generator.addComponent(asyncComponent);
         }
     }
     
     public void stop() throws InterruptedException {
-        List<String> failedToStop = new ArrayList<String>();
-        InterruptedException lastThrown = null;
-        for (AsyncComponent asyncComponent: components) {
-            try {
-                asyncComponent.stop();
-            } catch (InterruptedException e) {
-                failedToStop.add(asyncComponent.getId());
-                lastThrown = e;
-            }
-        }
-        if (!failedToStop.isEmpty()) {
-            String message = format("Failed to stop components: %s. Last failure: %s", failedToStop, lastThrown.getMessage());
-            InterruptedException consolidatedException = new InterruptedException(message);
-            consolidatedException.initCause(lastThrown);
-            throw consolidatedException;
-        }
+      executor.shutdown();
+      executor.awaitTermination(1, TimeUnit.SECONDS);
     }
 }

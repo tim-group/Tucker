@@ -6,26 +6,20 @@ import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Calendar.JULY;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -77,8 +71,8 @@ public class AsyncComponentTest {
                 .withStalenessLimit(4, MINUTES)
                 .build();
         
-        asyncComponent.start();
-
+        schedule(asyncComponent);
+        
         invoked.waitFor("Component to be invoked");
         Report report = asyncComponent.getReport();
 
@@ -86,6 +80,11 @@ public class AsyncComponentTest {
         assertThat(
             report.getValue().toString(),
             containsString("Last run at 2014-07-12T01:00:00 (over 4 minutes ago): Pending"));
+    }
+
+    private void schedule(AsyncComponent asyncComponent) {
+        AsyncStatusPageGenerator asyncGenerator = new AsyncStatusPageGenerator(Arrays.asList(asyncComponent));
+        asyncGenerator.start();
     }
     
     private Component neverReturnsComponent(final TestingSemaphore invoked) {
@@ -126,7 +125,7 @@ public class AsyncComponentTest {
                 .withRepeatSchedule(1, NANOSECONDS)
                 .withUpdateHook(statusUpdated)
                 .build();
-        asyncComponent.start();
+        schedule(asyncComponent);
 
         componentUpdated.waitFor("Component to be invoked");
         assertEquals(new Report(OK, "Everything's fine"), asyncComponent.getReport());
@@ -171,7 +170,7 @@ public class AsyncComponentTest {
                 .withRepeatSchedule(1, NANOSECONDS)
                 .withUpdateHook(onUpdate)
                 .build();
-        asyncComponent.start();
+        schedule(asyncComponent);
         
         componentInvoked.waitFor("Component to be invoked");
         
@@ -204,7 +203,7 @@ public class AsyncComponentTest {
                 .withUpdateHook(onUpdate)
                 .build();
         
-        asyncComponent.start();
+        schedule(asyncComponent);
         
         componentInvoked.waitFor("Component to be invoked");
         Report report = asyncComponent.getReport();
@@ -247,7 +246,7 @@ public class AsyncComponentTest {
                 .withUpdateHook(onUpdate)
                 .build();
         
-        asyncComponent.start();
+        schedule(asyncComponent);
         
         componentInvoked.waitFor("Component to be invoked");
         assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
@@ -256,63 +255,10 @@ public class AsyncComponentTest {
         assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
     }
     
-    @Test
-    public void shutsDownThreadPoolAndDoesNotRetrieveComponentStatusAfterBeingStopped() throws InterruptedException {
-        final TestingSemaphore componentInvoked = new TestingSemaphore();
-        Consumer onUpdate = new Consumer() {
-            @Override public void apply(Report report) {
-                componentInvoked.completed();
-            }
-        };
-
-        ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(1);
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(healthyWellBehavedComponent())
-                .withRepeatSchedule(1, NANOSECONDS)
-                .withUpdateHook(onUpdate)
-                .withExecutor(threadPool)
-                .build();
-        
-        asyncComponent.start();
-        
-        componentInvoked.waitFor("Component to be invoked");
-        assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
-        
-        asyncComponent.stop();
-        assertTrue(threadPool.isTerminated());
-        assertFalse(componentInvoked.completedAgainIn(100, NANOSECONDS));
-    }
-
     private Date minutesAfterInitialisation(int minutes) {
         Calendar calender = Calendar.getInstance();
         calender.setTimeZone(TimeZone.getTimeZone("UTC"));
         calender.set(2014, JULY, 12, 1, minutes, 0);
         return calender.getTime();
-    }
-    
-    private static final class TestingSemaphore {
-        private final Semaphore semaphore = new Semaphore(0);
-        
-        void waitFor(String somethingToHappen) {
-            try {
-                if (!semaphore.tryAcquire(5, SECONDS)) {
-                    throw new AssertionError(new TimeoutException("Timed out waiting for " + somethingToHappen));
-                }
-            } catch (InterruptedException e) {
-                throw new AssertionError(e);
-            }
-        }
-        
-        void completed() {
-            semaphore.release();
-        }
-        
-        boolean completedAgainIn(long timeout, TimeUnit unit) {
-            try {
-                semaphore.drainPermits();
-                return semaphore.tryAcquire(timeout, unit);
-            } catch (InterruptedException e) {
-                throw new AssertionError(e);
-            }
-        }
     }
 }

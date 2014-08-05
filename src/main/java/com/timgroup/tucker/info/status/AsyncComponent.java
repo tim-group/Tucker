@@ -3,8 +3,6 @@ package com.timgroup.tucker.info.status;
 import static com.timgroup.tucker.info.Status.WARNING;
 
 import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,15 +19,13 @@ public class AsyncComponent extends Component {
     private final AtomicReference<PerishableReport> currentReport;
     
     private final Component wrapped;
-    private final ScheduledExecutorService executor;
     private final Consumer statusUpdateHook;
-    private final long repeat;
-    private final TimeUnit repeatTimeUnit;
+    final long repeat;
+    final TimeUnit repeatTimeUnit;
     
     public AsyncComponent(Builder builder) {
         super(builder.wrapped.getId(), builder.wrapped.getLabel());
         this.wrapped = builder.wrapped;
-        this.executor = builder.executor;
         this.repeat = builder.repeat;
         this.repeatTimeUnit = builder.repeatTimeUnit;
         this.statusUpdateHook = builder.statusUpdateHook;
@@ -48,7 +44,6 @@ public class AsyncComponent extends Component {
     
     public static final class Builder {
         private final Component wrapped;
-        private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         private Clock clock = new SystemClock();
         private long repeat = 30;
         private TimeUnit repeatTimeUnit = TimeUnit.SECONDS;
@@ -64,21 +59,11 @@ public class AsyncComponent extends Component {
             return new AsyncComponent(this);
         }
         
-        public Builder withExecutor(ScheduledExecutorService executor) { this.executor = executor; return this; }
         public Builder withClock(Clock clock) { this.clock = clock; return this; }
         public Builder withRepeatSchedule(long time, TimeUnit units) { this.repeat = time; this.repeatTimeUnit = units; return this; }
         public Builder withUpdateHook(Consumer statusUpdated) { this.statusUpdateHook = statusUpdated; return this; }
         public Builder withStalenessLimit(long time, TimeUnit units) { this.stalenessLimit = time; this.stalenessTimeUnit = units; return this; }
         
-    }
-    
-    public void stop() throws InterruptedException {
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.SECONDS);
-    }
-
-    public void start() {
-        executor.schedule(new UpdateComponentStatusRunnable(), repeat, repeatTimeUnit);
     }
     
     final class UpdateComponentStatusRunnable implements Runnable {
@@ -88,7 +73,6 @@ public class AsyncComponent extends Component {
             Report report = safeGetWrappedReport();
             currentReport.set(currentReport.get().updatedWith(report));
             safelyInvokeUpdateHook(report);
-            executor.schedule(this, repeat, repeatTimeUnit);
         }
 
         private Report safeGetWrappedReport() {
@@ -131,6 +115,10 @@ public class AsyncComponent extends Component {
         public static final Consumer NOOP = new Consumer() {
             @Override public void apply(Report report) { }
         };
+    }
+
+    public Runnable updateStatusRunnable() {
+        return new UpdateComponentStatusRunnable();
     }
 
 
