@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.timgroup.tucker.info.status.ApplicationReportGenerator;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
@@ -20,7 +19,7 @@ public class ApplicationInformationHandler {
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
 
-    public ApplicationInformationHandler(ApplicationReportGenerator statusPage, Stoppable stoppable, Health health) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new HealthWriter(health));
@@ -56,15 +55,15 @@ public class ApplicationInformationHandler {
     }
 
     private static final class StatusPageWriter implements Handler {
-        private final ApplicationReportGenerator applicationReportGenerator;
+        private final StatusPageGenerator StatusPageGenerator;
 
-        public StatusPageWriter(ApplicationReportGenerator statusPage) {
-            this.applicationReportGenerator = statusPage;
+        public StatusPageWriter(StatusPageGenerator statusPage) {
+            this.StatusPageGenerator = statusPage;
         }
 
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/xml", UTF_8);
-            StatusPage report = applicationReportGenerator.getApplicationReport();
+            StatusPage report = StatusPageGenerator.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
             out.close();
         }

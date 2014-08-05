@@ -16,11 +16,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.timgroup.tucker.info.component.JarVersionComponent;
-import com.timgroup.tucker.info.status.ApplicationReportGenerator;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class ApplicationInformationServerTest {
-    ApplicationReportGenerator statusPage;
+    StatusPageGenerator statusPage;
     ApplicationInformationServer server;
 
 
