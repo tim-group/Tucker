@@ -55,7 +55,7 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void unconfiguredStatusPageRendersBasicXMLStructure() throws Exception {
-        ApplicationReportGenerator statusPage = new StatusPageGenerator("myapp", version);
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         
         long renderTime = System.currentTimeMillis();
         Document document = render(statusPage);
@@ -182,7 +182,7 @@ public class StatusPageGeneratorTest {
         return (Element) elementsByTagName.item(1);
     }
     
-    private Document render(ApplicationReportGenerator statusPage) throws ParserConfigurationException, SAXException, IOException {
+    private Document render(StatusPageGenerator statusPage) throws ParserConfigurationException, SAXException, IOException {
         StringWriter writer = new StringWriter();
         
         statusPage.getApplicationReport().render(writer);
