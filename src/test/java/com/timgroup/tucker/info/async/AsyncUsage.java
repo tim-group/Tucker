@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info.status;
+package com.timgroup.tucker.info.async;
 
 import static com.timgroup.tucker.info.Status.INFO;
 import static java.util.Arrays.asList;
@@ -8,14 +8,16 @@ import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.async.AsyncComponentScheduler;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.httpserver.ApplicationInformationServer;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class AsyncUsage {
 
     public static void main(String[] args) throws Exception {
-        final AsyncComponentScheduler scheduler = new AsyncComponentScheduler(
-                AsyncComponent.settings().withRepeatSchedule(10, SECONDS),
+        final AsyncComponentScheduler scheduler = AsyncComponentScheduler.createFromSynchronous(
+                AsyncSettings.settings().withRepeatSchedule(10, SECONDS),
                 asList(new SlowComponent(), new QuickComponent()));
         
         

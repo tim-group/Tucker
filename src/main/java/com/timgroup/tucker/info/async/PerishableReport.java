@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info.status;
+package com.timgroup.tucker.info.async;
 
 import static com.timgroup.tucker.info.Status.WARNING;
 
@@ -9,7 +9,6 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.status.AsyncComponent.Clock;
 
 final class PerishableReport {
     private final Date timestamp;
@@ -33,8 +32,9 @@ final class PerishableReport {
 
     public Report getPotentiallyStaleReport() {
         if ((clock.now().getTime() - timestamp.getTime()) > stalenessTimeUnit.toMillis(stalenessLimit)) {
-            String message = String.format("Last run at %s (over %s %s ago): %s",
-                    isoFormatted(timestamp), stalenessLimit, stalenessTimeUnit.name().toLowerCase(), report.getValue());
+            String message = String.format(
+                "Last run at %s (over %s %s ago): %s",
+                isoFormatted(timestamp), stalenessLimit, stalenessTimeUnit.name().toLowerCase(), report.getValue());
             return new Report(WARNING, message);
         } else {
             return report;

@@ -1,4 +1,4 @@
-package com.timgroup.tucker.info.status;
+package com.timgroup.tucker.info.async;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
