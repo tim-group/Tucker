@@ -14,9 +14,9 @@ import com.timgroup.tucker.info.httpserver.ApplicationInformationServer;
 public class AsyncUsage {
 
     public static void main(String[] args) throws Exception {
-        final AsyncComponentScheduler scheduler = new AsyncComponentScheduler(asList(
-                AsyncComponent.wrapping(new SlowComponent(), AsyncComponent.settings().withRepeatSchedule(10, SECONDS)),
-                AsyncComponent.wrapping(new QuickComponent(), AsyncComponent.settings().withRepeatSchedule(3, SECONDS))));
+        final AsyncComponentScheduler scheduler = new AsyncComponentScheduler(
+                AsyncComponent.settings().withRepeatSchedule(10, SECONDS),
+                asList(new SlowComponent(), new QuickComponent()));
         
         
         StatusPageGenerator generator = new StatusPageGenerator("my-app", versionComponent());
