@@ -1,9 +1,9 @@
 package com.timgroup.tucker.info.status;
 
-import static com.timgroup.tucker.info.Status.CRITICAL;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Calendar.JULY;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -125,6 +126,7 @@ public class AsyncComponentTest {
                 .withClock(clock)
                 .withRepeatSchedule(1, NANOSECONDS)
                 .withUpdateHook(statusUpdated));
+        
         schedule(asyncComponent);
 
         componentUpdated.waitFor("Component to be invoked");
@@ -203,8 +205,9 @@ public class AsyncComponentTest {
         
         componentInvoked.waitFor("Component to be invoked");
         Report report = asyncComponent.getReport();
-        assertEquals(CRITICAL, report.getStatus());
-        assertThat(report.getException(), is(instanceOf(NoClassDefFoundError.class)));
+        
+        assertEquals(WARNING, report.getStatus());
+        assertThat(report.getException(), is(instanceOf(IllegalStateException.class)));
         assertionSemaphore.completed();
         
         componentInvoked.waitFor("Component to be invoked");
@@ -217,7 +220,7 @@ public class AsyncComponentTest {
 
             @Override public Report getReport() {
                 if (timesCalled.getAndIncrement() == 0) {
-                    throw new NoClassDefFoundError("Haha");
+                    throw new IllegalStateException("Thrown by component");
                 }
                 return new Report(OK, "Recovered");
             }
@@ -232,7 +235,7 @@ public class AsyncComponentTest {
             @Override public void apply(Report report) {
                 componentInvoked.completed();
                 if (timesCalled.getAndIncrement() == 0) {
-                    throw new NoSuchMethodError();
+                    throw new IllegalArgumentException("Thrown by update hook");
                 }
             }
         };
@@ -255,5 +258,29 @@ public class AsyncComponentTest {
         calender.setTimeZone(TimeZone.getTimeZone("UTC"));
         calender.set(2014, JULY, 12, 1, minutes, 0);
         return calender.getTime();
+    }
+    
+    @Test
+    public void doesNotRescheduleWhenAnErrorIsThrownDuringUpdate() {
+        final TestingSemaphore componentInvoked = new TestingSemaphore();
+
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(
+                throwsErrorComponent(componentInvoked),
+                AsyncComponent.settings().withRepeatSchedule(1, NANOSECONDS));
+        
+        schedule(asyncComponent);
+        
+        componentInvoked.waitFor("Component to be invoked");
+        
+        assertFalse(componentInvoked.completedAgainIn(10, MILLISECONDS));
+    }
+    
+    private Component throwsErrorComponent(final TestingSemaphore componentInvoked) {
+        return new Component("my-fast-component-id", "My Fast Component") {
+            @Override public Report getReport() {
+                componentInvoked.completed();
+                throw new NoSuchMethodError("Unrecoverable error from component");
+            }
+        };
     }
 }

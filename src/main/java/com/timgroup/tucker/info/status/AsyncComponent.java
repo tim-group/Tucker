@@ -88,26 +88,28 @@ public class AsyncComponent extends Component {
 
         @Override
         public void run() {
-            Report report = safeGetWrappedReport();
+            try {
+                Report report = wrapped.getReport();
+                update(report);
+            } catch (Exception e) {
+                update(new Report(WARNING, e));
+                LOGGER.error("unexpected exception in scheduled update of Tucker component {}", wrapped.getId(), e);
+            }
+        }
+
+        private void update(Report report) {
             currentReport.set(currentReport.get().updatedWith(report));
             safelyInvokeUpdateHook(report);
         }
 
-        private Report safeGetWrappedReport() {
-            try {
-                return wrapped.getReport();
-            } catch (Throwable t) {
-                return new Report(t);
-            }
-        }
-        
         private void safelyInvokeUpdateHook(Report report) {
             try {
                 statusUpdateHook.apply(report);
-            } catch (Throwable t) {
-                LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), t);
+            } catch (Exception e) {
+                LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), e);
             }
         }
+
     }
     
 
