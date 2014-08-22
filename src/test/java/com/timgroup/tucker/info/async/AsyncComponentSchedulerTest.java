@@ -30,9 +30,6 @@ import org.junit.Test;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
-import com.timgroup.tucker.info.async.AsyncComponent;
-import com.timgroup.tucker.info.async.AsyncComponentScheduler;
-import com.timgroup.tucker.info.async.Clock;
 
 public class AsyncComponentSchedulerTest {
     
@@ -277,20 +274,20 @@ public class AsyncComponentSchedulerTest {
         calender.set(2014, JULY, 12, 1, minutes, 0);
         return calender.getTime();
     }
-    
+
     @Test
-    public void doesNotRescheduleWhenAnErrorIsThrownDuringUpdate() {
+    public void reschedulesWhenAnErrorIsThrownDuringUpdate() {
         final TestingSemaphore componentInvoked = new TestingSemaphore();
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(
                 throwsErrorComponent(componentInvoked),
                 AsyncSettings.settings().withRepeatSchedule(1, NANOSECONDS));
-        
+
         schedule(asyncComponent);
-        
+
         componentInvoked.waitFor("Component to be invoked");
-        
-        assertFalse(componentInvoked.completedAgainIn(10, MILLISECONDS));
+
+        assertTrue(componentInvoked.completedAgainIn(10, MILLISECONDS));
     }
     
     private Component throwsErrorComponent(final TestingSemaphore componentInvoked) {

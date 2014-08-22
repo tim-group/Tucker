@@ -63,7 +63,7 @@ public class AsyncComponent extends Component {
         try {
             Report report = wrapped.getReport();
             update(report);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             update(new Report(WARNING, e));
             LOGGER.error("unexpected exception in scheduled update of Tucker component {}", wrapped.getId(), e);
         }
