@@ -26,7 +26,7 @@ final class LoggingCallback implements ComponentStateChangeCallback {
         LOGGER.info(LOG_EVENT_FORMAT,
             component.getId(), component.getLabel(),
             previous.getStatus(), previous.getValue(),
-            previous.getStatus(), previous.getValue());
+            current.getStatus(), current.getValue());
     }
 
 }
