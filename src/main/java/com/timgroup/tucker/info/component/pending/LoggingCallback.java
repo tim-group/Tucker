@@ -18,7 +18,7 @@ final class LoggingCallback implements ComponentStateChangeCallback {
                 "\"previousStatus\": \"{}\", " +
                 "\"previousValue\": \"{}\", " +
                 "\"currentStatus\": \"{}\", " +
-                "\"currentValue\": \"{}\", " +
+                "\"currentValue\": \"{}\"" +
             "}}";
 
     @Override
