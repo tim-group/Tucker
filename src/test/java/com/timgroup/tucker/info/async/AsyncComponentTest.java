@@ -2,19 +2,13 @@ package com.timgroup.tucker.info.async;
 
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.async.AsyncComponent;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 public class AsyncComponentTest {
 
