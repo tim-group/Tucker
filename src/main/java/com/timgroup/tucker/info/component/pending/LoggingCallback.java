@@ -24,9 +24,25 @@ final class LoggingCallback implements ComponentStateChangeCallback {
     @Override
     public void stateChanged(Component component, Report previous, Report current) {
         LOGGER.info(LOG_EVENT_FORMAT,
-            component.getId(), component.getLabel(),
-            previous.getStatus(), previous.getValue(),
-            current.getStatus(), current.getValue());
+            jsonEscape(component.getId()), jsonEscape(component.getLabel()),
+            jsonEscape(previous.getStatus()), jsonEscape(previous.getValue()),
+            jsonEscape(current.getStatus()), jsonEscape(current.getValue()));
     }
 
+    private static String jsonEscape(Object obj) {
+        CharSequence in = String.valueOf(obj);
+        StringBuilder out = new StringBuilder(in.length());
+        for (int i = 0; i < in.length(); i++) {
+            char c = in.charAt(i);
+            switch (c) {
+            case '\\':
+            case '\"':
+                out.append('\\');
+                // fallthru
+            default:
+                out.append(c);
+            }
+        }
+        return out.toString();
+    }
 }
