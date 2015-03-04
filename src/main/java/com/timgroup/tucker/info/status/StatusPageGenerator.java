@@ -33,13 +33,14 @@ public class StatusPageGenerator {
         components.add(versionComponent);
     }
     
-    public void addComponent(Component component) {
+    public synchronized void addComponent(Component component) {
         components.add(component);
     }
     
     public StatusPage getApplicationReport() {
-        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
-        for (Component component : components) {
+        List<Component> snapshot = componentsSnapshot();
+        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(snapshot.size());
+        for (Component component : snapshot) {
             Report report;
             try {
                 report = component.getReport();
@@ -59,5 +60,9 @@ public class StatusPageGenerator {
 
     public Component getVersionComponent() {
         return versionComponent;
+    }
+
+    private synchronized List<Component> componentsSnapshot() {
+        return new ArrayList<Component>(components);
     }
 }
