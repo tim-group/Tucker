@@ -31,7 +31,7 @@ public class AsyncComponent extends Component {
         this.statusUpdateHook = settings.statusUpdateHook;
         
         PerishableReport initialReport = new PerishableReport(
-                new Report(WARNING, "Pending"), 
+                new Report(WARNING, "Not yet run"),
                 settings.clock, 
                 settings.stalenessLimit, 
                 settings.stalenessTimeUnit);

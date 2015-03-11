@@ -126,7 +126,7 @@ public class AsyncComponentSchedulerTest {
         assertEquals(WARNING, report.getStatus());
         assertThat(
             report.getValue().toString(),
-            containsString("Last run at 2014-07-12T01:00:00 (over 4 minutes ago): Pending"));
+            containsString("Last run at 2014-07-12T01:00:00 (over 4 minutes ago): Not yet run"));
     }
     
 

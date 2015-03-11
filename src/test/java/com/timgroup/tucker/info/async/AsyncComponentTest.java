@@ -32,7 +32,7 @@ public class AsyncComponentTest {
         Report report = asyncComponent.getReport();
 
         assertEquals(report.getStatus(), WARNING);
-        assertEquals(report.getValue(), "Pending");
+        assertEquals(report.getValue(), "Not yet run");
     }
     
     @Test
