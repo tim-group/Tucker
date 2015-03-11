@@ -7,8 +7,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.ComponentStateChangeCallback;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.log.LoggingCallback;
 
 public final class PendingComponent extends Component {
 

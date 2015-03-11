@@ -1,12 +1,14 @@
-package com.timgroup.tucker.info.component.pending;
+package com.timgroup.tucker.info.log;
 
+import com.timgroup.tucker.info.ComponentStateChangeCallback;
+import com.timgroup.tucker.info.component.pending.PendingComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 
-final class LoggingCallback implements ComponentStateChangeCallback {
+public final class LoggingCallback implements ComponentStateChangeCallback {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PendingComponent.class);
 

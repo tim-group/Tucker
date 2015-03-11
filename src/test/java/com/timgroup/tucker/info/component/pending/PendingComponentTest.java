@@ -11,8 +11,7 @@ import org.junit.Test;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
-import com.timgroup.tucker.info.component.pending.ComponentStateChangeCallback;
-import com.timgroup.tucker.info.component.pending.PendingComponent;
+import com.timgroup.tucker.info.ComponentStateChangeCallback;
 
 public class PendingComponentTest {
 
