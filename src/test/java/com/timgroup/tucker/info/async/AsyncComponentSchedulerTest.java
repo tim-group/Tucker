@@ -4,9 +4,7 @@ import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Arrays.asList;
 import static java.util.Calendar.JULY;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -56,7 +54,7 @@ public class AsyncComponentSchedulerTest {
         
         scheduler.start();
         
-        assertTrue("Should schedule repeated updates", scheduledNotification.await(5, MILLISECONDS));
+        assertTrue("Should schedule repeated updates", scheduledNotification.await(1, SECONDS));
     }
 
     private AsyncComponent quicklyScheduledComponent(String id, CountDownLatch scheduledNotification) {
