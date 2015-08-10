@@ -37,7 +37,7 @@ public final class PendingComponent extends Component {
 
     @Override
     public Report getReport() {
-        Report current = wrappedComponent.getReport();
+        Report current = safelyGetReport();
         Report previous = previousReportRef.get();
 
         if (previous != null && !previous.equals(current)) {
@@ -48,6 +48,14 @@ public final class PendingComponent extends Component {
         return new Report(
             Status.INFO,
             format("%s (actual status: %s)", valueOf(current.getValue()), current.getStatus()));
+    }
+
+    private Report safelyGetReport() {
+        try {
+            return wrappedComponent.getReport();
+        } catch (Throwable t) {
+            return new Report(t);
+        }
     }
 
 }

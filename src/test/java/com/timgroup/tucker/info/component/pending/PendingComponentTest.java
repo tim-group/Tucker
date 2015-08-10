@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
@@ -19,12 +20,20 @@ public class PendingComponentTest {
         @Override public Report getReport() {
             return new Report(Status.CRITICAL, "I am critical");
         }
-
     };
 
     @Test public void
     returnsInfoStatusRegardlessOfWrappedComponentStatus() {
         PendingComponent pending = new PendingComponent(criticalComponent, PendingComponent.NO_OP);
+
+        assertThat(pending.getReport().getStatus(), is(Status.INFO));
+    }
+
+    @Test public void
+    returnsInfoStatusIfWrappedComponentThrowsUncaughtException() {
+        Component exceptionThrowingComponent = mock(Component.class);
+        when(exceptionThrowingComponent.getReport()).thenThrow(new IllegalStateException("I will always throw an exception"));
+        PendingComponent pending = new PendingComponent(exceptionThrowingComponent, PendingComponent.NO_OP);
 
         assertThat(pending.getReport().getStatus(), is(Status.INFO));
     }
@@ -39,14 +48,10 @@ public class PendingComponentTest {
 
     @Test public void
     notifiesCallBackOfComponentStateChange() {
-        Component changingStatusComponent = new Component("changing", "Changing") {
-            private boolean first = true;
-            @Override public Report getReport() {
-                Report report = first ? new Report(Status.OK, "I'm fine") : new Report(Status.CRITICAL, "Now I'm sad");
-                first = false;
-                return report;
-            }
-        };
+        Component changingStatusComponent = mock(Component.class);
+        when(changingStatusComponent.getReport()).thenReturn(
+                new Report(Status.OK, "I'm fine"),
+                new Report(Status.CRITICAL, "Now I'm sad"));
 
         ComponentStateChangeCallback callback = mock(ComponentStateChangeCallback.class);
 
