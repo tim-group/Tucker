@@ -8,11 +8,11 @@ import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
 /**
- * Reports a version extracted from the leading bytes of the specified anchor class. This represents
- * the version of the class's bytecode, and indicates which JVMs it is likely to be compatible with.
- *
+ * Reports a version extracted from the leading bytes of the specified anchor class.
  * <p>
- * See {@link http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.1}
+ * This represents the version of the class's bytecode, and indicates which JVMs it is likely to be compatible with.
+ *
+ * @see <a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.1">JavaSE reference</a>
  */
 public class ClassFileVersionComponent  extends Component {
 

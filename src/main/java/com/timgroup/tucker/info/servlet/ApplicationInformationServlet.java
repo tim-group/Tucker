@@ -23,7 +23,11 @@ public class ApplicationInformationServlet extends HttpServlet {
     private final StatusPageGenerator statusPage;
 
     /**
-     * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
+     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
+     *
+     * @param statusPage Status page generator
+     * @param stoppable Indicator for stoppability
+     * @param health Indicator for application health
      */
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         this.statusPage = statusPage;
@@ -31,7 +35,11 @@ public class ApplicationInformationServlet extends HttpServlet {
     }
 
     /**
-     * Use Stoppable.ALWAYS_STOPPABLE if you don't care about stoppable.
+     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
+     *
+     * @param applicationId Application name
+     * @param stoppable Indicator for stoppability
+     * @param health Indicator for application health
      */
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
         this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));

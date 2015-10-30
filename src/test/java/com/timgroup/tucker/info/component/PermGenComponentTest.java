@@ -6,6 +6,7 @@ import static com.timgroup.tucker.info.Status.WARNING;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -51,6 +52,8 @@ public class PermGenComponentTest {
     
     @Test public void
     permGenProviderGivesStats() {
+        assumeTrue(System.getProperty("java.version").compareTo("1.8") < 0);
+
         PermGenProvider provider = new PermGenComponent.PermGenProvider();
         
         assertTrue(provider.total() > 0);

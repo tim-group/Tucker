@@ -5,11 +5,11 @@ import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
 /**
- * Reports version information about the JVM in which this application is running. The
- * version comes from a query of the java system properties.
- *
+ * Reports version information about the JVM in which this application is running.
  * <p>
- * See {@link http://docs.oracle.com/javase/6/docs/api/java/lang/System.html#getProperties%28%29}
+ * The version comes from a query of the java system properties.
+ *
+ * @see java.lang.System#getProperties
  */
 public class JvmVersionComponent extends Component {
 
