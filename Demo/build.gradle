@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 repositories {
     mavenLocal()
@@ -23,6 +24,8 @@ dependencies {
     compile group: 'commons-io',               name: 'commons-io',                 version: '1.4'
 }
 
+mainClassName = 'infrastructure.JettyLauncher'
+
 jar {
     enabled=true
     from configurations.runtime.collect{
@@ -36,7 +39,7 @@ jar {
     exclude '*.conf'
     from sourceSets.main.output
     manifest { 
-        attributes("Main-Class": "infrastructure.JettyLauncher") 
+        attributes("Main-Class": mainClassName)
         attributes("Implementation-Version": "The.reported.version")
     }
 }
@@ -47,4 +50,8 @@ eclipse {
     classpath {
         defaultOutputDir = file('.eclipse')
     }
+}
+
+run {
+    args httpPort
 }
