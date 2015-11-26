@@ -1,9 +1,9 @@
 package com.timgroup.tucker.info.status;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.timgroup.tucker.info.Status;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ public class StatusPageGenerator {
     
     private final String applicationId;
     private final VersionComponent versionComponent;
-    private final List<Component> components = new ArrayList<Component>();
+    private final List<Component> components = new CopyOnWriteArrayList<Component>();
     
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
         this.applicationId = applicationId;
@@ -33,14 +33,13 @@ public class StatusPageGenerator {
         components.add(versionComponent);
     }
     
-    public synchronized void addComponent(Component component) {
+    public void addComponent(Component component) {
         components.add(component);
     }
     
     public StatusPage getApplicationReport() {
-        List<Component> snapshot = componentsSnapshot();
-        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(snapshot.size());
-        for (Component component : snapshot) {
+        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
+        for (Component component : components) {
             Report report;
             try {
                 report = component.getReport();
@@ -60,9 +59,5 @@ public class StatusPageGenerator {
 
     public Component getVersionComponent() {
         return versionComponent;
-    }
-
-    private synchronized List<Component> componentsSnapshot() {
-        return new ArrayList<Component>(components);
     }
 }
