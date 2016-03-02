@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class StatusPageGeneratorTest {
         
         Element root = document.getDocumentElement();
         assertEquals("myapp", root.getAttribute("id"));
+        assertEquals(probeHostname(), root.getAttribute("host"));
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
@@ -237,5 +240,12 @@ public class StatusPageGeneratorTest {
         
         return document;
     }
-    
+
+    private static String probeHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
 }

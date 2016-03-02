@@ -2,6 +2,8 @@ package com.timgroup.tucker.info.status;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Map;
@@ -28,13 +30,20 @@ public class StatusPage {
     private static final String TAG_TIMESTAMP = "timestamp";
     private static final String ATTR_CLASS = "class";
     private static final String ATTR_ID = "id";
+    private static final String ATTR_HOST = "host";
     
     private final String applicationId;
     private final Map<Component, Report> componentReports;
     private final long timestamp;
     private final Status applicationStatus;
+    private final String hostname;
     
     public StatusPage(String applicationId, Map<Component, Report> componentReports) {
+        this(probeHostname(), applicationId, componentReports);
+    }
+
+    public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports) {
+        this.hostname = hostname;
         timestamp = System.currentTimeMillis();
         this.applicationId = applicationId;
         this.componentReports = componentReports;
@@ -55,6 +64,7 @@ public class StatusPage {
             out.writeStartElement(TAG_APPLICATION);
             out.writeAttribute(ATTR_ID, applicationId);
             out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
+            out.writeAttribute(ATTR_HOST, hostname);
             
             for (Entry<Component, Report> componentReport : componentReports.entrySet()) {
                 Component component = componentReport.getKey();
@@ -99,5 +109,12 @@ public class StatusPage {
         df.setTimeZone(UTC);
         return df.format(time);
     }
-    
+
+    private static String probeHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
 }

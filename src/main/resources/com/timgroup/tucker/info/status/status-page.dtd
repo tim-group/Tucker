@@ -5,6 +5,7 @@
 <!ATTLIST application
 	%idAttr;
 	%statusAttr;
+	host CDATA #REQUIRED
 >
 
 <!ELEMENT component (#PCDATA|value|exception)*>
