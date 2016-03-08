@@ -55,15 +55,15 @@ public class ApplicationInformationHandler {
     }
 
     private static final class StatusPageWriter implements Handler {
-        private final StatusPageGenerator StatusPageGenerator;
+        private final StatusPageGenerator statusPageGenerator;
 
         public StatusPageWriter(StatusPageGenerator statusPage) {
-            this.StatusPageGenerator = statusPage;
+            this.statusPageGenerator = statusPage;
         }
 
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/xml", UTF_8);
-            StatusPage report = StatusPageGenerator.getApplicationReport();
+            StatusPage report = statusPageGenerator.getApplicationReport();
             report.render(new OutputStreamWriter(out, UTF_8));
             out.close();
         }
