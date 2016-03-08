@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -76,6 +79,32 @@ public class ApplicationInformationServletTest {
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/json");
         assertEquals('a', out.lastByte);
+    }
+
+    @Test
+    public void askingForStatusWithCallbackGetsJSONPFromStatusPage() throws Exception {
+        String callbackFunction = "test" + System.currentTimeMillis();
+        StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
+        StatusPage applicationReport = mock(StatusPage.class);
+        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class));
+        HttpServletRequest request = mockRequest("/status", Collections.singletonMap("callback", callbackFunction));
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ServletOutputStream out = new ServletOutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                output.write(b);
+            }
+        };
+        when(response.getOutputStream()).thenReturn(out);
+
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        statusPageServlet.service(request, response);
+
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setContentType("application/javascript");
+        assertEquals(callbackFunction + "(a)", new String(output.toByteArray(), Charset.forName("UTF-8")));
     }
 
     private final class WriteOneCharacter implements Answer<Void> {
@@ -176,12 +205,23 @@ public class ApplicationInformationServletTest {
     }
 
     private HttpServletRequest mockRequest(String pathInfo) {
+        return mockRequest(pathInfo, Collections.<String, String> emptyMap());
+    }
+
+    private HttpServletRequest mockRequest(String pathInfo, final Map<String, String> parameters) {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getProtocol()).thenReturn("http");
         when(request.getMethod()).thenReturn("GET");
         when(request.getContextPath()).thenReturn("/Foo");
         when(request.getServletPath()).thenReturn("/info");
         when(request.getPathInfo()).thenReturn(pathInfo);
+        when(request.getParameter(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                String name = (String) invocation.getArguments()[0];
+                return parameters.get(name);
+            }
+        });
         return request;
     }
 

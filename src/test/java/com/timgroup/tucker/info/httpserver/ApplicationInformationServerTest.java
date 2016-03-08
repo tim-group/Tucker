@@ -4,6 +4,8 @@ import static com.timgroup.tucker.info.Health.ALWAYS_HEALTHY;
 import static com.timgroup.tucker.info.Stoppable.ALWAYS_STOPPABLE;
 import static com.timgroup.tucker.info.httpserver.ApplicationInformationServer.create;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.BufferedReader;
@@ -41,6 +43,17 @@ public class ApplicationInformationServerTest {
         String statusPageXml = load("http://localhost:8000/info/status");
 
         assertThat(statusPageXml, containsString("test-tucker"));
+    }
+
+    @Test
+    public void
+    whenAServerIsRunningStatusPageCanBeRequestedAsJSONP() throws IOException {
+        String callbackFunction = "test" + System.currentTimeMillis();
+        String statusPageJavascript = load("http://localhost:8000/info/status?callback=" + callbackFunction);
+
+        assertThat(statusPageJavascript, containsString("test-tucker"));
+        assertThat(statusPageJavascript, startsWith(callbackFunction + "({"));
+        assertThat(statusPageJavascript, endsWith("})"));
     }
 
     private String load(String url) throws IOException {

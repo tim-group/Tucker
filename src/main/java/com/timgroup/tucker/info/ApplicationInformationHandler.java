@@ -18,6 +18,7 @@ public class ApplicationInformationHandler {
     private static final String UTF_8 = "UTF-8";
 
     private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
+    private final Map<String, Handler> jsonpDispatch = new HashMap<String, Handler>();
 
     public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         dispatch.put(null, new RedirectTo("/status"));
@@ -29,6 +30,8 @@ public class ApplicationInformationHandler {
         dispatch.put("/status.json", new StatusPageJsonWriter(statusPage));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
+        jsonpDispatch.put("/status", new StatusPageJsonWriter(statusPage));
+        jsonpDispatch.put("/status.json", new StatusPageJsonWriter(statusPage));
     }
 
     public void handle(String path, WebResponse response) throws IOException {
@@ -39,8 +42,71 @@ public class ApplicationInformationHandler {
         }
     }
 
+    public void handleJSONP(String path, String callback, WebResponse response) throws IOException {
+        if (jsonpDispatch.containsKey(path)) {
+            jsonpDispatch.get(path).handle(new JSONPResponse(callback, response));
+        } else {
+            handle(path, response);
+        }
+    }
+
     private interface Handler {
         void handle(WebResponse response) throws IOException;
+    }
+
+    private static final class JSONPResponse implements WebResponse {
+        private final String callback;
+        private final WebResponse underlying;
+
+        public JSONPResponse(String callback, WebResponse underlying) {
+            this.callback = callback;
+            this.underlying = underlying;
+        }
+
+        @Override
+        public OutputStream respond(String contentType, String characterEncoding) throws IOException {
+            if (!contentType.equalsIgnoreCase("application/json")) {
+                return underlying.respond(contentType, characterEncoding);
+            }
+
+            final OutputStream understream = underlying.respond("application/javascript", characterEncoding);
+
+            understream.write(callback.getBytes(characterEncoding));
+            understream.write('(');
+
+            return new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    understream.write(b);
+                }
+
+                @Override
+                public void write(byte[] b) throws IOException {
+                    understream.write(b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    understream.write(b, off, len);
+                }
+
+                @Override
+                public void close() throws IOException {
+                    understream.write(')');
+                    understream.close();
+                }
+            };
+        }
+
+        @Override
+        public void reject(int status, String message) throws IOException {
+            underlying.reject(status, message);
+        }
+
+        @Override
+        public void redirect(String relativePath) throws IOException {
+            underlying.redirect(relativePath);
+        }
     }
 
     private static final class RedirectTo implements Handler {

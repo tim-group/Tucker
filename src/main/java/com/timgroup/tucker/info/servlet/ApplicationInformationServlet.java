@@ -53,6 +53,14 @@ public class ApplicationInformationServlet extends HttpServlet {
     @Override
     protected final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
-        handler.handle(request.getPathInfo(), new ServletWebResponse(request, response));
+        String path = request.getPathInfo();
+        String callback = request.getParameter("callback");
+        ServletWebResponse webResponse = new ServletWebResponse(request, response);
+        if (callback != null) {
+            handler.handleJSONP(path, callback, webResponse);
+        }
+        else {
+            handler.handle(path, webResponse);
+        }
     }
 }
