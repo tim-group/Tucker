@@ -59,6 +59,25 @@ public class ApplicationInformationServletTest {
         assertEquals('a', out.lastByte);
     }
 
+    @Test
+    public void askingForStatusJsonGetsJson() throws Exception {
+        StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
+        StatusPage applicationReport = mock(StatusPage.class);
+        when(statusPage.getApplicationReport()).thenReturn(applicationReport);
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class));
+        HttpServletRequest request = mockRequest("/status.json");
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        GoldfishServletOutputStream out = new GoldfishServletOutputStream();
+        when(response.getOutputStream()).thenReturn(out);
+
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        statusPageServlet.service(request, response);
+
+        verify(response).setCharacterEncoding("UTF-8");
+        verify(response).setContentType("application/json");
+        assertEquals('a', out.lastByte);
+    }
+
     private final class WriteOneCharacter implements Answer<Void> {
         private final char ch;
 

@@ -26,6 +26,7 @@ public class ApplicationInformationHandler {
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
         dispatch.put("/status", new StatusPageWriter(statusPage));
+        dispatch.put("/status.json", new StatusPageJsonWriter(statusPage));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
     }
@@ -64,8 +65,25 @@ public class ApplicationInformationHandler {
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/xml", UTF_8);
             StatusPage report = statusPageGenerator.getApplicationReport();
-            report.render(new OutputStreamWriter(out, UTF_8));
-            out.close();
+            OutputStreamWriter writer = new OutputStreamWriter(out, UTF_8);
+            report.render(writer);
+            writer.close();
+        }
+    }
+
+    private static final class StatusPageJsonWriter implements Handler {
+        private final StatusPageGenerator statusPageGenerator;
+
+        public StatusPageJsonWriter(StatusPageGenerator statusPage) {
+            this.statusPageGenerator = statusPage;
+        }
+
+        @Override public void handle(WebResponse response) throws IOException {
+            OutputStream out = response.respond("application/json", UTF_8);
+            StatusPage report = statusPageGenerator.getApplicationReport();
+            OutputStreamWriter writer = new OutputStreamWriter(out, UTF_8);
+            report.renderJson(writer);
+            writer.close();
         }
     }
 
