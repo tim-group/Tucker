@@ -14,6 +14,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
@@ -22,7 +24,8 @@ public class StatusPage {
     
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
-    
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
     private static final String TAG_APPLICATION = "application";
     private static final String TAG_COMPONENT = "component";
     private static final String TAG_VALUE = "value";
@@ -116,5 +119,34 @@ public class StatusPage {
         } catch (UnknownHostException e) {
             return "localhost";
         }
+    }
+
+    public void renderJson(Writer writer) throws IOException {
+        JsonGenerator jgen = JSON_FACTORY.createGenerator(writer);
+        jgen.writeStartObject();
+        jgen.writeStringField(ATTR_ID, applicationId);
+        jgen.writeStringField("status", applicationStatus.name().toLowerCase());
+        jgen.writeStringField(ATTR_HOST, hostname);
+        jgen.writeArrayFieldStart("components");
+        for (Map.Entry<Component, Report> componentReport : componentReports.entrySet()) {
+            Component component = componentReport.getKey();
+            Report report = componentReport.getValue();
+            jgen.writeStartObject();
+            jgen.writeStringField(ATTR_ID, component.getId());
+            jgen.writeStringField("status", report.getStatus().name().toLowerCase());
+            jgen.writeStringField("label", component.getLabel());
+            if (report.hasValue()) {
+                if (report.isSuccessful()) {
+                    jgen.writeStringField(TAG_VALUE, String.valueOf(report.getValue()));
+                } else {
+                    jgen.writeStringField(TAG_EXCEPTION, report.getException().getMessage());
+                }
+            }
+            jgen.writeEndObject();
+        }
+        jgen.writeEndArray();
+        jgen.writeStringField(TAG_TIMESTAMP, formatTime(timestamp));
+        jgen.writeEndObject();
+        jgen.close();
     }
 }

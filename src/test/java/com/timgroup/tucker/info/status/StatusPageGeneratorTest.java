@@ -1,10 +1,14 @@
 package com.timgroup.tucker.info.status;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,13 +35,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.VersionComponent;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
-
-import static org.junit.Assert.assertEquals;
 
 public class StatusPageGeneratorTest {
     
@@ -74,7 +78,22 @@ public class StatusPageGeneratorTest {
         
         assertEquals(iso8601(renderTime), timestamp.getTextContent());
     }
-    
+
+    @Test
+    public void unconfiguredStatusPageRendersBasicJSONStructure() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+
+        long renderTime = System.currentTimeMillis();
+        ObjectNode object = renderJson(statusPage);
+
+        assertEquals("myapp", object.at("/id").asText());
+        assertEquals(probeHostname(), object.at("/host").asText());
+        assertEquals("ok", object.at("/status").asText());
+
+        assertEquals(1, object.at("/components").size());
+        assertEquals(iso8601(renderTime), object.at("/timestamp").asText());
+    }
+
     @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
@@ -97,7 +116,29 @@ public class StatusPageGeneratorTest {
         assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
-    
+
+    @Test
+    public void canAddAnInformativeComponentStatusToJSON() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.INFO, 23);
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage);
+
+        assertEquals("ok", object.at("/status").asText());
+
+        assertEquals(2, object.at("/components").size());
+
+        assertEquals("mycomponent", object.at("/components/1/id").asText());
+        assertEquals("info", object.at("/components/1/status").asText());
+        assertEquals("Number of coincidences today", object.at("/components/1/label").asText());
+        assertEquals("23", object.at("/components/1/value").asText());
+    }
+
     @Test
     public void canAddANormativeComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
@@ -120,7 +161,29 @@ public class StatusPageGeneratorTest {
         assertEquals("Number of coincidences today: 23", component.getTextContent());
         assertEquals("23", getSingleElementByTagName(component, "value").getTextContent());
     }
-    
+
+    @Test
+    public void canAddANormativeComponentStatusToJSON() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL, 23);
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage);
+
+        assertEquals("critical", object.at("/status").asText());
+
+        assertEquals(2, object.at("/components").size());
+
+        assertEquals("mycomponent", object.at("/components/1/id").asText());
+        assertEquals("critical", object.at("/components/1/status").asText());
+        assertEquals("Number of coincidences today", object.at("/components/1/label").asText());
+        assertEquals("23", object.at("/components/1/value").asText());
+    }
+
     @Test
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
@@ -143,7 +206,29 @@ public class StatusPageGeneratorTest {
         assertEquals("Eschatological immanency", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
     }
-    
+
+    @Test
+    public void canAddANormativeComponentStatusWithoutAValueToJSON() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL);
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage);
+
+        assertEquals("critical", object.at("/status").asText());
+
+        assertEquals(2, object.at("/components").size());
+
+        assertEquals("mycomponent", object.at("/components/1/id").asText());
+        assertEquals("critical", object.at("/components/1/status").asText());
+        assertEquals("Eschatological immanency", object.at("/components/1/label").asText());
+        assertTrue(object.at("/components/1/value").isMissingNode());
+    }
+
     @Test
     public void failedReportLeadsToCriticalStatusAndExceptionOnPage() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
@@ -166,7 +251,29 @@ public class StatusPageGeneratorTest {
         assertEquals(0, component.getElementsByTagName("value").getLength());
         assertEquals("wrong wire", getSingleElementByTagName(component, "exception").getTextContent());
     }
-    
+
+    @Test
+    public void failedReportLeadsToCriticalStatusAndExceptionInJSON() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
+            @Override
+            public Report getReport() {
+                throw new Error("wrong wire");
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage);
+
+        assertEquals("critical", object.at("/status").asText());
+
+        assertEquals(2, object.at("/components").size());
+
+        assertEquals("mycomponent", object.at("/components/1/id").asText());
+        assertEquals("critical", object.at("/components/1/status").asText());
+        assertEquals("Red wire or green wire", object.at("/components/1/label").asText());
+        assertEquals("wrong wire", object.at("/components/1/exception").asText());
+    }
+
     private String iso8601(long time) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         df.setTimeZone(UTC);
@@ -197,7 +304,7 @@ public class StatusPageGeneratorTest {
         assertEquals("status-page.dtd", doctypeSystemId);
         return document;
     }
-    
+
     private Document parse(InputSource source) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
         
@@ -239,6 +346,13 @@ public class StatusPageGeneratorTest {
         assertEquals(Collections.emptyList(), problems);
         
         return document;
+    }
+
+    private ObjectNode renderJson(StatusPageGenerator statusPage) throws JsonProcessingException, IOException {
+        Writer writer = new StringWriter();
+        statusPage.getApplicationReport().renderJson(writer);
+        String string = writer.toString();
+        return new ObjectMapper().readerFor(ObjectNode.class).readValue(string);
     }
 
     private static String probeHostname() {
