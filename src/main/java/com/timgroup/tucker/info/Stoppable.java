@@ -1,9 +1,9 @@
 package com.timgroup.tucker.info;
 
-public interface Stoppable {
-    public static final Stoppable ALWAYS_STOPPABLE = new Stoppable(){
-        @Override public State get() { return State.safe; }
-    };
+import java.util.function.Supplier;
+
+public interface Stoppable extends Supplier<Stoppable.State> {
+    public static final Stoppable ALWAYS_STOPPABLE = () -> State.safe;
 
     public enum State { safe, unwise }
 

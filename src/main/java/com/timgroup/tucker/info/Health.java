@@ -1,9 +1,9 @@
 package com.timgroup.tucker.info;
 
-public interface Health {
-    public static final Health ALWAYS_HEALTHY = new Health(){
-        @Override public State get() { return State.healthy; }
-    };
+import java.util.function.Supplier;
+
+public interface Health extends Supplier<Health.State> {
+    public static final Health ALWAYS_HEALTHY = () -> State.healthy;
 
     public enum State { healthy, ill }
 
