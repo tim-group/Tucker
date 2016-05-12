@@ -8,4 +8,8 @@ public interface Stoppable extends Supplier<Stoppable.State> {
     public enum State { safe, unwise }
 
     State get();
+
+    default Stoppable and(Stoppable other) {
+        return () -> get() == State.safe && other.get() == State.safe ? State.safe : State.unwise;
+    }
 }
