@@ -3,11 +3,13 @@ package com.timgroup.tucker.info;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+@FunctionalInterface
 public interface Health extends Supplier<Health.State> {
     public static final Health ALWAYS_HEALTHY = () -> State.healthy;
 
     public enum State { healthy, ill }
 
+    @Override
     State get();
 
     default Health and(Health other) {
