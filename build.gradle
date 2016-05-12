@@ -9,6 +9,8 @@ apply plugin: 'eclipse'
 group = 'com.timgroup'
 ext.url = 'https://github.com/youdevise/Tucker'
 
+sourceCompatibility = 1.8
+
 def majorVersion = 1
 def minorVersion = 0
 
