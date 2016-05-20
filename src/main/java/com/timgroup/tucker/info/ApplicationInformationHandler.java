@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,7 +162,7 @@ public class ApplicationInformationHandler {
 
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(health.get().name().getBytes(Charset.forName(UTF_8)));
+            out.write(health.get().name().getBytes(StandardCharsets.UTF_8));
             out.close();
         }
     }
@@ -176,7 +176,7 @@ public class ApplicationInformationHandler {
 
         @Override public void handle(WebResponse response) throws IOException {
             OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(stoppable.get().name().getBytes(Charset.forName(UTF_8)));
+            out.write(stoppable.get().name().getBytes(StandardCharsets.UTF_8));
             out.close();
         }
     }
@@ -192,7 +192,7 @@ public class ApplicationInformationHandler {
             final OutputStream out = response.respond("text/plain", UTF_8);
             final Report versionReport = component.getReport();
             final String versionString = versionReport.hasValue() ? versionReport.getValue().toString() : "";
-            out.write(versionString.getBytes(Charset.forName(UTF_8)));
+            out.write(versionString.getBytes(StandardCharsets.UTF_8));
             out.close();
         }
     }

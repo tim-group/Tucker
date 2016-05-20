@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
@@ -104,7 +104,7 @@ public class ApplicationInformationServletTest {
 
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/javascript");
-        assertEquals(callbackFunction + "(a)", new String(output.toByteArray(), Charset.forName("UTF-8")));
+        assertEquals(callbackFunction + "(a)", new String(output.toByteArray(), StandardCharsets.UTF_8));
     }
 
     private final class WriteOneCharacter implements Answer<Void> {
