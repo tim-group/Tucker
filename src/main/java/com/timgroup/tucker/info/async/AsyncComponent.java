@@ -2,6 +2,7 @@ package com.timgroup.tucker.info.async;
 
 import static com.timgroup.tucker.info.Status.WARNING;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,15 +20,12 @@ public class AsyncComponent extends Component {
     private final AtomicReference<PerishableReport> currentReport;
     private final Component wrapped;
     private final StatusUpdated statusUpdateHook;
-    private final long repeat;
-    private final TimeUnit repeatTimeUnit;
-    
+    private final Duration repeatInterval;
     
     private AsyncComponent(Component wrapped, AsyncSettings settings) {
         super(wrapped.getId(), wrapped.getLabel());
         this.wrapped = wrapped;
-        this.repeat = settings.repeat;
-        this.repeatTimeUnit = settings.repeatTimeUnit;
+        this.repeatInterval = settings.repeatInterval;
         this.statusUpdateHook = settings.statusUpdateHook;
         
         PerishableReport initialReport = new PerishableReport(
@@ -50,12 +48,16 @@ public class AsyncComponent extends Component {
         return currentReport.get().getPotentiallyStaleReport();
     }
 
+    public Duration getRepeatInterval() {
+        return this.repeatInterval;
+    }
+
     public long getRepeat() {
-        return this.repeat;
+        return this.repeatInterval.toNanos();
     }
     
     public TimeUnit getRepeatTimeUnit() {
-        return this.repeatTimeUnit;
+        return TimeUnit.NANOSECONDS;
     }
     
     public void update() {

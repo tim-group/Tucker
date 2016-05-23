@@ -44,10 +44,10 @@ public class AsyncComponentScheduler {
     public void start() {
         for (final AsyncComponent asyncComponent: components) {
             executor.scheduleWithFixedDelay(
-                    updateComponentRunnable(asyncComponent), 
-                    NO_INITIAL_DELAY, 
-                    asyncComponent.getRepeat(), 
-                    asyncComponent.getRepeatTimeUnit());
+                    updateComponentRunnable(asyncComponent),
+                    NO_INITIAL_DELAY,
+                    asyncComponent.getRepeatInterval().toNanos(),
+                    TimeUnit.NANOSECONDS);
         }
     }
 

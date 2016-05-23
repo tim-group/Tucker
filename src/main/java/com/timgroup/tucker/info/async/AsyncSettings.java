@@ -1,48 +1,47 @@
 package com.timgroup.tucker.info.async;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import java.time.Clock;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public final class AsyncSettings {
     final Clock clock;
-    final long repeat;
-    final TimeUnit repeatTimeUnit;
+    final Duration repeatInterval;
     final StatusUpdated statusUpdateHook;
     final Duration stalenessLimit;
 
-    private AsyncSettings(Clock clock, long repeat, TimeUnit repeatTimeUnit, StatusUpdated statusUpdateHook,
-            Duration stalenessLimit) {
+    private AsyncSettings(Clock clock, Duration repeatInterval, StatusUpdated statusUpdateHook, Duration stalenessLimit) {
         this.clock = clock;
-        this.repeat = repeat;
-        this.repeatTimeUnit = repeatTimeUnit;
+        this.repeatInterval = repeatInterval;
         this.statusUpdateHook = statusUpdateHook;
         this.stalenessLimit = stalenessLimit;
     }
 
     public static AsyncSettings settings() {
-        return new AsyncSettings(Clock.systemDefaultZone(), 30, SECONDS, StatusUpdated.NOOP, Duration.ofMinutes(5));
+        return new AsyncSettings(Clock.systemDefaultZone(), Duration.ofSeconds(30), StatusUpdated.NOOP, Duration.ofMinutes(5));
     }
 
     public AsyncSettings withClock(@SuppressWarnings("hiding") Clock clock) {
-        return new AsyncSettings(clock, repeat, repeatTimeUnit, statusUpdateHook, stalenessLimit);
+        return new AsyncSettings(clock, repeatInterval, statusUpdateHook, stalenessLimit);
     }
 
     public AsyncSettings withRepeatSchedule(long time, TimeUnit units) {
-        return new AsyncSettings(clock, time, units, statusUpdateHook, stalenessLimit);
+        return new AsyncSettings(clock, Duration.ofNanos(units.toNanos(time)), statusUpdateHook, stalenessLimit);
+    }
+
+    public AsyncSettings withRepeatSchedule(Duration interval) {
+        return new AsyncSettings(clock, interval, statusUpdateHook, stalenessLimit);
     }
 
     public AsyncSettings withUpdateHook(StatusUpdated statusUpdated) {
-        return new AsyncSettings(clock, repeat, repeatTimeUnit, statusUpdated, stalenessLimit);
+        return new AsyncSettings(clock, repeatInterval, statusUpdated, stalenessLimit);
     }
 
     public AsyncSettings withStalenessLimit(long time, TimeUnit units) {
-        return new AsyncSettings(clock, repeat, repeatTimeUnit, statusUpdateHook, Duration.ofNanos(units.toNanos(time)));
+        return new AsyncSettings(clock, repeatInterval, statusUpdateHook, Duration.ofNanos(units.toNanos(time)));
     }
 
     public AsyncSettings withStalenessLimit(Duration duration) {
-        return new AsyncSettings(clock, repeat, repeatTimeUnit, statusUpdateHook, duration);
+        return new AsyncSettings(clock, repeatInterval, statusUpdateHook, duration);
     }
 }
