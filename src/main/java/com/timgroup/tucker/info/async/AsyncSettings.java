@@ -3,6 +3,7 @@ package com.timgroup.tucker.info.async;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.time.Clock;
 import java.util.concurrent.TimeUnit;
 
 public final class AsyncSettings {
@@ -24,10 +25,10 @@ public final class AsyncSettings {
     }
 
     public static AsyncSettings settings() {
-        return new AsyncSettings(new Clock.SystemClock(), 30, SECONDS, StatusUpdated.NOOP, 5, MINUTES);
+        return new AsyncSettings(Clock.systemDefaultZone(), 30, SECONDS, StatusUpdated.NOOP, 5, MINUTES);
     }
 
-    public AsyncSettings withClock(Clock clock) {
+    public AsyncSettings withClock(@SuppressWarnings("hiding") Clock clock) {
         return new AsyncSettings(clock, repeat, repeatTimeUnit, statusUpdateHook, stalenessLimit, stalenessTimeUnit);
     }
 

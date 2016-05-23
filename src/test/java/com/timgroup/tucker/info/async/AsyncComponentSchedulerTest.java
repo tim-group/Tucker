@@ -3,7 +3,6 @@ package com.timgroup.tucker.info.async;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Arrays.asList;
-import static java.util.Calendar.JULY;
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -12,13 +11,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -103,11 +101,10 @@ public class AsyncComponentSchedulerTest {
     
     @Test
     public void returnsWarningStatusWhenReportHasNeverBeenReturnedWithinTimeThreshold() {
-        Date initialisation = minutesAfterInitialisation(0);
-        Date sixMinutesLater = minutesAfterInitialisation(6);
-        
-        Clock clock = mock(Clock.class);
-        when(clock.now()).thenReturn(initialisation, sixMinutesLater);
+        Instant initialisation = minutesAfterInitialisation(0);
+        Instant sixMinutesLater = minutesAfterInitialisation(6);
+
+        Clock clock = mockClock(initialisation, sixMinutesLater);
 
         TestingSemaphore invoked = new TestingSemaphore();
         AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked),
@@ -124,7 +121,7 @@ public class AsyncComponentSchedulerTest {
         assertEquals(WARNING, report.getStatus());
         assertThat(
             report.getValue().toString(),
-            containsString("Last run at 2014-07-12T01:00:00 (over 4 minutes ago): Not yet run"));
+            containsString("Last run at 2014-07-12T01:00:00Z (over 4 minutes ago): Not yet run"));
     }
     
 
@@ -144,13 +141,12 @@ public class AsyncComponentSchedulerTest {
 
     @Test
     public void returnsWarningStatusForStaleReport() throws Exception {
-        Date initialised = minutesAfterInitialisation(0);
-        Date oneMinuteLater = minutesAfterInitialisation(1);
-        Date threeMinutesLater = minutesAfterInitialisation(3);
-        Date tenMinutesLater = minutesAfterInitialisation(10);
+        Instant initialised = minutesAfterInitialisation(0);
+        Instant oneMinuteLater = minutesAfterInitialisation(1);
+        Instant threeMinutesLater = minutesAfterInitialisation(3);
+        Instant tenMinutesLater = minutesAfterInitialisation(10);
 
-        Clock clock = mock(Clock.class);
-        when(clock.now()).thenReturn(initialised, oneMinuteLater, oneMinuteLater, threeMinutesLater, threeMinutesLater, tenMinutesLater);
+        Clock clock = mockClock(initialised, oneMinuteLater, oneMinuteLater, threeMinutesLater, threeMinutesLater, tenMinutesLater);
 
         final TestingSemaphore componentUpdated = new TestingSemaphore();
         final TestingSemaphore reportAsserted = new TestingSemaphore();
@@ -180,7 +176,7 @@ public class AsyncComponentSchedulerTest {
         Report report = asyncComponent.getReport();
 
         assertEquals(
-                new Report(WARNING, "Last run at 2014-07-12T01:03:00 (over 5 minutes ago): Everything's fine"),
+                new Report(WARNING, "Last run at 2014-07-12T01:03:00Z (over 5 minutes ago): Everything's fine"),
                 report);
 
     }
@@ -266,11 +262,8 @@ public class AsyncComponentSchedulerTest {
         assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
     }
     
-    private Date minutesAfterInitialisation(int minutes) {
-        Calendar calender = Calendar.getInstance();
-        calender.setTimeZone(TimeZone.getTimeZone("UTC"));
-        calender.set(2014, JULY, 12, 1, minutes, 0);
-        return calender.getTime();
+    private Instant minutesAfterInitialisation(int minutes) {
+        return Instant.parse("2014-07-12T01:00:00Z").plus(Duration.ofMinutes(minutes));
     }
 
     @Test
@@ -296,5 +289,29 @@ public class AsyncComponentSchedulerTest {
             }
         };
     }
-    
+
+    private static Clock mockClock(Instant... toReturn) {
+        return new Clock() {
+            int ptr;
+
+            @Override
+            public Instant instant() {
+                Instant instant = toReturn[ptr];
+                if (ptr < (toReturn.length - 1)) {
+                    ++ptr;
+                }
+                return instant;
+            }
+
+            @Override
+            public ZoneId getZone() {
+                return ZoneId.systemDefault();
+            }
+
+            @Override
+            public Clock withZone(ZoneId zone) {
+                return this;
+            }
+        };
+    }
 }

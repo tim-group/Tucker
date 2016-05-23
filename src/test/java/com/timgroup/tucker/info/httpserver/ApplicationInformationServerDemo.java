@@ -1,7 +1,7 @@
 package com.timgroup.tucker.info.httpserver;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
@@ -32,10 +32,10 @@ public class ApplicationInformationServerDemo {
 
         @Override
         public Report getReport() {
-            Calendar now = Calendar.getInstance();
-            int seconds = now.get(Calendar.SECOND);
+            ZonedDateTime now = ZonedDateTime.now();
+            int seconds = now.getSecond();
             Status status = seconds >= 50 ? Status.CRITICAL : seconds >= 30 ? Status.WARNING : Status.OK;
-            return new Report(status, now.getTime());
+            return new Report(status, now);
         }
     }
 
