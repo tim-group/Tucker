@@ -121,7 +121,7 @@ public class AsyncComponentSchedulerTest {
         assertEquals(WARNING, report.getStatus());
         assertThat(
             report.getValue().toString(),
-            containsString("Last run at 2014-07-12T01:00:00Z (over 4 minutes ago): Not yet run"));
+            containsString("Last run at 2014-07-12T01:00:00Z (over PT4M ago): Not yet run"));
     }
     
 
@@ -176,7 +176,7 @@ public class AsyncComponentSchedulerTest {
         Report report = asyncComponent.getReport();
 
         assertEquals(
-                new Report(WARNING, "Last run at 2014-07-12T01:03:00Z (over 5 minutes ago): Everything's fine"),
+                new Report(WARNING, "Last run at 2014-07-12T01:03:00Z (over PT5M ago): Everything's fine"),
                 report);
 
     }

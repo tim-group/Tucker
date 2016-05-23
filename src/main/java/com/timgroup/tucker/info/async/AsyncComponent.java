@@ -33,8 +33,7 @@ public class AsyncComponent extends Component {
         PerishableReport initialReport = new PerishableReport(
                 new Report(WARNING, "Not yet run"),
                 settings.clock, 
-                settings.stalenessLimit, 
-                settings.stalenessTimeUnit);
+                settings.stalenessLimit);
         this.currentReport = new AtomicReference<PerishableReport>(initialReport);
     }
     
