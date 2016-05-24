@@ -26,7 +26,7 @@ public class AsyncComponentScheduler {
     }
     
     public static AsyncComponentScheduler createFromAsync(List<AsyncComponent> components) {
-        return new AsyncComponentScheduler(unmodifiableList(new ArrayList<AsyncComponent>(components)));
+        return new AsyncComponentScheduler(unmodifiableList(new ArrayList<>(components)));
     }
     
     public static AsyncComponentScheduler createFromSynchronous(List<Component> synchronousComponents) {
@@ -34,7 +34,7 @@ public class AsyncComponentScheduler {
     }
     
     public static AsyncComponentScheduler createFromSynchronous(List<Component> synchronousComponents, AsyncSettings settings) {
-        List<AsyncComponent> asyncComponents = new ArrayList<AsyncComponent>(synchronousComponents.size());
+        List<AsyncComponent> asyncComponents = new ArrayList<>(synchronousComponents.size());
         for (Component synchronousComponent: synchronousComponents) {
             asyncComponents.add(AsyncComponent.wrapping(synchronousComponent, settings));
         }

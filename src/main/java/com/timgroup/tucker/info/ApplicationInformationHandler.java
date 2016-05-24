@@ -17,8 +17,8 @@ public class ApplicationInformationHandler {
 
     private static final String UTF_8 = "UTF-8";
 
-    private final Map<String, Handler> dispatch = new HashMap<String, Handler>();
-    private final Map<String, Handler> jsonpDispatch = new HashMap<String, Handler>();
+    private final Map<String, Handler> dispatch = new HashMap<>();
+    private final Map<String, Handler> jsonpDispatch = new HashMap<>();
 
     public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         dispatch.put(null, new RedirectTo("/status"));

@@ -308,7 +308,7 @@ public class StatusPageGeneratorTest {
     private Document parse(InputSource source) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
         
-        final List<SAXParseException> problems = new ArrayList<SAXParseException>();
+        final List<SAXParseException> problems = new ArrayList<>();
         
         builder.setEntityResolver(new EntityResolver() {
             @Override

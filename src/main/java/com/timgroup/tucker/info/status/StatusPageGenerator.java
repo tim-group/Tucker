@@ -25,7 +25,7 @@ public class StatusPageGenerator {
     
     private final String applicationId;
     private final VersionComponent versionComponent;
-    private final List<Component> components = new CopyOnWriteArrayList<Component>();
+    private final List<Component> components = new CopyOnWriteArrayList<>();
     
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
         this.applicationId = applicationId;
@@ -38,7 +38,7 @@ public class StatusPageGenerator {
     }
     
     public StatusPage getApplicationReport() {
-        Map<Component, Report> componentReports = new LinkedHashMap<Component, Report>(components.size());
+        Map<Component, Report> componentReports = new LinkedHashMap<>(components.size());
         for (Component component : components) {
             Report report;
             try {

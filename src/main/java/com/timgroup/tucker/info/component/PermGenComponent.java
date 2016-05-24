@@ -43,7 +43,7 @@ public class PermGenComponent extends Component {
         }
         
         private List<String> poolNames(List<MemoryPoolMXBean> memoryPools) {
-            List<String> pools = new ArrayList<String>();
+            List<String> pools = new ArrayList<>();
             for (MemoryPoolMXBean pool : memoryPools) {
                 pools.add(pool.getName());
             }
