@@ -3,9 +3,6 @@ package com.timgroup.tucker.info.component.pending;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.ComponentStateChangeCallback;
 import com.timgroup.tucker.info.Report;
@@ -22,13 +19,12 @@ public final class PendingComponent extends Component {
 
     private final Component wrappedComponent;
     private final ComponentStateChangeCallback callback;
-    private final AtomicReference<Report> previousReportRef;
+    private volatile Report previousReportRef;
 
     public PendingComponent(Component wrappedComponent, ComponentStateChangeCallback callback) {
         super(wrappedComponent.getId(), wrappedComponent.getLabel() + " (pending)");
         this.wrappedComponent = wrappedComponent;
         this.callback = callback;
-        this.previousReportRef = new AtomicReference<Report>();
     }
 
     public PendingComponent(Component wrappedComponent) {
@@ -38,12 +34,12 @@ public final class PendingComponent extends Component {
     @Override
     public Report getReport() {
         Report current = safelyGetReport();
-        Report previous = previousReportRef.get();
+        Report previous = previousReportRef;
 
         if (previous != null && !previous.equals(current)) {
             callback.stateChanged(wrappedComponent, previous, current);
         }
-        previousReportRef.set(current);
+        previousReportRef = current;
 
         return new Report(
             Status.INFO,

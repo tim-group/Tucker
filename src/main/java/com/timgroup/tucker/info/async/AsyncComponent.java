@@ -4,7 +4,6 @@ import static com.timgroup.tucker.info.Status.WARNING;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ public class AsyncComponent extends Component {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
     private static final AsyncSettings DEFAULT_SETTINGS = AsyncSettings.settings();
 
-    private final AtomicReference<PerishableReport> currentReport;
+    private volatile PerishableReport currentReport;
     private final Component wrapped;
     private final StatusUpdated statusUpdateHook;
     private final Duration repeatInterval;
@@ -28,11 +27,10 @@ public class AsyncComponent extends Component {
         this.repeatInterval = settings.repeatInterval;
         this.statusUpdateHook = settings.statusUpdateHook;
         
-        PerishableReport initialReport = new PerishableReport(
+        this.currentReport = new PerishableReport(
                 new Report(WARNING, "Not yet run"),
                 settings.clock, 
                 settings.stalenessLimit);
-        this.currentReport = new AtomicReference<PerishableReport>(initialReport);
     }
     
     public static AsyncComponent wrapping(Component component) {
@@ -45,7 +43,7 @@ public class AsyncComponent extends Component {
     
     @Override
     public Report getReport() {
-        return currentReport.get().getPotentiallyStaleReport();
+        return currentReport.getPotentiallyStaleReport();
     }
 
     public Duration getRepeatInterval() {
@@ -71,7 +69,7 @@ public class AsyncComponent extends Component {
     }
     
     private void update(Report report) {
-        currentReport.set(currentReport.get().updatedWith(report));
+        currentReport = currentReport.updatedWith(report);
         safelyInvokeUpdateHook(report);
     }
 

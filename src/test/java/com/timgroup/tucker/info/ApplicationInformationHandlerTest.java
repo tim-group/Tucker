@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 
@@ -24,10 +23,10 @@ public class ApplicationInformationHandlerTest {
 
     private final Stoppable stoppable = mock(Stoppable.class);
     private final Health health = mock(Health.class);
-    private final AtomicReference<String> versionString = new AtomicReference<String>("0");
+    private volatile String versionString = "0";
     private final VersionComponent version = new VersionComponent() {
         @Override public Report getReport() {
-            return new Report(Status.INFO, versionString.get());
+            return new Report(Status.INFO, versionString);
         }
     };
 
@@ -40,7 +39,7 @@ public class ApplicationInformationHandlerTest {
         final WebResponse response = mock(WebResponse.class);
         when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
 
-        versionString.set(null);
+        versionString = null;
         handler.handle("/version", response);
 
         verify(response).respond("text/plain", "UTF-8");
@@ -54,7 +53,7 @@ public class ApplicationInformationHandlerTest {
         final WebResponse response = mock(WebResponse.class);
         when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
 
-        versionString.set("0.0.1");
+        versionString = "0.0.1";
         handler.handle("/version", response);
 
         verify(response).respond("text/plain", "UTF-8");
