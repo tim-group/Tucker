@@ -13,12 +13,12 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,8 +51,6 @@ public class StatusPageGeneratorTest {
         DOCUMENT_BUILDER_FACTORY.setValidating(true);
     }
     
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-    
     private final VersionComponent version = new VersionComponent() {
         @Override public Report getReport() {
             return new Report(Status.INFO, "0.0.1");
@@ -61,9 +59,8 @@ public class StatusPageGeneratorTest {
     
     @Test
     public void unconfiguredStatusPageRendersBasicXMLStructure() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version, Clock.fixed(Instant.parse("2016-05-25T00:47:33.651Z"), ZoneOffset.UTC));
         
-        long renderTime = System.currentTimeMillis();
         Document document = render(statusPage);
         
         Element root = document.getDocumentElement();
@@ -76,14 +73,13 @@ public class StatusPageGeneratorTest {
         
         Element timestamp = getSingleElementByTagName(root, "timestamp");
         
-        assertEquals(iso8601(renderTime), timestamp.getTextContent());
+        assertEquals("2016-05-25T00:47:33Z", timestamp.getTextContent());
     }
 
     @Test
     public void unconfiguredStatusPageRendersBasicJSONStructure() throws Exception {
-        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version, Clock.fixed(Instant.parse("2016-05-25T00:47:33.651Z"), ZoneOffset.UTC));
 
-        long renderTime = System.currentTimeMillis();
         ObjectNode object = renderJson(statusPage);
 
         assertEquals("myapp", object.at("/id").asText());
@@ -91,7 +87,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", object.at("/status").asText());
 
         assertEquals(1, object.at("/components").size());
-        assertEquals(iso8601(renderTime), object.at("/timestamp").asText());
+        assertEquals("2016-05-25T00:47:33Z", object.at("/timestamp").asText());
     }
 
     @Test
@@ -274,12 +270,6 @@ public class StatusPageGeneratorTest {
         assertEquals("wrong wire", object.at("/components/1/exception").asText());
     }
 
-    private String iso8601(long time) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        df.setTimeZone(UTC);
-        return df.format(time);
-    }
-    
     private Element getSingleElementByTagName(Element element, String name) {
         NodeList elementsByTagName = element.getElementsByTagName(name);
         assertEquals(1, elementsByTagName.getLength());

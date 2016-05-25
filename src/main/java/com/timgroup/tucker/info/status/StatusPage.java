@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -21,8 +21,6 @@ import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
 public class StatusPage {
-    
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
@@ -37,20 +35,28 @@ public class StatusPage {
     
     private final String applicationId;
     private final Map<Component, Report> componentReports;
-    private final long timestamp;
+    private final Instant timestamp;
     private final Status applicationStatus;
     private final String hostname;
     
     public StatusPage(String applicationId, Map<Component, Report> componentReports) {
-        this(probeHostname(), applicationId, componentReports);
+        this(probeHostname(), applicationId, componentReports, Clock.systemUTC());
     }
 
     public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports) {
+        this(hostname, applicationId, componentReports, Clock.systemUTC());
+    }
+
+    public StatusPage(String applicationId, Map<Component, Report> componentReports, Clock clock) {
+        this(probeHostname(), applicationId, componentReports, clock);
+    }
+
+    public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports, Clock clock) {
         this.hostname = hostname;
-        timestamp = System.currentTimeMillis();
+        this.timestamp = Instant.now(clock);
         this.applicationId = applicationId;
         this.componentReports = componentReports;
-        applicationStatus = Report.worstStatus(componentReports.values());
+        this.applicationStatus = Report.worstStatus(componentReports.values());
     }
     
     public Status getApplicationStatus() {
@@ -92,7 +98,7 @@ public class StatusPage {
             }
             
             out.writeStartElement(TAG_TIMESTAMP);
-            out.writeCharacters(formatTime(timestamp));
+            out.writeCharacters(timestamp.truncatedTo(ChronoUnit.SECONDS).toString());
             out.writeEndElement();
             
             out.writeEndElement();
@@ -107,12 +113,6 @@ public class StatusPage {
         return "<!DOCTYPE " + rootElement + " SYSTEM \"" + systemID + "\">";
     }
     
-    private String formatTime(long time) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        df.setTimeZone(UTC);
-        return df.format(time);
-    }
-
     private static String probeHostname() {
         try {
             return InetAddress.getLocalHost().getHostName();
@@ -145,7 +145,7 @@ public class StatusPage {
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();
-            jgen.writeStringField(TAG_TIMESTAMP, formatTime(timestamp));
+            jgen.writeStringField(TAG_TIMESTAMP, timestamp.truncatedTo(ChronoUnit.SECONDS).toString());
             jgen.writeEndObject();
         }
     }

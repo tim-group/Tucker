@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.status;
 
+import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,17 @@ public class StatusPageGenerator {
     
     private final String applicationId;
     private final VersionComponent versionComponent;
+    private final Clock clock;
     private final List<Component> components = new CopyOnWriteArrayList<>();
     
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
+        this(applicationId, versionComponent, Clock.systemUTC());
+    }
+
+    public StatusPageGenerator(String applicationId, VersionComponent versionComponent, Clock clock) {
         this.applicationId = applicationId;
         this.versionComponent = versionComponent;
+        this.clock = clock;
         components.add(versionComponent);
     }
     
@@ -54,7 +61,7 @@ public class StatusPageGenerator {
 
             componentReports.put(component, report);
         }
-        return new StatusPage(applicationId, componentReports);
+        return new StatusPage(applicationId, componentReports, clock);
     }
 
     public Component getVersionComponent() {
