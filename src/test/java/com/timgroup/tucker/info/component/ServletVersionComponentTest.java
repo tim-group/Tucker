@@ -1,9 +1,5 @@
 package com.timgroup.tucker.info.component;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
@@ -14,8 +10,6 @@ import com.timgroup.tucker.info.Status;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,10 +36,7 @@ public final class ServletVersionComponentTest {
 
     @Test
     public void reportValueIsImplementationVersionOfPackageContainingAnchorClass() throws Exception {
-        final String versionEntry = "Implementation-Version: 1.2.3\n";
-        final ByteArrayInputStream value = new ByteArrayInputStream(versionEntry.getBytes());
-
-        when(context.getResourceAsStream("/META-INF/MANIFEST.MF")).thenReturn(value);
+        when(context.getResource("/META-INF/MANIFEST.MF")).thenReturn(getClass().getResource("example.manifest"));
 
         assertEquals("1.2.3", new ServletVersionComponent(config).getReport().getValue());
     }
@@ -55,22 +46,6 @@ public final class ServletVersionComponentTest {
         when(context.getResourceAsStream("/META-INF/MANIFEST.MF")).thenThrow(new RuntimeException("Failed"));
 
         assertFalse(new ServletVersionComponent(config).getReport().hasValue());
-    }
-
-    @Test
-    public void streamIsClosed() throws Exception {
-        final AtomicBoolean streamClosed = new AtomicBoolean(false);
-        final ByteArrayInputStream value = new ByteArrayInputStream(new byte[] {}) {
-            @Override
-            public void close() throws IOException {
-                streamClosed.set(true);
-            }
-        };
-
-        when(context.getResourceAsStream("/META-INF/MANIFEST.MF")).thenReturn(value);
-
-        assertNotNull(new ServletVersionComponent(config).getReport().getValue());
-        assertTrue(streamClosed.get());
     }
 
     @Test

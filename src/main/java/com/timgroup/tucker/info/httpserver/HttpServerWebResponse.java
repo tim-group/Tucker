@@ -32,9 +32,9 @@ public class HttpServerWebResponse implements WebResponse {
         exchange.getResponseHeaders().add("Content-Type", "text/plain;charset=" + StandardCharsets.UTF_8.name());
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(status, messageBytes.length);
-        OutputStream out = exchange.getResponseBody();
-        out.write(messageBytes);
-        out.close();
+        try (OutputStream out = exchange.getResponseBody()) {
+            out.write(messageBytes);
+        }
     }
 
     @Override

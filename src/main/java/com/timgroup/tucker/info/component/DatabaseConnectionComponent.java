@@ -26,29 +26,16 @@ public final class DatabaseConnectionComponent extends Component {
 
     @Override
     public Report getReport() {
-        Connection dbConnection = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        try {
-            dbConnection = connectionProvider.getConnection();
-            final long before = System.currentTimeMillis();
-            statement = dbConnection.createStatement();
-            resultSet = statement.executeQuery("select 1;");
-            final long after = System.currentTimeMillis();
-            return new Report(Status.OK, (after - before) + "ms" );
-        } catch (SQLException e) {
-            return new Report(Status.CRITICAL, e.getMessage());
-        } finally {
-            if (resultSet != null) { try { resultSet.close(); } catch (SQLException e) {}  }
-            if (statement != null) { try { statement.close(); } catch (SQLException e) {} }
-
-            if (dbConnection != null) {
-                try {
-                    dbConnection.close();
-                } catch (SQLException e) {
-                    return new Report(Status.CRITICAL, e.getMessage());
+        try (Connection dbConnection = connectionProvider.getConnection()) {
+            long before = System.currentTimeMillis();
+            try (Statement statement = dbConnection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery("select 1;")) {
+                    long after = System.currentTimeMillis();
+                    return new Report(Status.OK, (after - before) + "ms" );
                 }
             }
+        } catch (SQLException e) {
+            return new Report(Status.CRITICAL, e.getMessage());
         }
     }
 }

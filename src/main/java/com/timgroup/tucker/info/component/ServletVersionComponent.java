@@ -1,8 +1,7 @@
 package com.timgroup.tucker.info.component;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -36,27 +35,17 @@ public final class ServletVersionComponent extends VersionComponent {
 
     public static String loadVersion(ServletContext servletContext) {
         try {
-            InputStream manifestStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
-            if (manifestStream == null) {
+            URL manifestUri = servletContext.getResource("/META-INF/MANIFEST.MF");
+            if (manifestUri == null) {
                 return null;
             }
-            try {
+            try (InputStream manifestStream = manifestUri.openStream()) {
                 Manifest manifest = new Manifest(manifestStream);
                 Attributes attributes = manifest.getMainAttributes();
                 return attributes.getValue("Implementation-Version");
-            } finally {
-                closeSilently(manifestStream);
             }
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    private static void closeSilently(Closeable closeable) {
-        try {
-            closeable.close();
-        } catch (IOException e) {
-            // Ignore
         }
     }
 }

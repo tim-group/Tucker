@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -129,11 +130,10 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            OutputStream out = response.respond("text/xml", UTF_8);
-            StatusPage report = statusPageGenerator.getApplicationReport();
-            OutputStreamWriter writer = new OutputStreamWriter(out, UTF_8);
-            report.render(writer);
-            writer.close();
+            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond("text/xml", UTF_8), UTF_8)) {
+                StatusPage report = statusPageGenerator.getApplicationReport();
+                report.render(writer);
+            }
         }
     }
 
@@ -145,11 +145,10 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            OutputStream out = response.respond("application/json", UTF_8);
-            StatusPage report = statusPageGenerator.getApplicationReport();
-            OutputStreamWriter writer = new OutputStreamWriter(out, UTF_8);
-            report.renderJson(writer);
-            writer.close();
+            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond("application/json", UTF_8), UTF_8)) {
+                StatusPage report = statusPageGenerator.getApplicationReport();
+                report.renderJson(writer);
+            }
         }
     }
 
@@ -161,9 +160,9 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(health.get().name().getBytes(StandardCharsets.UTF_8));
-            out.close();
+            try (OutputStream out = response.respond("text/plain", UTF_8)) {
+                out.write(health.get().name().getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 
@@ -175,9 +174,9 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            OutputStream out = response.respond("text/plain", UTF_8);
-            out.write(stoppable.get().name().getBytes(StandardCharsets.UTF_8));
-            out.close();
+            try (OutputStream out = response.respond("text/plain", UTF_8)) {
+                out.write(stoppable.get().name().getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 
@@ -189,11 +188,11 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            final OutputStream out = response.respond("text/plain", UTF_8);
-            final Report versionReport = component.getReport();
-            final String versionString = versionReport.hasValue() ? versionReport.getValue().toString() : "";
-            out.write(versionString.getBytes(StandardCharsets.UTF_8));
-            out.close();
+            try (OutputStream out = response.respond("text/plain", UTF_8)) {
+                final Report versionReport = component.getReport();
+                final String versionString = versionReport.hasValue() ? versionReport.getValue().toString() : "";
+                out.write(versionString.getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 
@@ -207,14 +206,15 @@ public class ApplicationInformationHandler {
         }
 
         @Override public void handle(WebResponse response) throws IOException {
-            InputStream resource = StatusPageGenerator.class.getResourceAsStream(resourceName);
-            if (resource == null) {
+            URL resourceUri = StatusPageGenerator.class.getResource(resourceName);
+            if (resourceUri == null) {
                 response.reject(HTTP_NOT_FOUND, "could not find resource with name " + resourceName);
                 return;
             }
-            OutputStream out = response.respond(contentType, UTF_8);
-            copy(resource, out);
-            out.close();
+            try (InputStream resource = resourceUri.openStream();
+                    OutputStream out = response.respond(contentType, UTF_8)) {
+                copy(resource, out);
+            }
         }
 
         private void copy(InputStream input, OutputStream output) throws IOException {

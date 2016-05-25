@@ -1,7 +1,6 @@
 package com.timgroup.tucker.info.component;
 
 import java.io.DataInputStream;
-import java.io.InputStream;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
@@ -25,16 +24,13 @@ public class ClassFileVersionComponent  extends Component {
 
     @Override
     public Report getReport() {
-        try {
-            final String name = anchorClass.getName().replace('.', '/') + ".class";
-            final InputStream in = anchorClass.getClassLoader().getResourceAsStream(name);
-            final DataInputStream data = new DataInputStream(in);
+        String name = anchorClass.getName().replace('.', '/') + ".class";
+        try (DataInputStream data = new DataInputStream(anchorClass.getClassLoader().getResourceAsStream(name))) {
             if (0xCAFEBABE != data.readInt()) {
                 throw new IllegalStateException("invalid header");
             }
             int minor = data.readUnsignedShort();
             int major = data.readUnsignedShort();
-            in.close();
             return new Report(Status.INFO, major + "." + minor);
         }
         catch (Exception e) {

@@ -122,31 +122,31 @@ public class StatusPage {
     }
 
     public void renderJson(Writer writer) throws IOException {
-        JsonGenerator jgen = JSON_FACTORY.createGenerator(writer);
-        jgen.writeStartObject();
-        jgen.writeStringField(ATTR_ID, applicationId);
-        jgen.writeStringField("status", applicationStatus.name().toLowerCase());
-        jgen.writeStringField(ATTR_HOST, hostname);
-        jgen.writeArrayFieldStart("components");
-        for (Map.Entry<Component, Report> componentReport : componentReports.entrySet()) {
-            Component component = componentReport.getKey();
-            Report report = componentReport.getValue();
+        try (JsonGenerator jgen = JSON_FACTORY.createGenerator(writer)) {
             jgen.writeStartObject();
-            jgen.writeStringField(ATTR_ID, component.getId());
-            jgen.writeStringField("status", report.getStatus().name().toLowerCase());
-            jgen.writeStringField("label", component.getLabel());
-            if (report.hasValue()) {
-                if (report.isSuccessful()) {
-                    jgen.writeStringField(TAG_VALUE, String.valueOf(report.getValue()));
-                } else {
-                    jgen.writeStringField(TAG_EXCEPTION, report.getException().getMessage());
+            jgen.writeStringField(ATTR_ID, applicationId);
+            jgen.writeStringField("status", applicationStatus.name().toLowerCase());
+            jgen.writeStringField(ATTR_HOST, hostname);
+            jgen.writeArrayFieldStart("components");
+            for (Map.Entry<Component, Report> componentReport : componentReports.entrySet()) {
+                Component component = componentReport.getKey();
+                Report report = componentReport.getValue();
+                jgen.writeStartObject();
+                jgen.writeStringField(ATTR_ID, component.getId());
+                jgen.writeStringField("status", report.getStatus().name().toLowerCase());
+                jgen.writeStringField("label", component.getLabel());
+                if (report.hasValue()) {
+                    if (report.isSuccessful()) {
+                        jgen.writeStringField(TAG_VALUE, String.valueOf(report.getValue()));
+                    } else {
+                        jgen.writeStringField(TAG_EXCEPTION, report.getException().getMessage());
+                    }
                 }
+                jgen.writeEndObject();
             }
+            jgen.writeEndArray();
+            jgen.writeStringField(TAG_TIMESTAMP, formatTime(timestamp));
             jgen.writeEndObject();
         }
-        jgen.writeEndArray();
-        jgen.writeStringField(TAG_TIMESTAMP, formatTime(timestamp));
-        jgen.writeEndObject();
-        jgen.close();
     }
 }
