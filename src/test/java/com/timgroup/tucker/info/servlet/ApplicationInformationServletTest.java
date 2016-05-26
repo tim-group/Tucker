@@ -30,6 +30,7 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPage;
@@ -67,7 +68,7 @@ public class ApplicationInformationServletTest {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class));
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class), eq(Health.State.healthy));
         HttpServletRequest request = mockRequest("/status.json");
         HttpServletResponse response = mock(HttpServletResponse.class);
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
@@ -87,7 +88,7 @@ public class ApplicationInformationServletTest {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class));
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class), eq(Health.State.healthy));
         HttpServletRequest request = mockRequest("/status", Collections.singletonMap("callback", callbackFunction));
         HttpServletResponse response = mock(HttpServletResponse.class);
         final ByteArrayOutputStream output = new ByteArrayOutputStream();

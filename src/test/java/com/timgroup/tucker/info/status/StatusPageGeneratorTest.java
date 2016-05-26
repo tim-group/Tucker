@@ -39,6 +39,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.VersionComponent;
@@ -80,14 +81,24 @@ public class StatusPageGeneratorTest {
     public void unconfiguredStatusPageRendersBasicJSONStructure() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version, Clock.fixed(Instant.parse("2016-05-25T00:47:33.651Z"), ZoneOffset.UTC));
 
-        ObjectNode object = renderJson(statusPage);
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
         assertEquals("myapp", object.at("/id").asText());
         assertEquals(probeHostname(), object.at("/host").asText());
         assertEquals("ok", object.at("/status").asText());
+        assertEquals("healthy", object.at("/health").asText());
 
         assertEquals(1, object.at("/components").size());
         assertEquals("2016-05-25T00:47:33Z", object.at("/timestamp").asText());
+    }
+
+    @Test
+    public void healthExposedInJSON() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version, Clock.fixed(Instant.parse("2016-05-25T00:47:33.651Z"), ZoneOffset.UTC));
+
+        ObjectNode object = renderJson(statusPage, () -> Health.State.ill);
+
+        assertEquals("ill", object.at("/health").asText());
     }
 
     @Test
@@ -123,7 +134,7 @@ public class StatusPageGeneratorTest {
             }
         });
 
-        ObjectNode object = renderJson(statusPage);
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
         assertEquals("ok", object.at("/status").asText());
 
@@ -168,7 +179,7 @@ public class StatusPageGeneratorTest {
             }
         });
 
-        ObjectNode object = renderJson(statusPage);
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
         assertEquals("critical", object.at("/status").asText());
 
@@ -213,7 +224,7 @@ public class StatusPageGeneratorTest {
             }
         });
 
-        ObjectNode object = renderJson(statusPage);
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
         assertEquals("critical", object.at("/status").asText());
 
@@ -258,7 +269,7 @@ public class StatusPageGeneratorTest {
             }
         });
 
-        ObjectNode object = renderJson(statusPage);
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
         assertEquals("critical", object.at("/status").asText());
 
@@ -338,9 +349,9 @@ public class StatusPageGeneratorTest {
         return document;
     }
 
-    private ObjectNode renderJson(StatusPageGenerator statusPage) throws JsonProcessingException, IOException {
+    private ObjectNode renderJson(StatusPageGenerator statusPage, Health health) throws JsonProcessingException, IOException {
         Writer writer = new StringWriter();
-        statusPage.getApplicationReport().renderJson(writer);
+        statusPage.getApplicationReport().renderJson(writer, health.get());
         String string = writer.toString();
         return new ObjectMapper().readerFor(ObjectNode.class).readValue(string);
     }

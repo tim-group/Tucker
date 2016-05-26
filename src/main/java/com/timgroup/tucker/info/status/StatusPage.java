@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamWriter;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
@@ -120,11 +121,12 @@ public class StatusPage {
         }
     }
 
-    public void renderJson(Writer writer) throws IOException {
+    public void renderJson(Writer writer, Health.State health) throws IOException {
         try (JsonGenerator jgen = JSON_FACTORY.createGenerator(writer)) {
             jgen.writeStartObject();
             jgen.writeStringField(ATTR_ID, applicationId);
             jgen.writeStringField("status", applicationStatus.name().toLowerCase());
+            jgen.writeStringField("health", health.toString());
             jgen.writeStringField(ATTR_HOST, hostname);
             jgen.writeArrayFieldStart("components");
             for (Map.Entry<Component, Report> componentReport : componentReports.entrySet()) {

@@ -28,11 +28,11 @@ public class ApplicationInformationHandler {
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
         dispatch.put("/status", new StatusPageWriter(statusPage));
-        dispatch.put("/status.json", new StatusPageJsonWriter(statusPage));
+        dispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
-        jsonpDispatch.put("/status", new StatusPageJsonWriter(statusPage));
-        jsonpDispatch.put("/status.json", new StatusPageJsonWriter(statusPage));
+        jsonpDispatch.put("/status", new StatusPageJsonWriter(statusPage, health));
+        jsonpDispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
     }
 
     public void handle(String path, WebResponse response) throws IOException {
@@ -139,15 +139,17 @@ public class ApplicationInformationHandler {
 
     private static final class StatusPageJsonWriter implements Handler {
         private final StatusPageGenerator statusPageGenerator;
+        private final Health health;
 
-        public StatusPageJsonWriter(StatusPageGenerator statusPage) {
+        public StatusPageJsonWriter(StatusPageGenerator statusPage, Health health) {
             this.statusPageGenerator = statusPage;
+            this.health = health;
         }
 
         @Override public void handle(WebResponse response) throws IOException {
             try (OutputStreamWriter writer = new OutputStreamWriter(response.respond("application/json", UTF_8), UTF_8)) {
                 StatusPage report = statusPageGenerator.getApplicationReport();
-                report.renderJson(writer);
+                report.renderJson(writer, health.get());
             }
         }
     }
