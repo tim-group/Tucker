@@ -31,7 +31,7 @@ public class StatusPageGenerator {
     private final List<Component> components = new CopyOnWriteArrayList<>();
     
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
-        this(applicationId, versionComponent, Clock.systemUTC());
+        this(applicationId, versionComponent, Clock.systemDefaultZone());
     }
 
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent, Clock clock) {
