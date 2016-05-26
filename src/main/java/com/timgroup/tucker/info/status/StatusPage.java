@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -40,20 +39,20 @@ public class StatusPage {
     private final String hostname;
     
     public StatusPage(String applicationId, Map<Component, Report> componentReports) {
-        this(probeHostname(), applicationId, componentReports, Clock.systemUTC());
+        this(probeHostname(), applicationId, componentReports, Instant.now());
     }
 
     public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports) {
-        this(hostname, applicationId, componentReports, Clock.systemUTC());
+        this(hostname, applicationId, componentReports, Instant.now());
     }
 
-    public StatusPage(String applicationId, Map<Component, Report> componentReports, Clock clock) {
-        this(probeHostname(), applicationId, componentReports, clock);
+    public StatusPage(String applicationId, Map<Component, Report> componentReports, Instant timestamp) {
+        this(probeHostname(), applicationId, componentReports, timestamp);
     }
 
-    public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports, Clock clock) {
+    public StatusPage(String hostname, String applicationId, Map<Component, Report> componentReports, Instant timestamp) {
         this.hostname = hostname;
-        this.timestamp = Instant.now(clock);
+        this.timestamp = timestamp;
         this.applicationId = applicationId;
         this.componentReports = componentReports;
         this.applicationStatus = Report.worstStatus(componentReports.values());

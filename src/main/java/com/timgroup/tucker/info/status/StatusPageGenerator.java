@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info.status;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class StatusPageGenerator {
 
             componentReports.put(component, report);
         }
-        return new StatusPage(applicationId, componentReports, clock);
+        return new StatusPage(applicationId, componentReports, Instant.now(clock));
     }
 
     public Component getVersionComponent() {
