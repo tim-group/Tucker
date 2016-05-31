@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.status;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -10,26 +11,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.timgroup.tucker.info.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.component.VersionComponent;
+import com.timgroup.tucker.info.log.JsonFormatter;
 
 public class StatusPageGenerator {
-    
+
     public static final String DTD_FILENAME = "status-page.dtd";
     public static final String CSS_FILENAME = "status-page.css";
 
-    public static final String COMPONENT_STATUS_FORMAT = "{\"eventType\": \"ComponentStatus\", "
-            +" \"event\": {\"id\": \"{}\", \"label\": \"{}\", \"status\": \"{}\", \"value\": \"{}\"}}";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusPageGenerator.class);
-    
+
     private final String applicationId;
     private final VersionComponent versionComponent;
     private final Clock clock;
     private final List<Component> components = new CopyOnWriteArrayList<>();
-    
+
     public StatusPageGenerator(String applicationId, VersionComponent versionComponent) {
         this(applicationId, versionComponent, Clock.systemDefaultZone());
     }
@@ -40,11 +39,11 @@ public class StatusPageGenerator {
         this.clock = clock;
         components.add(versionComponent);
     }
-    
+
     public void addComponent(Component component) {
         components.add(component);
     }
-    
+
     public StatusPage getApplicationReport() {
         Map<Component, Report> componentReports = new LinkedHashMap<>(components.size());
         for (Component component : components) {
@@ -57,7 +56,18 @@ public class StatusPageGenerator {
             }
 
             if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {
-                LOGGER.info(COMPONENT_STATUS_FORMAT, component.getId(), component.getLabel(), report.getStatus(), report.getValue());
+                try (JsonGenerator jgen = JsonFormatter.generate(LOGGER::info)) {
+                    jgen.writeStartObject();
+                    jgen.writeStringField("eventType", "ComponentStatus");
+                    jgen.writeObjectFieldStart("event");
+                    jgen.writeStringField("id", component.getId());
+                    jgen.writeStringField("label", component.getLabel());
+                    jgen.writeStringField("status", String.valueOf(report.getStatus()));
+                    jgen.writeStringField("value", String.valueOf(report.getValue()));
+                    jgen.writeEndObject();
+                    jgen.writeEndObject();
+                } catch (IOException e) {
+                }
             }
 
             componentReports.put(component, report);
