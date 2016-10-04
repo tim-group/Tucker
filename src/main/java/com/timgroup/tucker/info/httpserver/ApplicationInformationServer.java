@@ -31,27 +31,27 @@ public class ApplicationInformationServer {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
-    private final URI base;
+    private final String hostname;
     private final HttpServer server;
 
     private ApplicationInformationServer(int port, ApplicationInformationHandler handler) throws IOException {
-        base = constructBaseUri(port);
+        this.hostname = defaultHostname();
+        URI potentialBaseUri = URI.create(String.format("http://%s:%d/info", hostname, port));
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext(base.getPath(), new ApplicationInformationHttpHandler(handler, base));
+        server.createContext(potentialBaseUri.getPath(), new ApplicationInformationHttpHandler(handler, potentialBaseUri));
         server.setExecutor(newFixedThreadPool(5, new TuckerThreadFactory()));
     }
 
-    private URI constructBaseUri(int port) throws UnknownHostException, IOException {
-        String hostName = InetAddress.getLocalHost().getHostName();
+    private static String defaultHostname() {
         try {
-            return new URI("http", null, hostName, port, "/info", null, null);
-        } catch (URISyntaxException e) {
-            throw new IOException("disappointing error constructing base URI for " + hostName, e);
+            return InetAddress.getLocalHost().getHostName();
+        } catch (IOException e) {
+            return "localhost";
         }
     }
 
     public URI getBase() {
-        return base;
+        return URI.create(String.format("http://%s:%d/info", hostname, server.getAddress().getPort()));
     }
 
     public void start() {
@@ -61,7 +61,6 @@ public class ApplicationInformationServer {
     public void stop() {
         server.stop(0);
     }
-
 
     private static class TuckerThreadFactory implements ThreadFactory {
         final AtomicInteger threadNumber = new AtomicInteger(1);

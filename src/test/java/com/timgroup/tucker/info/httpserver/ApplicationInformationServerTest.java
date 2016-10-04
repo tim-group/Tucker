@@ -28,7 +28,7 @@ public class ApplicationInformationServerTest {
     @Before public void
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
-        server = create(8000, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
         server.start();
     }
 
@@ -40,7 +40,7 @@ public class ApplicationInformationServerTest {
     @Test
     public void
     whenAServerIsRunningStatusPageCanBeRequested() throws IOException {
-        String statusPageXml = load("http://localhost:8000/info/status");
+        String statusPageXml = load(String.format("http://localhost:%d/info/status", server.getBase().getPort()));
 
         assertThat(statusPageXml, containsString("test-tucker"));
     }
@@ -49,7 +49,7 @@ public class ApplicationInformationServerTest {
     public void
     whenAServerIsRunningStatusPageCanBeRequestedAsJSONP() throws IOException {
         String callbackFunction = "test" + System.currentTimeMillis();
-        String statusPageJavascript = load("http://localhost:8000/info/status?callback=" + callbackFunction);
+        String statusPageJavascript = load(String.format("http://localhost:%d/info/status?callback=%s", server.getBase().getPort(), callbackFunction));
 
         assertThat(statusPageJavascript, containsString("test-tucker"));
         assertThat(statusPageJavascript, startsWith(callbackFunction + "({"));
