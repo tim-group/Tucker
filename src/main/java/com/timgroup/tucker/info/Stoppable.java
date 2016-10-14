@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 
 @FunctionalInterface
 public interface Stoppable extends Supplier<Stoppable.State> {
-    public static final Stoppable ALWAYS_STOPPABLE = () -> State.safe;
+    Stoppable ALWAYS_STOPPABLE = () -> State.safe;
 
-    public enum State { safe, unwise }
+    enum State { safe, unwise }
 
     @Override
     State get();

@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 
 @FunctionalInterface
 public interface Health extends Supplier<Health.State> {
-    public static final Health ALWAYS_HEALTHY = () -> State.healthy;
+    Health ALWAYS_HEALTHY = () -> State.healthy;
 
-    public enum State { healthy, ill }
+    enum State { healthy, ill }
 
     @Override
     State get();

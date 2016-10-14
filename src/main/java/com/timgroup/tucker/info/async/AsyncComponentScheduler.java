@@ -44,21 +44,13 @@ public class AsyncComponentScheduler {
     public void start() {
         for (final AsyncComponent asyncComponent: components) {
             executor.scheduleWithFixedDelay(
-                    updateComponentRunnable(asyncComponent),
+                    asyncComponent::update,
                     NO_INITIAL_DELAY,
                     asyncComponent.getRepeatInterval().toNanos(),
                     TimeUnit.NANOSECONDS);
         }
     }
 
-    private Runnable updateComponentRunnable(final AsyncComponent asyncComponent) {
-        return new Runnable() {
-            @Override public void run() {
-                asyncComponent.update(); 
-            } 
-        };
-    }
-    
     public void addComponentsTo(StatusPageGenerator generator) {
         for (AsyncComponent asyncComponent: components) {
             generator.addComponent(asyncComponent);

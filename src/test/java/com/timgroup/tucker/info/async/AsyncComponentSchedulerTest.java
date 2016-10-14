@@ -3,6 +3,7 @@ package com.timgroup.tucker.info.async;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -16,7 +17,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,7 +36,7 @@ public class AsyncComponentSchedulerTest {
     };
     
     private AsyncComponentScheduler schedule(AsyncComponent asyncComponent) {
-        AsyncComponentScheduler scheduler = AsyncComponentScheduler.createFromAsync(Arrays.asList(asyncComponent));
+        AsyncComponentScheduler scheduler = AsyncComponentScheduler.createFromAsync(singletonList(asyncComponent));
         scheduler.start();
         return scheduler;
     }

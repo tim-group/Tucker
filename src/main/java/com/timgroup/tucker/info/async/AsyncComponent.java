@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 
-public class AsyncComponent extends Component {
+public final class AsyncComponent extends Component {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncComponent.class);
     private static final AsyncSettings DEFAULT_SETTINGS = AsyncSettings.settings();
