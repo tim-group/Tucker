@@ -25,8 +25,8 @@ public class StatusChangedAdapterTest {
         Report initialState = new Report(Status.OK, "seems fine");
         Report laterState = new Report(Status.WARNING, "things went wrong");
 
-        adapter.apply(initialState);
-        adapter.apply(laterState);
+        adapter.accept(initialState);
+        adapter.accept(laterState);
 
         verify(mockCallback).stateChanged(component, initialState, laterState);
     }
@@ -35,7 +35,7 @@ public class StatusChangedAdapterTest {
     public void doesNotReportStateChangeOnInitialUpdate() {
         Report initialState = new Report(Status.OK);
 
-        adapter.apply(initialState);
+        adapter.accept(initialState);
 
         verifyNoMoreInteractions(mockCallback);
     }
@@ -45,8 +45,8 @@ public class StatusChangedAdapterTest {
         Report initialState = new Report(Status.OK, "seems fine");
         Report laterState = new Report(Status.OK, "still fine");
 
-        adapter.apply(initialState);
-        adapter.apply(laterState);
+        adapter.accept(initialState);
+        adapter.accept(laterState);
 
         verifyNoMoreInteractions(mockCallback);
     }

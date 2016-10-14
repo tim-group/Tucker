@@ -64,11 +64,7 @@ public class AsyncComponentSchedulerTest {
     @Test
     public void shutsDownThreadPoolAndDoesNotRetrieveComponentStatusAfterBeingStopped() throws InterruptedException {
         final TestingSemaphore componentInvoked = new TestingSemaphore();
-        StatusUpdated onUpdate = new StatusUpdated() {
-            @Override public void apply(Report report) {
-                componentInvoked.completed();
-            }
-        };
+        StatusUpdated onUpdate = report -> componentInvoked.completed();
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(
                 healthyWellBehavedComponent,
@@ -150,12 +146,9 @@ public class AsyncComponentSchedulerTest {
 
         final TestingSemaphore componentUpdated = new TestingSemaphore();
         final TestingSemaphore reportAsserted = new TestingSemaphore();
-        StatusUpdated statusUpdated = new StatusUpdated() {
-            @Override public void apply(Report report) {
-                componentUpdated.completed();
-                reportAsserted.waitFor("assertion to be checked");
-            }
-            
+        StatusUpdated statusUpdated = report -> {
+            componentUpdated.completed();
+            reportAsserted.waitFor("assertion to be checked");
         };
         AsyncComponent asyncComponent = AsyncComponent.wrapping(nthCallNeverReturns(2),
                 AsyncSettings.settings()
@@ -200,11 +193,9 @@ public class AsyncComponentSchedulerTest {
     public void reschedulesUpdateAfterComponentThrowsException() {
         final TestingSemaphore componentInvoked = new TestingSemaphore();
         final TestingSemaphore assertionSemaphore = new TestingSemaphore();
-        StatusUpdated onUpdate = new StatusUpdated() {
-            @Override public void apply(Report report) {
-                componentInvoked.completed();
-                assertionSemaphore.waitFor("assertion to be checked");
-            }
+        StatusUpdated onUpdate = report -> {
+            componentInvoked.completed();
+            assertionSemaphore.waitFor("assertion to be checked");
         };
 
         AsyncComponent asyncComponent = AsyncComponent.wrapping(initiallyThrowsExceptionComponent(),
@@ -241,7 +232,7 @@ public class AsyncComponentSchedulerTest {
         final TestingSemaphore componentInvoked = new TestingSemaphore();
         StatusUpdated onUpdate = new StatusUpdated() {
             private final AtomicInteger timesCalled = new AtomicInteger(0);
-            @Override public void apply(Report report) {
+            @Override public void accept(Report report) {
                 componentInvoked.completed();
                 if (timesCalled.getAndIncrement() == 0) {
                     throw new IllegalArgumentException("Thrown by update hook");

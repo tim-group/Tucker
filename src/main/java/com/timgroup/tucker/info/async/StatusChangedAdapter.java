@@ -17,7 +17,7 @@ public class StatusChangedAdapter implements StatusUpdated {
     }
 
     @Override
-    public void apply(Report currentState) {
+    public void accept(Report currentState) {
         if (previousState != null && currentState.getStatus() != previousState.getStatus()) {
             callback.stateChanged(component, previousState, currentState);
         }

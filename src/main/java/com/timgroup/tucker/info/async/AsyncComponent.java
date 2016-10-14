@@ -75,7 +75,7 @@ public class AsyncComponent extends Component {
 
     private void safelyInvokeUpdateHook(Report report) {
         try {
-            statusUpdateHook.apply(report);
+            statusUpdateHook.accept(report);
         } catch (Exception e) {
             LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), e);
         }
