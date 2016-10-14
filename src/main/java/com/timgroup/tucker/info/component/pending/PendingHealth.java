@@ -10,13 +10,17 @@ public final class PendingHealth implements Health {
     private final HealthStateChangeCallback callback;
     private final AtomicBoolean previouslyHealthy = new AtomicBoolean(false);
 
-    public PendingHealth(Health underlying, HealthStateChangeCallback callback) {
+    private PendingHealth(Health underlying, HealthStateChangeCallback callback) {
         this.underlying = underlying;
         this.callback = callback;
     }
 
-    public PendingHealth(Health underlying) {
-        this(underlying, HealthStateChangeCallback.NOOP);
+    public static PendingHealth pending(Health underlying, HealthStateChangeCallback callback) {
+        return new PendingHealth(underlying, callback);
+    }
+
+    public static PendingHealth pending(Health underlying) {
+        return pending(underlying, HealthStateChangeCallback.NOOP);
     }
 
     @Override
