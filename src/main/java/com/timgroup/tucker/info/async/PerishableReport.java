@@ -31,7 +31,7 @@ final class PerishableReport {
             String message = String.format(
                 "Last run at %s (over %s ago): %s",
                 timestamp, stalenessLimit, report.getValue());
-            return new Report(WARNING, message);
+            return new Report(WARNING.or(report.getStatus()), message);
         } else {
             return report;
         }
