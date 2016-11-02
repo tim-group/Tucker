@@ -1,5 +1,7 @@
 package com.timgroup.tucker.info;
 
+import java.util.Optional;
+
 public final class Report {
     
     private static final Object NO_VALUE = new Object();
@@ -14,24 +16,42 @@ public final class Report {
     
     private final Status status;
     private final Object value;
-    
-    public Report(Status status, Object value) {
+    private final Optional<Runbook> runbook;
+
+    public Report(Status status, Object value, Optional<Runbook> runbook) {
         this.status = status;
         this.value = (value == null) ? NO_VALUE : value;
+        this.runbook = runbook;
     }
-    
+
+    public Report(Status status, Object value, Runbook runbook) {
+        this(status, value, Optional.of(runbook));
+    }
+
+    public Report(Status status, Object value) {
+        this(status, value, Optional.empty());
+    }
+
     public Report(Status status) {
         this(status, NO_VALUE);
     }
     
     public Report(Throwable e) {
-        this(Status.CRITICAL, e);
+        this(Status.CRITICAL, e, Optional.empty());
     }
-    
+
+    public Report(Throwable e, Optional<Runbook> optionalRunbook) {
+        this(Status.CRITICAL, e, optionalRunbook);
+    }
+
     public Status getStatus() {
         return status;
     }
-    
+
+    public Report withRunbook(Runbook runbook) {
+        return new Report(status, value, runbook);
+    }
+
     public boolean hasValue() {
         return value != NO_VALUE;
     }
@@ -46,6 +66,14 @@ public final class Report {
     
     public Throwable getException() {
         return (Throwable) value;
+    }
+
+    public Optional<Runbook> getRunbook() {
+        return runbook;
+    }
+
+    public boolean hasRunbook() {
+        return runbook.isPresent();
     }
 
     @Override
@@ -80,4 +108,5 @@ public final class Report {
     public String toString() {
         return "Report [status=" + status + ", value=" + value + "]";
     }
+
 }

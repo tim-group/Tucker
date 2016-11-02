@@ -1,6 +1,8 @@
 package com.timgroup.tucker.info.status;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -24,6 +26,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.timgroup.tucker.info.Runbook;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
@@ -279,6 +282,119 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", object.at("/components/1/status").asText());
         assertEquals("Red wire or green wire", object.at("/components/1/label").asText());
         assertEquals("wrong wire", object.at("/components/1/exception").asText());
+    }
+
+    @Test
+    public void canAddAnOptionalRunbookToComponentAndLocationWillBePrintedInComponentStatusOnError() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://the-solution-is-described-here.com")) {
+            @Override
+            public Report getReport() {
+                throw new Error("wrong wire");
+            }
+        });
+
+        Document document = render(statusPage);
+
+        Element root = document.getDocumentElement();
+        Element component = getSecondElementByTagName(root, "component");
+        String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
+        assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
+                component.getTextContent().contains(expectedRunbookText));
+    }
+
+    @Test
+    public void canAddAnOptionalRunbookToReportAndLocationWillBePrintedInComponentStatus() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com"));
+            }
+        });
+
+        Document document = render(statusPage);
+
+        Element root = document.getDocumentElement();
+        Element component = getSecondElementByTagName(root, "component");
+        String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
+        assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
+                component.getTextContent().contains(expectedRunbookText));
+    }
+
+    @Test
+    public void canAddAnOptionalRunbookToReportAndItWillOverrideUncaughtExceptionRunbook() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://uncaught-exception-runbook.com")) {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com"));
+            }
+        });
+
+        Document document = render(statusPage);
+
+        Element root = document.getDocumentElement();
+        Element component = getSecondElementByTagName(root, "component");
+
+        String reportSpecificRunbookLocation = "http://the-solution-is-described-here.com";
+        String componentSpecificRunbookLocation = "http://uncaught-exception-runbook.com";
+
+        assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + reportSpecificRunbookLocation + "]",
+                component.getTextContent().contains(reportSpecificRunbookLocation));
+        assertFalse("Expected component with text [" + component.getTextContent() + "] not to contain [" + componentSpecificRunbookLocation + "]",
+                component.getTextContent().contains(componentSpecificRunbookLocation));
+    }
+
+    @Test
+    public void optionalRunbookFromComponentIsDisplayedIfReportDoesNotProvideOne() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://uncaught-exception-runbook.com")) {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL, "brown wire?");
+            }
+        });
+
+        Document document = render(statusPage);
+
+        Element root = document.getDocumentElement();
+        Element component = getSecondElementByTagName(root, "component");
+
+        String componentSpecificRunbookLocation = "Runbook: http://uncaught-exception-runbook.com";
+
+        assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + componentSpecificRunbookLocation + "]",
+                component.getTextContent().contains(componentSpecificRunbookLocation));
+    }
+
+    @Test
+    public void canAddOptionalRunbookToReportAndItWillBeIncludedInJson() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL).withRunbook(new Runbook("http://the-solution-is-described-here.com"));
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
+
+        assertEquals("http://the-solution-is-described-here.com", object.at("/components/1/runbook/locationUrl").asText());
+    }
+
+    @Test
+    public void whenOptionalRunbookIsNotIncludedItIsNullInJson() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
+        statusPage.addComponent(new Component("mycomponent", "Eschatological immanency") {
+            @Override
+            public Report getReport() {
+                return new Report(Status.CRITICAL);
+            }
+        });
+
+        ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
+
+        assertEquals("null", object.at("/components/1/runbook/locationUrl").asText());
     }
 
     private Element getSingleElementByTagName(Element element, String name) {

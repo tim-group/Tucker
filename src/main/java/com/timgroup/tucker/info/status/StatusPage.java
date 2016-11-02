@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Runbook;
 import com.timgroup.tucker.info.Status;
 
 public class StatusPage {
@@ -87,12 +89,15 @@ public class StatusPage {
                     if (report.isSuccessful()) {
                         out.writeStartElement(TAG_VALUE);
                         out.writeCharacters(String.valueOf(report.getValue()));
+                        writeRunbookLinkIfPresent(out, report.getRunbook());
                         out.writeEndElement();
                     } else {
                         out.writeStartElement(TAG_EXCEPTION);
                         out.writeCharacters(report.getException().getMessage());
+                        writeRunbookLinkIfPresent(out, report.getRunbook());
                         out.writeEndElement();
                     }
+
                 }
                 out.writeEndElement();
             }
@@ -108,7 +113,14 @@ public class StatusPage {
             throw new IOException(e);
         }
     }
-    
+
+    private void writeRunbookLinkIfPresent(XMLStreamWriter out, Optional<Runbook> optionalRunbook) throws XMLStreamException {
+        if (optionalRunbook.isPresent()) {
+            Runbook runbook = optionalRunbook.get();
+            out.writeCharacters(String.format("%nRunbook: %s", runbook.getLocation()));
+        }
+    }
+
     private String constructDTD(String rootElement, String systemID) {
         return "<!DOCTYPE " + rootElement + " SYSTEM \"" + systemID + "\">";
     }
@@ -143,6 +155,9 @@ public class StatusPage {
                         jgen.writeStringField(TAG_EXCEPTION, report.getException().getMessage());
                     }
                 }
+                jgen.writeObjectFieldStart("runbook");
+                jgen.writeStringField("locationUrl", report.getRunbook().map(Runbook::getLocation).orElse(null));
+                jgen.writeEndObject();
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();

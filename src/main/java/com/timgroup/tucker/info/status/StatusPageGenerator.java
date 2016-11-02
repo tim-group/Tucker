@@ -6,8 +6,10 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.timgroup.tucker.info.Runbook;
 import com.timgroup.tucker.info.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +52,12 @@ public class StatusPageGenerator {
             Report report;
             try {
                 report = component.getReport();
+                if (!report.hasRunbook() && component.hasRunbook()) {
+                    report = report.withRunbook(component.getRunbook().get());
+                }
             } catch (Throwable e) {
                 LOGGER.error("exception getting report from component {}", component.getId(), e);
-                report = new Report(e);
+                report = new Report(e, component.getRunbook());
             }
 
             if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {
@@ -64,6 +69,9 @@ public class StatusPageGenerator {
                     jgen.writeStringField("label", component.getLabel());
                     jgen.writeStringField("status", String.valueOf(report.getStatus()));
                     jgen.writeStringField("value", String.valueOf(report.getValue()));
+                    jgen.writeObjectFieldStart("runbook");
+                    jgen.writeStringField("locationUrl", report.getRunbook().map(Runbook::getLocation).orElse(null));
+                    jgen.writeEndObject();
                     jgen.writeEndObject();
                     jgen.writeEndObject();
                 } catch (IOException e) {
