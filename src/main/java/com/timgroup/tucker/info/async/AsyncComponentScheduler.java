@@ -22,7 +22,7 @@ public class AsyncComponentScheduler {
 
     private AsyncComponentScheduler(List<AsyncComponent> components) {
         this.components = components;
-        this.executor = Executors.newScheduledThreadPool(components.size(), new AsyncComponentThreadFactory());
+        this.executor = Executors.newScheduledThreadPool(components.size(), AsyncComponentScheduler::newThread);
     }
     
     public static AsyncComponentScheduler createFromAsync(List<AsyncComponent> components) {
@@ -61,16 +61,12 @@ public class AsyncComponentScheduler {
       executor.shutdown();
       executor.awaitTermination(1, TimeUnit.SECONDS);
     }
-    
-    private static class AsyncComponentThreadFactory implements ThreadFactory {
-        final AtomicInteger threadNumber = new AtomicInteger(1);
 
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, "Tucker-async-component-" + threadNumber.getAndIncrement());
-            thread.setDaemon(false);
-            return thread;
-        }
+    private static final AtomicInteger TUCKER_THREAD_NUMBER = new AtomicInteger(1);
+
+    private static Thread newThread(Runnable r) {
+        Thread thread = new Thread(r, "Tucker-async-component-" + TUCKER_THREAD_NUMBER.getAndIncrement());
+        thread.setDaemon(false);
+        return thread;
     }
-
 }
