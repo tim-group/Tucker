@@ -12,14 +12,14 @@ public abstract class Component {
         this(id, label, Optional.empty());
     }
 
-    public Component(String id, String label, Runbook uncaughtExceptionRunbook) {
-        this(id, label, Optional.of(uncaughtExceptionRunbook));
+    public Component(String id, String label, Runbook defaultRunbook) {
+        this(id, label, Optional.of(defaultRunbook));
     }
 
-    public Component(String id, String label, Optional<Runbook> uncaughtExceptionRunbook) {
+    public Component(String id, String label, Optional<Runbook> defaultRunbook) {
         this.id = id;
         this.label = label;
-        this.runbook = uncaughtExceptionRunbook;
+        this.runbook = defaultRunbook;
     }
     
     public final String getId() {

@@ -22,7 +22,7 @@ public final class AsyncComponent extends Component {
     private final Duration repeatInterval;
     
     private AsyncComponent(Component wrapped, AsyncSettings settings) {
-        super(wrapped.getId(), wrapped.getLabel());
+        super(wrapped.getId(), wrapped.getLabel(), wrapped.getRunbook());
         this.wrapped = wrapped;
         this.repeatInterval = settings.repeatInterval;
         this.statusUpdateHook = settings.statusUpdateHook;
