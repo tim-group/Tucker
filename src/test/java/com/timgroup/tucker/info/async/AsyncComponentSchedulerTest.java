@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -97,10 +98,7 @@ public class AsyncComponentSchedulerTest {
     
     @Test
     public void returnsWarningStatusWhenReportHasNeverBeenReturnedWithinTimeThreshold() {
-        Instant initialisation = minutesAfterInitialisation(0);
-        Instant sixMinutesLater = minutesAfterInitialisation(6);
-
-        Clock clock = mockClock(initialisation, sixMinutesLater);
+        ManualClock clock = ManualClock.initiallyAt(minutesAfterInitialisation(0));
 
         TestingSemaphore invoked = new TestingSemaphore();
         AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked),
@@ -110,7 +108,9 @@ public class AsyncComponentSchedulerTest {
                 .withStalenessLimit(4, MINUTES));
         
         schedule(asyncComponent);
-        
+
+        clock.bump(Duration.ofMinutes(6));
+
         invoked.waitFor("Component to be invoked");
         Report report = asyncComponent.getReport();
 
@@ -137,12 +137,7 @@ public class AsyncComponentSchedulerTest {
 
     @Test
     public void returnsWarningStatusForStaleReport() throws Exception {
-        Instant initialised = minutesAfterInitialisation(0);
-        Instant oneMinuteLater = minutesAfterInitialisation(1);
-        Instant threeMinutesLater = minutesAfterInitialisation(3);
-        Instant tenMinutesLater = minutesAfterInitialisation(10);
-
-        Clock clock = mockClock(initialised, oneMinuteLater, oneMinuteLater, threeMinutesLater, threeMinutesLater, tenMinutesLater);
+        ManualClock clock = ManualClock.initiallyAt(minutesAfterInitialisation(0));
 
         final TestingSemaphore componentUpdated = new TestingSemaphore();
         final TestingSemaphore reportAsserted = new TestingSemaphore();
@@ -158,13 +153,19 @@ public class AsyncComponentSchedulerTest {
         
         schedule(asyncComponent);
 
-        componentUpdated.waitFor("Component to be invoked");
-        assertEquals(new Report(OK, "Everything's fine"), asyncComponent.getReport());
-        reportAsserted.completed();
+        clock.bump(Duration.ofMinutes(1));
 
         componentUpdated.waitFor("Component to be invoked");
         assertEquals(new Report(OK, "Everything's fine"), asyncComponent.getReport());
         reportAsserted.completed();
+
+        clock.bump(Duration.ofMinutes(2));
+
+        componentUpdated.waitFor("Component to be invoked");
+        assertEquals(new Report(OK, "Everything's fine"), asyncComponent.getReport());
+        reportAsserted.completed();
+
+        clock.bump(Duration.ofMinutes(7));
 
         Report report = asyncComponent.getReport();
 
@@ -281,28 +282,47 @@ public class AsyncComponentSchedulerTest {
         };
     }
 
-    private static Clock mockClock(Instant... toReturn) {
-        return new Clock() {
-            int ptr;
+    private static final class ManualClock extends Clock {
+        private Instant instant;
 
-            @Override
-            public Instant instant() {
-                Instant instant = toReturn[ptr];
-                if (ptr < (toReturn.length - 1)) {
-                    ++ptr;
-                }
-                return instant;
-            }
+        public static ManualClock initiallyAt(Instant instant) {
+            return new ManualClock(instant);
+        }
 
-            @Override
-            public ZoneId getZone() {
-                return ZoneId.systemDefault();
-            }
+        public ManualClock(Instant instant) {
+            this.instant = instant;
+        }
 
-            @Override
-            public Clock withZone(ZoneId zone) {
+        public void bumpSeconds(long seconds) {
+            bump(Duration.ofSeconds(seconds));
+        }
+
+        public void bumpMillis(long millis) {
+            bump(Duration.ofMillis(millis));
+        }
+
+        public void bump(Duration duration) {
+            instant = instant.plus(duration);
+        }
+
+        @Override
+        public ZoneId getZone() {
+            return ZoneOffset.UTC;
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            if (zone == ZoneOffset.UTC) {
                 return this;
             }
-        };
+            else {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        @Override
+        public Instant instant() {
+            return instant;
+        }
     }
 }
