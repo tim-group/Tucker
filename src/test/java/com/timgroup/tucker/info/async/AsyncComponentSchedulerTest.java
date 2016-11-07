@@ -13,11 +13,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -282,47 +279,4 @@ public class AsyncComponentSchedulerTest {
         };
     }
 
-    private static final class ManualClock extends Clock {
-        private Instant instant;
-
-        public static ManualClock initiallyAt(Instant instant) {
-            return new ManualClock(instant);
-        }
-
-        public ManualClock(Instant instant) {
-            this.instant = instant;
-        }
-
-        public void bumpSeconds(long seconds) {
-            bump(Duration.ofSeconds(seconds));
-        }
-
-        public void bumpMillis(long millis) {
-            bump(Duration.ofMillis(millis));
-        }
-
-        public void bump(Duration duration) {
-            instant = instant.plus(duration);
-        }
-
-        @Override
-        public ZoneId getZone() {
-            return ZoneOffset.UTC;
-        }
-
-        @Override
-        public Clock withZone(ZoneId zone) {
-            if (zone == ZoneOffset.UTC) {
-                return this;
-            }
-            else {
-                throw new IllegalArgumentException();
-            }
-        }
-
-        @Override
-        public Instant instant() {
-            return instant;
-        }
-    }
 }
