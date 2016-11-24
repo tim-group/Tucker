@@ -5,10 +5,10 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 public final class AsyncSettings {
-    final Clock clock;
-    final Duration repeatInterval;
-    final StatusUpdated statusUpdateHook;
-    final Duration stalenessLimit;
+    public final Clock clock;
+    public final Duration repeatInterval;
+    public final StatusUpdated statusUpdateHook;
+    public final Duration stalenessLimit;
 
     private AsyncSettings(Clock clock, Duration repeatInterval, StatusUpdated statusUpdateHook, Duration stalenessLimit) {
         this.clock = clock;
