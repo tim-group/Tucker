@@ -1,15 +1,15 @@
 package com.timgroup.tucker.info.async;
 
-import static com.timgroup.tucker.info.Status.WARNING;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Report;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
+import static com.timgroup.tucker.info.Status.WARNING;
 
 public final class AsyncComponent extends Component {
     
@@ -18,14 +18,12 @@ public final class AsyncComponent extends Component {
 
     private volatile PerishableReport currentReport;
     private final Component wrapped;
-    private final StatusUpdated statusUpdateHook;
-    private final Duration repeatInterval;
-    
+    private final AsyncSettings settings;
+
     private AsyncComponent(Component wrapped, AsyncSettings settings) {
         super(wrapped.getId(), wrapped.getLabel(), wrapped.getRunbook());
         this.wrapped = wrapped;
-        this.repeatInterval = settings.repeatInterval;
-        this.statusUpdateHook = settings.statusUpdateHook;
+        this.settings = settings;
         
         this.currentReport = new PerishableReport(
                 new Report(WARNING, "Not yet run"),
@@ -40,18 +38,22 @@ public final class AsyncComponent extends Component {
     public static AsyncComponent wrapping(Component component, AsyncSettings settings) {
         return new AsyncComponent(component, settings);
     }
-    
+
+    public AsyncComponent withUpdatedSettings(Function<AsyncSettings, AsyncSettings> settingsTransformation) {
+        return new AsyncComponent(wrapped, settingsTransformation.apply(settings));
+    }
+
     @Override
     public Report getReport() {
         return currentReport.getPotentiallyStaleReport();
     }
 
     public Duration getRepeatInterval() {
-        return this.repeatInterval;
+        return this.settings.repeatInterval;
     }
 
     public long getRepeat() {
-        return this.repeatInterval.toNanos();
+        return this.settings.repeatInterval.toNanos();
     }
     
     public TimeUnit getRepeatTimeUnit() {
@@ -75,7 +77,7 @@ public final class AsyncComponent extends Component {
 
     private void safelyInvokeUpdateHook(Report report) {
         try {
-            statusUpdateHook.accept(report);
+            settings.statusUpdateHook.accept(report);
         } catch (Exception e) {
             LOGGER.error("exception invoked update hook for component {} ", wrapped.getId(), e);
         }
