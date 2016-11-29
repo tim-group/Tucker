@@ -1,5 +1,11 @@
 package com.timgroup.tucker.info.sensu;
 
+import java.net.Socket;
+import java.time.Duration;
+import java.util.Collection;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.async.AsyncComponent;
@@ -8,13 +14,7 @@ import com.timgroup.tucker.info.async.StatusUpdated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.time.Duration;
-import java.util.Collection;
-
 import static com.timgroup.tucker.info.async.BroadcastingStatusUpdated.broadcastingTo;
-import static java.util.stream.Collectors.joining;
 
 public class SensuAsyncComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensuAsyncComponent.class);
@@ -44,18 +44,21 @@ public class SensuAsyncComponent {
     private static StatusUpdated sensuReporterFor(int localPort, String componentId, Duration stalenessLimit, Collection<String> slackChannels) {
         return report -> {
             try (Socket sensuSocket = new Socket("localhost", localPort);
-                 PrintWriter out = new PrintWriter(sensuSocket.getOutputStream())) {
+                 JsonGenerator gen = new JsonFactory().createGenerator(sensuSocket.getOutputStream())) {
 
-                String json =
-                        "{\n" +
-                                "\"name\": \"" + componentId + "\",\n" +
-                                "\"output\": \"" + report.getValue() + "\",\n" +
-                                "\"status\": " + sensuStatusFor(report.getStatus()) + ",\n" +
-                                "\"ttl\": " + stalenessLimit.getSeconds() + ",\n" +
-                                "\"slack\": { \"channels\": " + slackChannels.stream().map(c -> "\"" + c + "\"").collect(joining(", ", "[", "]")) + " }" +
-                                "}";
-
-                out.println(json);
+                gen.writeStartObject();
+                gen.writeStringField("name", componentId);
+                gen.writeObjectField("output", report.getValue());
+                gen.writeNumberField("status", sensuStatusFor(report.getStatus()));
+                gen.writeNumberField("ttl", stalenessLimit.getSeconds());
+                gen.writeObjectFieldStart("slack");
+                gen.writeArrayFieldStart("channels");
+                for (String channel : slackChannels) {
+                    gen.writeString(channel);
+                }
+                gen.writeEndArray();
+                gen.writeEndObject();
+                gen.writeEndObject();
             } catch (Exception e) {
                 LOGGER.warn("Failed to report to sensu", e);
             }

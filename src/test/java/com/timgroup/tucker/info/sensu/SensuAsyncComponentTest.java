@@ -1,12 +1,5 @@
 package com.timgroup.tucker.info.sensu;
 
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.async.AsyncComponent;
-import com.timgroup.tucker.info.component.SimpleValueComponent;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExternalResource;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +11,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.async.AsyncComponent;
+import com.timgroup.tucker.info.component.SimpleValueComponent;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExternalResource;
 
 import static com.timgroup.tucker.info.Status.CRITICAL;
 import static com.timgroup.tucker.info.Status.INFO;
@@ -67,10 +67,10 @@ public class SensuAsyncComponentTest {
         component.updateValue(CRITICAL, "");
         sensuNotifyingComponent.update();
 
-        assertThat(fakeSensuClient.nextResult(), containsString("\"status\": 0"));
-        assertThat(fakeSensuClient.nextResult(), containsString("\"status\": 0"));
-        assertThat(fakeSensuClient.nextResult(), containsString("\"status\": 1"));
-        assertThat(fakeSensuClient.nextResult(), containsString("\"status\": 2"));
+        assertThat(fakeSensuClient.nextResult(), containsString("\"status\":0"));
+        assertThat(fakeSensuClient.nextResult(), containsString("\"status\":0"));
+        assertThat(fakeSensuClient.nextResult(), containsString("\"status\":1"));
+        assertThat(fakeSensuClient.nextResult(), containsString("\"status\":2"));
     }
 
     @Test public void
@@ -81,7 +81,7 @@ public class SensuAsyncComponentTest {
                 asList("#channel-1", "#channel-2", "#channel-3"),
                 fakeSensuClient.port()).update();
 
-        assertThat(fakeSensuClient.nextResult(), containsString("\"channels\": [\"#channel-1\", \"#channel-2\", \"#channel-3\"]"));
+        assertThat(fakeSensuClient.nextResult(), containsString("\"channels\":[\"#channel-1\",\"#channel-2\",\"#channel-3\"]"));
     }
 
     @Test public void
