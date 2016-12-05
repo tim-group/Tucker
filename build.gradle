@@ -47,11 +47,12 @@ jar {
 }
 
 repositories {
-    mavenLocal()
     if (project.hasProperty('repoUrl')) {
-        mavenRepo url: "${project.repoUrl}/groups/public"
-    }
-    else {
+        maven {
+            name "nexus"
+            url "${project.repoUrl}/groups/public"
+        }
+    } else {
         mavenCentral()
     }
 }
@@ -117,8 +118,9 @@ task pom {
             }
         }
     }
-} << {
-    pom.writeTo("$buildDir/pom.xml")
+    doLast {
+        pom.writeTo("$buildDir/pom.xml")
+    }
 }
 
 uploadArchives {
@@ -158,13 +160,15 @@ eclipse {
     }
 }
 
-task hgignore << {
-    // gitignore and hgignore syntax are similar enough that this works (for now)
-    file('.hgignore').withWriter { out ->
-        out.println 'syntax: glob'
-        out.println '.hgignore'
-        file('.gitignore').eachLine { line ->
-            out.println line
+task hgignore {
+    doLast {
+        // gitignore and hgignore syntax are similar enough that this works (for now)
+        file('.hgignore').withWriter { out ->
+            out.println 'syntax: glob'
+            out.println '.hgignore'
+            file('.gitignore').eachLine { line ->
+                out.println line
+            }
         }
     }
 }
