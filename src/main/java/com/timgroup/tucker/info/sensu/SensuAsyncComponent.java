@@ -49,7 +49,7 @@ public class SensuAsyncComponent {
                  JsonGenerator gen = codecs.getFactory().createGenerator(sensuSocket.getOutputStream())) {
 
                 gen.writeStartObject();
-                gen.writeStringField("name", componentId);
+                gen.writeStringField("name", componentId.replace(" ", "_"));
                 gen.writeObjectField("output", report.getValue());
                 gen.writeNumberField("status", sensuStatusFor(report.getStatus()));
                 gen.writeNumberField("ttl", stalenessLimit.getSeconds());

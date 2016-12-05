@@ -70,6 +70,21 @@ public class SensuAsyncComponentTest {
     }
 
     @Test public void
+    replaces_spaces_with_underscores() {
+        SimpleValueComponent component = new SimpleValueComponent("component id", "component label");
+        component.updateValue(OK, "It worked");
+        wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
+
+        assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
+                "'name': 'component_id', " +
+                "'output': 'It worked', " +
+                "'status': 0, " +
+                "'ttl': 54, " +
+                "'slack': {'channels': []}" +
+                "}"));
+    }
+
+    @Test public void
     maps_component_status_to_sensu_outputs() throws IOException, InterruptedException {
         AsyncComponent sensuNotifyingComponent = wrapping(component, settings(), emptyList(), fakeSensuClient.port());
 
