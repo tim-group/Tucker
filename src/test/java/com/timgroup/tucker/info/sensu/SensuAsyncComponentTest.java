@@ -71,7 +71,7 @@ public class SensuAsyncComponentTest {
 
     @Test public void
     replaces_spaces_with_underscores() {
-        SimpleValueComponent component = new SimpleValueComponent("/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh", "component label");
+        SimpleValueComponent component = new SimpleValueComponent(" wetyk 678dfgh", "component label");
         component.updateValue(OK, "It worked");
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
