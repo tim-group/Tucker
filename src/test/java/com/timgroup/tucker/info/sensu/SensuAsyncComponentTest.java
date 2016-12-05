@@ -46,7 +46,7 @@ public class SensuAsyncComponentTest {
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
         assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
-                    "'name': 'component-id', " +
+                    "'name': 'componentid', " +
                     "'output': 'It worked', " +
                     "'status': 0, " +
                     "'ttl': 54, " +
@@ -55,13 +55,14 @@ public class SensuAsyncComponentTest {
     }
 
     @Test public void
-    serilises_an_empty_object() {
-        component.updateValue(OK, new Object());
+    check_output_must_be_a_string_in_order_to_send_to_sensu_server() {
+        Object value = new Object();
+        component.updateValue(OK, value);
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
         assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
-                "'name': 'component-id', " +
-                "'output': {}, " +
+                "'name': 'componentid', " +
+                String.format("'output': '%s', ", value.toString()) +
                 "'status': 0, " +
                 "'ttl': 54, " +
                 "'slack': {'channels': []}" +
@@ -70,8 +71,8 @@ public class SensuAsyncComponentTest {
     }
 
     @Test public void
-    replaces_spaces_with_underscores() {
-        SimpleValueComponent component = new SimpleValueComponent(" wetyk 678dfgh", "component label");
+    check_name_must_be_a_string_and_cannot_contain_spaces_or_special_characters() {
+        SimpleValueComponent component = new SimpleValueComponent("/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh", "component label");
         component.updateValue(OK, "It worked");
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 

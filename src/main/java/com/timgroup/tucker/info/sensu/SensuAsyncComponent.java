@@ -20,7 +20,7 @@ import static com.timgroup.tucker.info.async.BroadcastingStatusUpdated.broadcast
 public class SensuAsyncComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensuAsyncComponent.class);
     private static final int DefaultPort = 3030;
-
+    private static final String SPECIAL_CHARACTERS = "[^\\dA-Za-z ]";
 
     private SensuAsyncComponent() {}
 
@@ -50,8 +50,8 @@ public class SensuAsyncComponent {
                  JsonGenerator gen = codecs.getFactory().createGenerator(sensuSocket.getOutputStream())) {
 
                 gen.writeStartObject();
-                gen.writeStringField("name", componentId.replaceAll("\\s", "_"));
-                gen.writeObjectField("output", report.getValue());
+                gen.writeStringField("name", componentId.replaceAll(SPECIAL_CHARACTERS, "").replaceAll("\\s+", "_"));
+                gen.writeStringField("output", report.getValue().toString());
                 gen.writeNumberField("status", sensuStatusFor(report.getStatus()));
                 gen.writeNumberField("ttl", stalenessLimit.getSeconds());
                 gen.writeObjectFieldStart("slack");
