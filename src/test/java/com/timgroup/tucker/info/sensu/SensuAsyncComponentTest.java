@@ -55,6 +55,21 @@ public class SensuAsyncComponentTest {
     }
 
     @Test public void
+    serilises_an_empty_object() {
+        component.updateValue(OK, new Object());
+        wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
+
+        assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
+                "'name': 'component-id', " +
+                "'output': {}, " +
+                "'status': 0, " +
+                "'ttl': 54, " +
+                "'slack': {'channels': []}" +
+                "}"));
+
+    }
+
+    @Test public void
     maps_component_status_to_sensu_outputs() throws IOException, InterruptedException {
         AsyncComponent sensuNotifyingComponent = wrapping(component, settings(), emptyList(), fakeSensuClient.port());
 

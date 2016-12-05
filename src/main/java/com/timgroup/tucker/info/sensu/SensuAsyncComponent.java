@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.async.AsyncComponent;
@@ -43,8 +45,9 @@ public class SensuAsyncComponent {
 
     private static StatusUpdated sensuReporterFor(int localPort, String componentId, Duration stalenessLimit, Collection<String> slackChannels) {
         return report -> {
+            ObjectMapper codecs = new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
             try (Socket sensuSocket = new Socket("localhost", localPort);
-                 JsonGenerator gen = new JsonFactory().createGenerator(sensuSocket.getOutputStream())) {
+                 JsonGenerator gen = new JsonFactory(codecs).createGenerator(sensuSocket.getOutputStream())) {
 
                 gen.writeStartObject();
                 gen.writeStringField("name", componentId);
