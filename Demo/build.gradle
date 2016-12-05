@@ -1,6 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'jetty'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 
@@ -51,7 +49,9 @@ jar {
     }
 }
 
-httpPort = 8888
+ext {
+    httpPort = 8888
+}
 
 eclipse {
     classpath {
