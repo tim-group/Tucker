@@ -46,7 +46,7 @@ public class SensuAsyncComponent {
 
     private static StatusUpdated sensuReporterFor(int localPort, String componentId, Duration stalenessLimit, Collection<String> slackChannels) {
         if (hasSpecialCharactersOrSpaces(componentId)) {
-            throw new IllegalStateException("the component id cannot contain spaces or special characters like " + SPECIAL_CHARACTERS);
+            throw new IllegalStateException("the component id: " + componentId + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS);
         }
         return report -> {
             try (Socket sensuSocket = new Socket("localhost", localPort);

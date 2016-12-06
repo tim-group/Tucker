@@ -80,9 +80,10 @@ public class SensuAsyncComponentTest {
 
     @Test public void
     throws_illegal_state_exception_when_the_component_id_contains_spaces_or_special_characters() {
-        SimpleValueComponent component = new SimpleValueComponent("/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh", "component label");
+        String componentId = "/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh";
+        SimpleValueComponent component = new SimpleValueComponent(componentId, "component label");
         exception.expect(anExceptionOfType(IllegalStateException.class)
-                .withTheMessage("the component id cannot contain spaces or special characters like " + SPECIAL_CHARACTERS));
+                .withTheMessage("the component id: " + componentId + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS));
 
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port());
 
