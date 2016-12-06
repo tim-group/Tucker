@@ -11,12 +11,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.async.AsyncComponent;
 import com.timgroup.tucker.info.component.SimpleValueComponent;
+import com.youdevise.testutils.matchers.ExceptionMatcher;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 
 import static com.timgroup.tucker.info.Status.CRITICAL;
@@ -24,7 +28,9 @@ import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static com.timgroup.tucker.info.async.AsyncSettings.settings;
+import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.SPECIAL_CHARACTERS;
 import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.wrapping;
+import static com.youdevise.testutils.matchers.ExceptionMatcher.anExceptionOfType;
 import static com.youdevise.testutils.matchers.json.JsonEquivalenceMatchers.equivalentTo;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
@@ -38,6 +44,9 @@ import static org.hamcrest.Matchers.is;
 
 public class SensuAsyncComponentTest {
     @Rule public final FakeSensuClient fakeSensuClient = new FakeSensuClient();
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     public final SimpleValueComponent component = new SimpleValueComponent("component-id", "component label");
 
     @Test public void
@@ -46,7 +55,7 @@ public class SensuAsyncComponentTest {
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
         assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
-                    "'name': 'componentid', " +
+                    "'name': 'component-id', " +
                     "'output': 'It worked', " +
                     "'status': 0, " +
                     "'ttl': 54, " +
@@ -61,28 +70,22 @@ public class SensuAsyncComponentTest {
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
         assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
-                "'name': 'componentid', " +
+                "'name': 'component-id', " +
                 String.format("'output': '%s', ", value.toString()) +
                 "'status': 0, " +
                 "'ttl': 54, " +
                 "'slack': {'channels': []}" +
                 "}"));
-
     }
 
     @Test public void
-    check_name_must_be_a_string_and_cannot_contain_spaces_or_special_characters() {
+    throws_illegal_state_exception_when_the_component_id_contains_spaces_or_special_characters() {
         SimpleValueComponent component = new SimpleValueComponent("/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh", "component label");
-        component.updateValue(OK, "It worked");
-        wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
+        exception.expect(anExceptionOfType(IllegalStateException.class)
+                .withTheMessage("the component id cannot contain spaces or special characters like " + SPECIAL_CHARACTERS));
 
-        assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
-                "'name': '_wetyk_678dfgh', " +
-                "'output': 'It worked', " +
-                "'status': 0, " +
-                "'ttl': 54, " +
-                "'slack': {'channels': []}" +
-                "}"));
+        wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port());
+
     }
 
     @Test public void

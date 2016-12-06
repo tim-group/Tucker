@@ -3,10 +3,11 @@ package com.timgroup.tucker.info.sensu;
 import java.net.Socket;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.async.AsyncComponent;
@@ -20,7 +21,7 @@ import static com.timgroup.tucker.info.async.BroadcastingStatusUpdated.broadcast
 public class SensuAsyncComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensuAsyncComponent.class);
     private static final int DefaultPort = 3030;
-    private static final String SPECIAL_CHARACTERS = "[^\\dA-Za-z ]";
+    public static final String SPECIAL_CHARACTERS = "[\\\\!\"#$%^&()*+,./:;<=>?@\\[\\]{|}~+ ]";
 
     private SensuAsyncComponent() {}
 
@@ -44,13 +45,15 @@ public class SensuAsyncComponent {
     }
 
     private static StatusUpdated sensuReporterFor(int localPort, String componentId, Duration stalenessLimit, Collection<String> slackChannels) {
-        ObjectMapper codecs = new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        if (hasSpecialCharactersOrSpaces(componentId)) {
+            throw new IllegalStateException("the component id cannot contain spaces or special characters like " + SPECIAL_CHARACTERS);
+        }
         return report -> {
             try (Socket sensuSocket = new Socket("localhost", localPort);
-                 JsonGenerator gen = codecs.getFactory().createGenerator(sensuSocket.getOutputStream())) {
+                 JsonGenerator gen = new JsonFactory().createGenerator(sensuSocket.getOutputStream())) {
 
                 gen.writeStartObject();
-                gen.writeStringField("name", componentId.replaceAll(SPECIAL_CHARACTERS, "").replaceAll("\\s+", "_"));
+                gen.writeStringField("name", componentId);
                 gen.writeStringField("output", report.getValue().toString());
                 gen.writeNumberField("status", sensuStatusFor(report.getStatus()));
                 gen.writeNumberField("ttl", stalenessLimit.getSeconds());
@@ -66,6 +69,12 @@ public class SensuAsyncComponent {
                 LOGGER.warn("Failed to report to sensu", e);
             }
         };
+    }
+
+    private static boolean hasSpecialCharactersOrSpaces(String componentId) {
+        Pattern pattern = Pattern.compile(SPECIAL_CHARACTERS);
+        Matcher matcher = pattern.matcher(componentId);
+        return matcher.find();
     }
 
     private static int sensuStatusFor(Status status) {
