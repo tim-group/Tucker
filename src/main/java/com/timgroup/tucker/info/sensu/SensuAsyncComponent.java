@@ -1,27 +1,27 @@
 package com.timgroup.tucker.info.sensu;
 
 import java.net.Socket;
-import java.time.Duration;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.async.AsyncComponent;
+import com.timgroup.tucker.info.async.AsyncComponentListener;
 import com.timgroup.tucker.info.async.AsyncSettings;
-import com.timgroup.tucker.info.async.StatusUpdated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.timgroup.tucker.info.async.BroadcastingStatusUpdated.broadcastingTo;
-
-public class SensuAsyncComponent {
+public final class SensuAsyncComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensuAsyncComponent.class);
     private static final int DefaultPort = 3030;
-    public static final String SPECIAL_CHARACTERS = "[\\\\!\"#$%^&()*+,./:;<=>?@\\[\\]{|}~+ ]";
+    public static final String SPECIAL_CHARACTERS = "[\\\\!\"#$%^&()*+,./:;<=>?@\\[\\]{|}~ ]";
 
     private SensuAsyncComponent() {}
 
@@ -38,25 +38,31 @@ public class SensuAsyncComponent {
     }
 
     public static AsyncComponent wrapping(AsyncComponent component, Collection<String> slackChannels, int localPort) {
-        return component.withUpdatedSettings(settings -> settings.withUpdateHook(broadcastingTo(
-                sensuReporterFor(localPort, component.getId(), settings.stalenessLimit, slackChannels),
-                settings.statusUpdateHook)
-        ));
+        if (hasSpecialCharactersOrSpaces(component.getId())) {
+            throw new IllegalStateException("the component id: " + component.getId() + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS);
+        }
+        return component.withListener(new SensuNotifier(localPort, new HashSet<>(slackChannels)));
     }
 
-    private static StatusUpdated sensuReporterFor(int localPort, String componentId, Duration stalenessLimit, Collection<String> slackChannels) {
-        if (hasSpecialCharactersOrSpaces(componentId)) {
-            throw new IllegalStateException("the component id: " + componentId + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS);
+    public static final class SensuNotifier implements AsyncComponentListener {
+        private final int localPort;
+        private final Set<String> slackChannels;
+
+        public SensuNotifier(int localPort, Set<String> slackChannels) {
+            this.localPort = localPort;
+            this.slackChannels = slackChannels;
         }
-        return report -> {
+
+        @Override
+        public void accept(AsyncComponent asyncComponent, Report report) {
             try (Socket sensuSocket = new Socket("localhost", localPort);
                  JsonGenerator gen = new JsonFactory().createGenerator(sensuSocket.getOutputStream())) {
 
                 gen.writeStartObject();
-                gen.writeStringField("name", componentId);
+                gen.writeStringField("name", asyncComponent.getId());
                 gen.writeStringField("output", report.getValue().toString());
                 gen.writeNumberField("status", sensuStatusFor(report.getStatus()));
-                gen.writeNumberField("ttl", stalenessLimit.getSeconds());
+                gen.writeNumberField("ttl", asyncComponent.getStalenessLimit().getSeconds());
                 gen.writeObjectFieldStart("slack");
                 gen.writeArrayFieldStart("channels");
                 for (String channel : slackChannels) {
@@ -68,7 +74,7 @@ public class SensuAsyncComponent {
             } catch (Exception e) {
                 LOGGER.warn("Failed to report to sensu", e);
             }
-        };
+        }
     }
 
     private static boolean hasSpecialCharactersOrSpaces(String componentId) {

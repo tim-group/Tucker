@@ -11,13 +11,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.async.AsyncComponent;
 import com.timgroup.tucker.info.component.SimpleValueComponent;
-import com.youdevise.testutils.matchers.ExceptionMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +37,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.is;
 
 public class SensuAsyncComponentTest {
@@ -113,10 +111,11 @@ public class SensuAsyncComponentTest {
         component.updateValue(OK, "It worked");
         wrapping(component,
                 settings(),
-                asList("#channel-1", "#channel-2", "#channel-3"),
+                asList("#channel-1", "#channel-2"),
                 fakeSensuClient.port()).update();
 
-        assertThat(fakeSensuClient.nextResult(), containsString("\"channels\":[\"#channel-1\",\"#channel-2\",\"#channel-3\"]"));
+        assertThat(fakeSensuClient.nextResult(), either(containsString("\"channels\":[\"#channel-1\",\"#channel-2\"]"))
+                                                    .or(containsString("\"channels\":[\"#channel-2\",\"#channel-1\"]")));
     }
 
     @Test public void
