@@ -1,28 +1,25 @@
 package com.timgroup.tucker.info.async;
 
-import static java.util.Collections.unmodifiableList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+
+import static java.util.Collections.unmodifiableList;
 
 public class AsyncComponentScheduler {
 
     private static final long NO_INITIAL_DELAY = 0L;
     
     private final List<AsyncComponent> components;
-    private final ScheduledExecutorService executor;
+    private List<ScheduledExecutorService> executors;
 
     private AsyncComponentScheduler(List<AsyncComponent> components) {
         this.components = components;
-        this.executor = Executors.newScheduledThreadPool(components.size(), AsyncComponentScheduler::newThread);
     }
     
     public static AsyncComponentScheduler createFromAsync(List<AsyncComponent> components) {
@@ -42,12 +39,15 @@ public class AsyncComponentScheduler {
     }
 
     public void start() {
-        for (final AsyncComponent asyncComponent: components) {
+        executors = new ArrayList<>(components.size());
+        for (AsyncComponent asyncComponent : components) {
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "Tucker-refresh-" + asyncComponent.getId()));
             executor.scheduleWithFixedDelay(
                     asyncComponent::update,
                     NO_INITIAL_DELAY,
                     asyncComponent.getRepeatInterval().toNanos(),
                     TimeUnit.NANOSECONDS);
+            executors.add(executor);
         }
     }
 
@@ -58,15 +58,11 @@ public class AsyncComponentScheduler {
     }
     
     public void stop() throws InterruptedException {
-      executor.shutdown();
-      executor.awaitTermination(1, TimeUnit.SECONDS);
-    }
-
-    private static final AtomicInteger TUCKER_THREAD_NUMBER = new AtomicInteger(1);
-
-    private static Thread newThread(Runnable r) {
-        Thread thread = new Thread(r, "Tucker-async-component-" + TUCKER_THREAD_NUMBER.getAndIncrement());
-        thread.setDaemon(false);
-        return thread;
+        for (ScheduledExecutorService executor : executors) {
+            executor.shutdown();
+        }
+        for (ScheduledExecutorService executor : executors) {
+            executor.awaitTermination(1, TimeUnit.SECONDS);
+        }
     }
 }
