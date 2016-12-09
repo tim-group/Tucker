@@ -27,7 +27,9 @@ public final class AsyncComponent extends Component {
         this.wrapped = wrapped;
         this.settings = settings;
 
-        listeners.add((component, report) -> settings.statusUpdateHook.accept(report));
+        if (settings.statusUpdateHook != StatusUpdated.NOOP) {
+            listeners.add((component, report) -> settings.statusUpdateHook.accept(report));
+        }
 
         this.currentReport = new PerishableReport(
                 new Report(WARNING, "Not yet run"),
