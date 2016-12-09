@@ -1,10 +1,25 @@
 package com.timgroup.tucker.info.async;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
+import org.junit.After;
+import org.junit.Test;
+
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
+import static com.timgroup.tucker.info.async.ManualClock.initiallyAt;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -12,19 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.junit.After;
-import org.junit.Test;
-
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.Status;
 
 public class AsyncComponentSchedulerTest {
     private AsyncComponentScheduler scheduler;
@@ -110,7 +112,7 @@ public class AsyncComponentSchedulerTest {
     
     @Test
     public void returnsWarningStatusWhenReportHasNeverBeenReturnedWithinTimeThreshold() {
-        ManualClock clock = ManualClock.initiallyAt(minutesAfterInitialisation(0));
+        ManualClock clock = initiallyAt(Instant.parse("2014-07-12T01:00:00Z"));
 
         TestingSemaphore invoked = new TestingSemaphore();
         AsyncComponent asyncComponent = AsyncComponent.wrapping(neverReturnsComponent(invoked),
@@ -149,7 +151,7 @@ public class AsyncComponentSchedulerTest {
 
     @Test
     public void returnsWarningStatusForStaleReport() throws Exception {
-        ManualClock clock = ManualClock.initiallyAt(minutesAfterInitialisation(0));
+        ManualClock clock = initiallyAt(Instant.parse("2014-07-12T01:00:00Z"));
 
         final TestingSemaphore componentUpdated = new TestingSemaphore();
         final TestingSemaphore reportAsserted = new TestingSemaphore();
@@ -264,10 +266,6 @@ public class AsyncComponentSchedulerTest {
         
         componentInvoked.waitFor("Component to be invoked");
         assertEquals(new Report(OK, "It's all good."), asyncComponent.getReport());
-    }
-    
-    private Instant minutesAfterInitialisation(int minutes) {
-        return Instant.parse("2014-07-12T01:00:00Z").plus(Duration.ofMinutes(minutes));
     }
 
     @Test
