@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.requireNonNull;
+
 public final class AsyncSettings {
     public final Clock clock;
     public final Duration repeatInterval;
@@ -11,10 +13,10 @@ public final class AsyncSettings {
     public final Duration stalenessLimit;
 
     private AsyncSettings(Clock clock, Duration repeatInterval, StatusUpdated statusUpdateHook, Duration stalenessLimit) {
-        this.clock = clock;
-        this.repeatInterval = repeatInterval;
-        this.statusUpdateHook = statusUpdateHook;
-        this.stalenessLimit = stalenessLimit;
+        this.clock = requireNonNull(clock);
+        this.repeatInterval = requireNonNull(repeatInterval);
+        this.statusUpdateHook = requireNonNull(statusUpdateHook);
+        this.stalenessLimit = requireNonNull(stalenessLimit);
     }
 
     public static AsyncSettings settings() {
