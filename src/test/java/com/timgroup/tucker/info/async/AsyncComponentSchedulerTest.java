@@ -133,7 +133,17 @@ public class AsyncComponentSchedulerTest {
             report.getValue().toString(),
             containsString("Last run at 2014-07-12T01:00:00Z (over PT4M ago): Not yet run"));
     }
-    
+
+    @Test
+    public void canStopEvenIfHaventStarted() throws InterruptedException {
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(
+                healthyWellBehavedComponent,
+                AsyncSettings.settings().withRepeatSchedule(1, MILLISECONDS));
+
+        scheduler = AsyncComponentScheduler.createFromAsync(singletonList(asyncComponent));
+
+        scheduler.stop();
+    }
 
     private Component neverReturnsComponent(final TestingSemaphore invoked) {
         return new Component("my-never-returning-component-id", "My Never Returning Component") {

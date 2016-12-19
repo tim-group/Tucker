@@ -16,10 +16,11 @@ public class AsyncComponentScheduler {
     private static final long NO_INITIAL_DELAY = 0L;
     
     private final List<AsyncComponent> components;
-    private List<ScheduledExecutorService> executors;
+    private final List<ScheduledExecutorService> executors;
 
     private AsyncComponentScheduler(List<AsyncComponent> components) {
         this.components = components;
+        this.executors = new ArrayList<>(components.size());
     }
     
     public static AsyncComponentScheduler createFromAsync(List<AsyncComponent> components) {
@@ -39,7 +40,6 @@ public class AsyncComponentScheduler {
     }
 
     public void start() {
-        executors = new ArrayList<>(components.size());
         for (AsyncComponent asyncComponent : components) {
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "Tucker-refresh-" + asyncComponent.getId()));
             executor.scheduleWithFixedDelay(
