@@ -14,14 +14,20 @@ import com.timgroup.tucker.info.Status;
  */
 public final class DatabaseConnectionComponent extends Component {
     private final ConnectionProvider connectionProvider;
+    private final Status failureStatus;
 
     public interface ConnectionProvider {
         Connection getConnection() throws SQLException;
     }
 
     public DatabaseConnectionComponent(String id, String label, ConnectionProvider connectionProvider) {
+        this(id, label, connectionProvider, Status.CRITICAL);
+    }
+
+    public DatabaseConnectionComponent(String id, String label, ConnectionProvider connectionProvider, Status failureStatus) {
         super(id, label);
         this.connectionProvider = connectionProvider;
+        this.failureStatus = failureStatus;
     }
 
     @Override
@@ -35,7 +41,7 @@ public final class DatabaseConnectionComponent extends Component {
                 }
             }
         } catch (SQLException e) {
-            return new Report(Status.CRITICAL, e.getMessage());
+            return new Report(failureStatus, e.getMessage());
         }
     }
 }
