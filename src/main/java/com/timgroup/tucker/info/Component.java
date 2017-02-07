@@ -2,6 +2,7 @@ package com.timgroup.tucker.info;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public abstract class Component {
     private final String id;
@@ -40,6 +41,24 @@ public abstract class Component {
 
     public abstract Report getReport();
 
+    public Component mapReport(UnaryOperator<Report> operator) {
+        return new Component(id, label) {
+            @Override
+            public Report getReport() {
+                return operator.apply(Component.this.getReport());
+            }
+
+            @Override
+            public String toString() {
+                return Component.this.toString();
+            }
+        };
+    }
+
+    public Component mapValue(UnaryOperator<Object> operator) {
+        return mapReport(r -> r.mapValue(operator));
+    }
+
     public static Component supplyReport(String id, String label, Supplier<Report> supplier) {
         return new Component(id, label) {
             @Override
@@ -57,5 +76,4 @@ public abstract class Component {
             }
         };
     }
-
 }
