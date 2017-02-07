@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public final class Report {
     
@@ -50,6 +51,10 @@ public final class Report {
 
     public Report withRunbook(Runbook runbook) {
         return new Report(status, value, runbook);
+    }
+
+    public Report mapValue(UnaryOperator<Object> operator) {
+        return new Report(status, operator.apply(value), runbook);
     }
 
     public boolean hasValue() {

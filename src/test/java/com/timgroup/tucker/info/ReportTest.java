@@ -6,7 +6,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -42,5 +41,10 @@ public class ReportTest {
         assertFalse(new Report(new Error()).isSuccessful());
         assertEquals(Status.CRITICAL, new Report(new Error()).getStatus());
     }
-    
+
+    @Test
+    public void updatedReportValue() throws Exception {
+        assertEquals(new Report(Status.INFO, "test (suffix)"),
+                new Report(Status.INFO, "test").mapValue(v -> v + " (suffix)"));
+    }
 }
