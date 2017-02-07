@@ -65,6 +65,11 @@ public abstract class Component {
             public Report getReport() {
                 return supplier.get();
             }
+
+            @Override
+            public String toString() {
+                return getId() + ":" + supplier;
+            }
         };
     }
 
@@ -73,6 +78,11 @@ public abstract class Component {
             @Override
             public Report getReport() {
                 return new Report(Status.INFO, supplier.get());
+            }
+
+            @Override
+            public String toString() {
+                return getId() + ":info:" + supplier;
             }
         };
     }
