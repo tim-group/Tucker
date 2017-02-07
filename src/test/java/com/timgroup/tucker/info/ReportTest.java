@@ -47,4 +47,12 @@ public class ReportTest {
         assertEquals(new Report(Status.INFO, "test (suffix)"),
                 new Report(Status.INFO, "test").mapValue(v -> v + " (suffix)"));
     }
+
+    @Test
+    public void withStatusNoWorseThan() throws Exception {
+        assertEquals(Status.WARNING, new Report(Status.CRITICAL, null).withStatusNoWorseThan(Status.WARNING).getStatus());
+        assertEquals(Status.OK, new Report(Status.WARNING, null).withStatusNoWorseThan(Status.OK).getStatus());
+        assertEquals(Status.OK, new Report(Status.CRITICAL, null).withStatusNoWorseThan(Status.OK).getStatus());
+        assertEquals(Status.INFO, new Report(Status.OK, null).withStatusNoWorseThan(Status.INFO).getStatus());
+    }
 }
