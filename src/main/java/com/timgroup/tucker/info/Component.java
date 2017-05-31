@@ -59,6 +59,10 @@ public abstract class Component {
         return mapReport(r -> r.mapValue(operator));
     }
 
+    public Component mapStatus(UnaryOperator<Status> operator) { return mapReport(r -> r.mapStatus(operator)); }
+
+    public Component withStatusNoWorseThan(Status notWorse) { return mapReport(r -> r.withStatusNoWorseThan(notWorse)); }
+
     public static Component supplyReport(String id, String label, Supplier<Report> supplier) {
         return new Component(id, label) {
             @Override

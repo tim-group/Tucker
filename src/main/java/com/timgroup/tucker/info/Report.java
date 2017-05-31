@@ -57,6 +57,10 @@ public final class Report {
         return new Report(status, operator.apply(value), runbook);
     }
 
+    public Report mapStatus(UnaryOperator<Status> operator) {
+        return new Report(operator.apply(status), value, runbook);
+    }
+
     public Report withStatusNoWorseThan(Status notWorse) {
         if (status.compareTo(notWorse) < 0) {
             return new Report(notWorse, value, runbook);
