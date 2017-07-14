@@ -39,7 +39,7 @@ public abstract class Component {
 
     public abstract Report getReport();
 
-    public Component mapReport(UnaryOperator<Report> operator) {
+    public final Component mapReport(UnaryOperator<Report> operator) {
         return new Component(id, label, runbook) {
             @Override
             public Report getReport() {
@@ -53,7 +53,7 @@ public abstract class Component {
         };
     }
 
-    public Component withRunbook(Runbook runbook) {
+    public final Component withRunbook(Runbook runbook) {
         return new Component(id, label, Objects.requireNonNull(runbook)) {
             @Override
             public Report getReport() {
@@ -67,17 +67,17 @@ public abstract class Component {
         };
     }
 
-    public Component withRunbook(URI runbookUri) {
+    public final Component withRunbook(URI runbookUri) {
         return withRunbook(new Runbook(runbookUri.toString()));
     }
 
-    public Component mapValue(UnaryOperator<Object> operator) {
+    public final Component mapValue(UnaryOperator<Object> operator) {
         return mapReport(r -> r.mapValue(operator));
     }
 
-    public Component mapStatus(UnaryOperator<Status> operator) { return mapReport(r -> r.mapStatus(operator)); }
+    public final Component mapStatus(UnaryOperator<Status> operator) { return mapReport(r -> r.mapStatus(operator)); }
 
-    public Component withStatusNoWorseThan(Status notWorse) { return mapReport(r -> r.withStatusNoWorseThan(notWorse)); }
+    public final Component withStatusNoWorseThan(Status notWorse) { return mapReport(r -> r.withStatusNoWorseThan(notWorse)); }
 
     public static Component supplyReport(String id, String label, Supplier<Report> supplier) {
         return new Component(id, label) {
