@@ -1,14 +1,12 @@
 package com.timgroup.tucker.info.async;
 
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+import org.junit.Test;
+
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Report;
 
 public class AsyncComponentTest {
 
@@ -48,9 +46,13 @@ public class AsyncComponentTest {
 
     @Test
     public void returnsWarningWhenComponentFails() {
-        Component failingComponent = Mockito.mock(Component.class);
         Error error = new Error();
-        Mockito.when(failingComponent.getReport()).thenThrow(error);
+        Component failingComponent = new Component("test", "test") {
+            @Override
+            public Report getReport() {
+                throw error;
+            }
+        };
         AsyncComponent asyncComponent = AsyncComponent.wrapping(failingComponent);
 
         asyncComponent.update();
