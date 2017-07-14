@@ -10,17 +10,13 @@ public abstract class Component {
     private final Runbook runbook;
     
     public Component(String id, String label) {
-        this(id, label, Optional.empty());
+        this(id, label, null);
     }
 
     public Component(String id, String label, Runbook defaultRunbook) {
-        this(id, label, Optional.of(defaultRunbook));
-    }
-
-    public Component(String id, String label, Optional<Runbook> defaultRunbook) {
         this.id = id;
         this.label = label;
-        this.runbook = defaultRunbook.orElse(null);
+        this.runbook = defaultRunbook;
     }
     
     public final String getId() {
@@ -42,7 +38,7 @@ public abstract class Component {
     public abstract Report getReport();
 
     public Component mapReport(UnaryOperator<Report> operator) {
-        return new Component(id, label, Optional.ofNullable(runbook)) {
+        return new Component(id, label, runbook) {
             @Override
             public Report getReport() {
                 return operator.apply(Component.this.getReport());
