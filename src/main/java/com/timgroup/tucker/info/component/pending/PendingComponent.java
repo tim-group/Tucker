@@ -1,13 +1,13 @@
 package com.timgroup.tucker.info.component.pending;
 
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.ComponentStateChangeCallback;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.log.LoggingCallback;
+
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
 
 public final class PendingComponent extends Component {
 
@@ -22,7 +22,7 @@ public final class PendingComponent extends Component {
     private volatile Report previousReportRef;
 
     public PendingComponent(Component wrappedComponent, ComponentStateChangeCallback callback) {
-        super(wrappedComponent.getId(), wrappedComponent.getLabel() + " (pending)", wrappedComponent.getRunbook());
+        super(wrappedComponent.getId(), wrappedComponent.getLabel() + " (pending)", wrappedComponent.getRunbook().orElse(null));
         this.wrappedComponent = wrappedComponent;
         this.callback = callback;
     }

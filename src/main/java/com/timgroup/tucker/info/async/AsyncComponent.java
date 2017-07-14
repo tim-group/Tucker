@@ -23,7 +23,7 @@ public final class AsyncComponent extends Component {
     private final List<AsyncComponentListener> listeners = new CopyOnWriteArrayList<>();
 
     private AsyncComponent(Component wrapped, AsyncSettings settings) {
-        super(wrapped.getId(), wrapped.getLabel(), wrapped.getRunbook());
+        super(wrapped.getId(), wrapped.getLabel(), wrapped.getRunbook().orElse(null));
         this.wrapped = wrapped;
         this.settings = settings;
 
