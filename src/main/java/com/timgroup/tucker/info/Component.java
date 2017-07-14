@@ -42,7 +42,7 @@ public abstract class Component {
     public abstract Report getReport();
 
     public Component mapReport(UnaryOperator<Report> operator) {
-        return new Component(id, label) {
+        return new Component(id, label, runbook) {
             @Override
             public Report getReport() {
                 return operator.apply(Component.this.getReport());
