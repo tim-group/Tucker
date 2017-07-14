@@ -1,5 +1,7 @@
 package com.timgroup.tucker.info;
 
+import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -49,6 +51,24 @@ public abstract class Component {
                 return Component.this.toString();
             }
         };
+    }
+
+    public Component withRunbook(Runbook runbook) {
+        return new Component(id, label, Objects.requireNonNull(runbook)) {
+            @Override
+            public Report getReport() {
+                return Component.this.getReport();
+            }
+
+            @Override
+            public String toString() {
+                return Component.this.toString();
+            }
+        };
+    }
+
+    public Component withRunbook(URI runbookUri) {
+        return withRunbook(new Runbook(runbookUri.toString()));
     }
 
     public Component mapValue(UnaryOperator<Object> operator) {
