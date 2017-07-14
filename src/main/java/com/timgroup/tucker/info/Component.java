@@ -7,7 +7,7 @@ import java.util.function.UnaryOperator;
 public abstract class Component {
     private final String id;
     private final String label;
-    private final Optional<Runbook> runbook;
+    private final Runbook runbook;
     
     public Component(String id, String label) {
         this(id, label, Optional.empty());
@@ -20,7 +20,7 @@ public abstract class Component {
     public Component(String id, String label, Optional<Runbook> defaultRunbook) {
         this.id = id;
         this.label = label;
-        this.runbook = defaultRunbook;
+        this.runbook = defaultRunbook.orElse(null);
     }
     
     public final String getId() {
@@ -32,17 +32,17 @@ public abstract class Component {
     }
     
     public Optional<Runbook> getRunbook() {
-        return runbook;
+        return Optional.ofNullable(runbook);
     }
 
     public boolean hasRunbook() {
-        return runbook.isPresent();
+        return runbook != null;
     }
 
     public abstract Report getReport();
 
     public Component mapReport(UnaryOperator<Report> operator) {
-        return new Component(id, label, runbook) {
+        return new Component(id, label, Optional.ofNullable(runbook)) {
             @Override
             public Report getReport() {
                 return operator.apply(Component.this.getReport());
