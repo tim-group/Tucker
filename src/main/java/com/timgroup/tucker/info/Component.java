@@ -29,11 +29,11 @@ public abstract class Component {
         return label;
     }
     
-    public Optional<Runbook> getRunbook() {
+    public final Optional<Runbook> getRunbook() {
         return Optional.ofNullable(runbook);
     }
 
-    public boolean hasRunbook() {
+    public final boolean hasRunbook() {
         return runbook != null;
     }
 
