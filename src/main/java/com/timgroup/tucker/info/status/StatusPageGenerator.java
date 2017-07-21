@@ -6,18 +6,17 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.timgroup.tucker.info.Runbook;
-import com.timgroup.tucker.info.Status;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Runbook;
+import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.log.JsonFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StatusPageGenerator {
 
@@ -57,7 +56,7 @@ public class StatusPageGenerator {
                 }
             } catch (Throwable e) {
                 LOGGER.error("exception getting report from component {}", component.getId(), e);
-                report = new Report(e, component.getRunbook());
+                report = new Report(e, component.getRunbook().orElse(null));
             }
 
             if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {

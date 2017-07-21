@@ -1,12 +1,12 @@
 package com.timgroup.tucker.info;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
+import static java.util.Objects.requireNonNull;
+
 public final class Report {
-    
-    private static final Object NO_VALUE = new Object();
-    
     public static Status worstStatus(Iterable<Report> reports) {
         Status worst = Status.OK;
         for (Report report : reports) {
@@ -14,35 +14,31 @@ public final class Report {
         }
         return worst;
     }
-    
+
     private final Status status;
     private final Object value;
-    private final Optional<Runbook> runbook;
+    private final Runbook runbook;
 
-    public Report(Status status, Object value, Optional<Runbook> runbook) {
-        this.status = status;
-        this.value = (value == null) ? NO_VALUE : value;
+    public Report(Status status, Object value, Runbook runbook) {
+        this.status = requireNonNull(status);
+        this.value = value;
         this.runbook = runbook;
     }
 
-    public Report(Status status, Object value, Runbook runbook) {
-        this(status, value, Optional.of(runbook));
-    }
-
     public Report(Status status, Object value) {
-        this(status, value, Optional.empty());
+        this(status, value, null);
     }
 
     public Report(Status status) {
-        this(status, NO_VALUE);
+        this(status, null, null);
     }
     
     public Report(Throwable e) {
-        this(Status.CRITICAL, e, Optional.empty());
+        this(Status.CRITICAL, e, null);
     }
 
-    public Report(Throwable e, Optional<Runbook> optionalRunbook) {
-        this(Status.CRITICAL, e, optionalRunbook);
+    public Report(Throwable e, Runbook runbook) {
+        this(Status.CRITICAL, e, runbook);
     }
 
     public Status getStatus() {
@@ -69,7 +65,7 @@ public final class Report {
     }
 
     public boolean hasValue() {
-        return value != NO_VALUE;
+        return value != null;
     }
     
     public boolean isSuccessful() {
@@ -85,39 +81,25 @@ public final class Report {
     }
 
     public Optional<Runbook> getRunbook() {
-        return runbook;
+        return Optional.ofNullable(runbook);
     }
 
     public boolean hasRunbook() {
-        return runbook.isPresent();
+        return runbook != null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Report report = (Report) o;
+        return status == report.status &&
+                Objects.equals(value, report.value);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((status == null) ? 0 : status.hashCode());
-        result = prime * result + ((value == null) ? 0 : value.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Report other = (Report) obj;
-        if (status != other.status)
-            return false;
-        if (value == null) {
-            if (other.value != null)
-                return false;
-        } else if (!value.equals(other.value))
-            return false;
-        return true;
+        return Objects.hash(status, value);
     }
 
     @Override
