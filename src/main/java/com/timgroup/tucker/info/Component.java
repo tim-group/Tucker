@@ -1,10 +1,11 @@
 package com.timgroup.tucker.info;
 
 import java.net.URI;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import static java.util.Objects.requireNonNull;
 
 public abstract class Component {
     private final String id;
@@ -16,8 +17,8 @@ public abstract class Component {
     }
 
     public Component(String id, String label, Runbook defaultRunbook) {
-        this.id = id;
-        this.label = label;
+        this.id = requireNonNull(id);
+        this.label = requireNonNull(label);
         this.runbook = defaultRunbook;
     }
     
@@ -40,6 +41,7 @@ public abstract class Component {
     public abstract Report getReport();
 
     public final Component mapReport(UnaryOperator<Report> operator) {
+        requireNonNull(operator);
         return new Component(id, label, runbook) {
             @Override
             public Report getReport() {
@@ -54,7 +56,7 @@ public abstract class Component {
     }
 
     public final Component withRunbook(Runbook runbook) {
-        return new Component(id, label, Objects.requireNonNull(runbook)) {
+        return new Component(id, label, requireNonNull(runbook)) {
             @Override
             public Report getReport() {
                 return Component.this.getReport();
@@ -72,14 +74,22 @@ public abstract class Component {
     }
 
     public final Component mapValue(UnaryOperator<Object> operator) {
+        requireNonNull(operator);
         return mapReport(r -> r.mapValue(operator));
     }
 
-    public final Component mapStatus(UnaryOperator<Status> operator) { return mapReport(r -> r.mapStatus(operator)); }
+    public final Component mapStatus(UnaryOperator<Status> operator) {
+        requireNonNull(operator);
+        return mapReport(r -> r.mapStatus(operator));
+    }
 
-    public final Component withStatusNoWorseThan(Status notWorse) { return mapReport(r -> r.withStatusNoWorseThan(notWorse)); }
+    public final Component withStatusNoWorseThan(Status notWorse) {
+        requireNonNull(notWorse);
+        return mapReport(r -> r.withStatusNoWorseThan(notWorse));
+    }
 
     public static Component supplyReport(String id, String label, Supplier<Report> supplier) {
+        requireNonNull(supplier);
         return new Component(id, label) {
             @Override
             public Report getReport() {
@@ -94,6 +104,7 @@ public abstract class Component {
     }
 
     public static Component supplyInfo(String id, String label, Supplier<String> supplier) {
+        requireNonNull(supplier);
         return new Component(id, label) {
             @Override
             public Report getReport() {
