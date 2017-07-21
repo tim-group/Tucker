@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -51,8 +52,11 @@ public class StatusPageGenerator {
             Report report;
             try {
                 report = component.getReport();
-                if (!report.hasRunbook() && component.hasRunbook()) {
-                    report = report.withRunbook(component.getRunbook().get());
+                if (!report.hasRunbook()) {
+                    Optional<Runbook> componentRunbook = component.getRunbook();
+                    if (componentRunbook.isPresent()) {
+                        report = report.withRunbook(componentRunbook.get());
+                    }
                 }
             } catch (Throwable e) {
                 LOGGER.error("exception getting report from component {}", component.getId(), e);
