@@ -44,6 +44,16 @@ public class AsyncComponentScheduler {
         return createFromAsync(asyncComponents);
     }
 
+    public static AsyncComponentScheduler createFromAsyncComponentsIn(List<? extends Component> components) {
+        List<AsyncComponent> asyncComponents = new ArrayList<>(components.size());
+        for (Component synchronousComponent: components) {
+            if (synchronousComponent instanceof AsyncComponent) {
+                asyncComponents.add((AsyncComponent) synchronousComponent);
+            }
+        }
+        return createFromAsync(asyncComponents);
+    }
+
     public void start() {
         for (AsyncComponent asyncComponent : components) {
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "Tucker-refresh-" + asyncComponent.getId()));
