@@ -30,11 +30,16 @@ public class AsyncComponentScheduler {
     public static AsyncComponentScheduler createFromSynchronous(List<? extends Component> synchronousComponents) {
         return createFromSynchronous(synchronousComponents, AsyncSettings.settings());
     }
-    
+
     public static AsyncComponentScheduler createFromSynchronous(List<? extends Component> synchronousComponents, AsyncSettings settings) {
         List<AsyncComponent> asyncComponents = new ArrayList<>(synchronousComponents.size());
         for (Component synchronousComponent: synchronousComponents) {
-            asyncComponents.add(AsyncComponent.wrapping(synchronousComponent, settings));
+            if (synchronousComponent instanceof AsyncComponent) {
+                asyncComponents.add((AsyncComponent) synchronousComponent);
+            }
+            else {
+                asyncComponents.add(AsyncComponent.wrapping(synchronousComponent, settings));
+            }
         }
         return createFromAsync(asyncComponents);
     }
