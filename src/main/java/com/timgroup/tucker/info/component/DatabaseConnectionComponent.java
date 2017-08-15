@@ -33,16 +33,6 @@ public final class DatabaseConnectionComponent extends Component {
         this.failureStatus = Status.CRITICAL;
     }
 
-    /**
-     * @deprecated construct a component as normal and wrap it to downgrade the warning
-     */
-    public DatabaseConnectionComponent(String id, String label, ConnectionProvider connectionProvider, Status failureStatus) {
-        super(id, label);
-        this.connectionProvider = connectionProvider;
-        this.failureStatus = failureStatus;
-        this.fetchMetadata = false;
-    }
-
     @Override
     public Report getReport() {
         try (Connection dbConnection = connectionProvider.getConnection()) {
