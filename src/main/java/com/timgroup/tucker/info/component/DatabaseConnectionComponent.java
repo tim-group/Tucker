@@ -38,11 +38,10 @@ public final class DatabaseConnectionComponent extends Component {
         try (Connection dbConnection = connectionProvider.getConnection()) {
             String durationString;
             long before = System.currentTimeMillis();
-            try (Statement statement = dbConnection.createStatement()) {
-                try (ResultSet resultSet = statement.executeQuery("select 1;")) {
-                    long after = System.currentTimeMillis();
-                    durationString = (after - before) + "ms";
-                }
+            try (Statement statement = dbConnection.createStatement();
+                 ResultSet ignored = statement.executeQuery("select 1;")) {
+                long after = System.currentTimeMillis();
+                durationString = (after - before) + "ms";
             }
 
             if (fetchMetadata) {
