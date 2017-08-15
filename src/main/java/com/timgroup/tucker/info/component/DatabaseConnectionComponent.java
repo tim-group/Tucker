@@ -16,7 +16,6 @@ import com.timgroup.tucker.info.Status;
 public final class DatabaseConnectionComponent extends Component {
     private final ConnectionProvider connectionProvider;
     private final boolean fetchMetadata;
-    private final Status failureStatus;
 
     public interface ConnectionProvider {
         Connection getConnection() throws SQLException;
@@ -30,7 +29,6 @@ public final class DatabaseConnectionComponent extends Component {
         super(id, label);
         this.connectionProvider = connectionProvider;
         this.fetchMetadata = fetchMetadata;
-        this.failureStatus = Status.CRITICAL;
     }
 
     @Override
@@ -55,7 +53,7 @@ public final class DatabaseConnectionComponent extends Component {
                 return new Report(Status.OK, durationString);
             }
         } catch (SQLException e) {
-            return new Report(failureStatus, e.getMessage());
+            return new Report(Status.CRITICAL, e.getMessage());
         }
     }
 }
