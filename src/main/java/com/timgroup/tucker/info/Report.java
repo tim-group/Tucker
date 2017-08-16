@@ -51,6 +51,10 @@ public final class Report {
         return new Report(status, value, requireNonNull(runbook));
     }
 
+    public Report withoutRunbook() {
+        return new Report(status, value, null);
+    }
+
     public Report mapValue(UnaryOperator<Object> operator) {
         return new Report(status, operator.apply(value), runbook);
     }
