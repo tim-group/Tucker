@@ -1,7 +1,9 @@
 package com.timgroup.tucker.info;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
 import static java.util.Objects.requireNonNull;
@@ -62,6 +64,24 @@ public final class Report {
             return new Report(notWorse, value, runbook);
         }
         return this;
+    }
+
+    public static Report combine(BinaryOperator<Object> operator, Report... reports) {
+        if (reports.length == 0) throw new IllegalArgumentException("reports must not be empty");
+        //noinspection ConstantConditions
+        return Arrays.stream(reports).reduce((r1, r2) -> new Report(r1.status.or(r2.status), operator.apply(r1.value, r2.value), r1.runbook != null ? r1.runbook : r2.runbook)).get();
+    }
+
+    public static Report combineStringValues(BinaryOperator<String> operator, Report... reports) {
+        return combine((v1, v2) -> operator.apply(String.valueOf(v1), String.valueOf(v2)), reports);
+    }
+
+    public static Report joinStringValues(String separator, Report... reports) {
+        return combineStringValues((s1, s2) -> String.join(separator, s1, s2), reports);
+    }
+
+    public static Report joinStringValues(Report... reports) {
+        return joinStringValues("\n", reports);
     }
 
     public boolean hasValue() {

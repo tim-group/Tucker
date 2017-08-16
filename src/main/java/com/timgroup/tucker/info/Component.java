@@ -2,6 +2,7 @@ package com.timgroup.tucker.info;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -116,5 +117,28 @@ public abstract class Component {
                 return getId() + ":info:" + supplier;
             }
         };
+    }
+
+    public static Component combine(String id, String label, BinaryOperator<Object> operator, Component... components) {
+        if (components.length == 0) throw new IllegalArgumentException("components must not be empty");
+        return supplyReport(id, label, () -> {
+            Report[] reports = new Report[components.length];
+            for (int i = 0; i < components.length; i++) {
+                reports[i] = components[i].getReport();
+            }
+            return Report.combine(operator, reports);
+        });
+    }
+
+    public static Component combineStringValues(String id, String label, BinaryOperator<String> operator, Component... components) {
+        return combine(id, label, (v1, v2) -> operator.apply(String.valueOf(v1), String.valueOf(v2)), components);
+    }
+
+    public static Component joinStringValues(String id, String label, String separator, Component... components) {
+        return combineStringValues(id, label, (s1, s2) -> String.join(separator, s1, s2), components);
+    }
+
+    public static Component joinStringValues(String id, String label, Component... components) {
+        return joinStringValues(id, label, "\n", components);
     }
 }
