@@ -2,6 +2,7 @@ package com.timgroup.tucker.info;
 
 import java.net.URI;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -42,22 +43,18 @@ public abstract class Component {
         };
     }
 
-    public final Component withRunbook(Runbook runbook) {
-        requireNonNull(runbook);
+    public final Component mapReportHandlingError(BiFunction<? super Report, ? super Throwable, Report> handler) {
+        requireNonNull(handler);
         return new Component(id, label) {
             @Override
             public Report getReport() {
+                Report report;
                 try {
-                    Report underlyingReport = Component.this.getReport();
-                    if (underlyingReport.hasRunbook()) {
-                        return underlyingReport;
-                    }
-                    else {
-                        return underlyingReport.withRunbook(runbook);
-                    }
+                    report = Component.this.getReport();
                 } catch (Throwable t) {
-                    return new Report(t, runbook);
+                    return handler.apply(null, t);
                 }
+                return handler.apply(report, null);
             }
 
             @Override
@@ -65,6 +62,11 @@ public abstract class Component {
                 return Component.this.toString();
             }
         };
+    }
+
+    public final Component withRunbook(Runbook runbook) {
+        requireNonNull(runbook);
+        return mapReportHandlingError((r, t) -> r != null ? r.hasRunbook() ? r : r.withRunbook(runbook) : new Report(t, runbook));
     }
 
     public final Component withRunbook(URI runbookUri) {
