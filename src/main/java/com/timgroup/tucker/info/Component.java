@@ -11,18 +11,12 @@ import static java.util.Objects.requireNonNull;
 public abstract class Component {
     private final String id;
     private final String label;
-    private final Runbook runbook;
-    
-    public Component(String id, String label) {
-        this(id, label, null);
-    }
 
-    public Component(String id, String label, Runbook defaultRunbook) {
+    public Component(String id, String label) {
         this.id = requireNonNull(id);
         this.label = requireNonNull(label);
-        this.runbook = defaultRunbook;
     }
-    
+
     public final String getId() {
         return id;
     }
@@ -30,20 +24,12 @@ public abstract class Component {
     public final String getLabel() {
         return label;
     }
-    
-    public final Optional<Runbook> getRunbook() {
-        return Optional.ofNullable(runbook);
-    }
-
-    public final boolean hasRunbook() {
-        return runbook != null;
-    }
 
     public abstract Report getReport();
 
     public final Component mapReport(UnaryOperator<Report> operator) {
         requireNonNull(operator);
-        return new Component(id, label, runbook) {
+        return new Component(id, label) {
             @Override
             public Report getReport() {
                 return operator.apply(Component.this.getReport());
@@ -57,10 +43,21 @@ public abstract class Component {
     }
 
     public final Component withRunbook(Runbook runbook) {
-        return new Component(id, label, requireNonNull(runbook)) {
+        requireNonNull(runbook);
+        return new Component(id, label) {
             @Override
             public Report getReport() {
-                return Component.this.getReport();
+                try {
+                    Report underlyingReport = Component.this.getReport();
+                    if (underlyingReport.hasRunbook()) {
+                        return underlyingReport;
+                    }
+                    else {
+                        return underlyingReport.withRunbook(runbook);
+                    }
+                } catch (Throwable t) {
+                    return new Report(t, runbook);
+                }
             }
 
             @Override

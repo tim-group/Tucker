@@ -287,12 +287,12 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnOptionalRunbookToComponentAndLocationWillBePrintedInComponentStatusOnError() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://the-solution-is-described-here.com")) {
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             @Override
             public Report getReport() {
                 throw new Error("wrong wire");
             }
-        });
+        }.withRunbook(new Runbook("http://the-solution-is-described-here.com")));
 
         Document document = render(statusPage);
 
@@ -325,12 +325,12 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnOptionalRunbookToReportAndItWillOverrideUncaughtExceptionRunbook() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://uncaught-exception-runbook.com")) {
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com"));
             }
-        });
+        }.withRunbook(new Runbook("http://uncaught-exception-runbook.com")));
 
         Document document = render(statusPage);
 
@@ -349,12 +349,12 @@ public class StatusPageGeneratorTest {
     @Test
     public void optionalRunbookFromComponentIsDisplayedIfReportDoesNotProvideOne() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire", new Runbook("http://uncaught-exception-runbook.com")) {
+        statusPage.addComponent(new Component("mycomponent", "Red wire or green wire") {
             @Override
             public Report getReport() {
                 return new Report(Status.CRITICAL, "brown wire?");
             }
-        });
+        }.withRunbook(new Runbook("http://uncaught-exception-runbook.com")));
 
         Document document = render(statusPage);
 

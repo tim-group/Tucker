@@ -22,7 +22,7 @@ public final class PendingComponent extends Component {
     private volatile Report previousReportRef;
 
     public PendingComponent(Component wrappedComponent, ComponentStateChangeCallback callback) {
-        super(wrappedComponent.getId(), wrappedComponent.getLabel() + " (pending)", wrappedComponent.getRunbook().orElse(null));
+        super(wrappedComponent.getId(), wrappedComponent.getLabel() + " (pending)");
         this.wrappedComponent = wrappedComponent;
         this.callback = callback;
     }

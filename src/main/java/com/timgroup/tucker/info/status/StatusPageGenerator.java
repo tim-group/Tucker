@@ -52,15 +52,9 @@ public class StatusPageGenerator {
             Report report;
             try {
                 report = component.getReport();
-                if (!report.hasRunbook()) {
-                    Optional<Runbook> componentRunbook = component.getRunbook();
-                    if (componentRunbook.isPresent()) {
-                        report = report.withRunbook(componentRunbook.get());
-                    }
-                }
             } catch (Throwable e) {
                 LOGGER.error("exception getting report from component {}", component.getId(), e);
-                report = new Report(e, component.getRunbook().orElse(null));
+                report = new Report(e);
             }
 
             if (Status.CRITICAL.equals(report.getStatus()) || Status.WARNING.equals(report.getStatus())) {
