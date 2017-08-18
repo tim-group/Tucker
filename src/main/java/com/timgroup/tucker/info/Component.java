@@ -1,7 +1,6 @@
 package com.timgroup.tucker.info;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
@@ -28,7 +27,7 @@ public abstract class Component {
 
     public abstract Report getReport();
 
-    public final Component mapReport(UnaryOperator<Report> operator) {
+    public Component mapReport(UnaryOperator<Report> operator) {
         requireNonNull(operator);
         return new Component(id, label) {
             @Override
@@ -43,7 +42,7 @@ public abstract class Component {
         };
     }
 
-    public final Component mapReportHandlingError(BiFunction<? super Report, ? super Throwable, Report> handler) {
+    public Component mapReportHandlingError(BiFunction<? super Report, ? super Throwable, Report> handler) {
         requireNonNull(handler);
         return new Component(id, label) {
             @Override

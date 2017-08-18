@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.UnaryOperator;
 
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
@@ -48,6 +50,20 @@ public final class AsyncComponent extends Component {
     @Override
     public Report getReport() {
         return currentReport.getPotentiallyStaleReport();
+    }
+
+    @Override
+    public Component mapReport(UnaryOperator<Report> operator) {
+        return copy(wrapped.mapReport(operator));
+    }
+
+    @Override
+    public Component mapReportHandlingError(BiFunction<? super Report, ? super Throwable, Report> handler) {
+        return copy(wrapped.mapReportHandlingError(handler));
+    }
+
+    private AsyncComponent copy(Component underlying) {
+        return wrapping(underlying, settings.withUpdateHook(StatusUpdated.NOOP)).withListener((ac, r) -> safelyInvokeUpdateHook(r));
     }
 
     public AsyncComponent withListener(AsyncComponentListener listener) {

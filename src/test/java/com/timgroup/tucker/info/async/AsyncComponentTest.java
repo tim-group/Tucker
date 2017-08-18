@@ -1,12 +1,24 @@
 package com.timgroup.tucker.info.async;
 
+import java.net.URI;
+import java.time.Duration;
+
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Status;
 import org.junit.Test;
 
+import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class AsyncComponentTest {
 
@@ -60,5 +72,23 @@ public class AsyncComponentTest {
         Report report = asyncComponent.getReport();
         assertEquals(report.getStatus(), WARNING);
         assertEquals(report.getValue(), error);
+    }
+
+    @Test
+    public void mapping_report_of_an_async_component_returns_cloned_async_component() {
+        StatusUpdated updateHook = mock(StatusUpdated.class);
+        AsyncComponentListener asyncComponentListener = mock(AsyncComponentListener.class);
+
+        AsyncSettings settings = AsyncSettings.settings().withRepeatSchedule(Duration.ofSeconds(1)).withUpdateHook(updateHook);
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(Component.supplyInfo("test", "test", () -> "test"), settings).withListener(asyncComponentListener);
+
+        Component wrapped = asyncComponent.mapValue(v -> v + "test").withRunbook(URI.create("http://www.example.com")).withStatusNoWorseThan(Status.WARNING);
+
+        assertThat(wrapped, instanceOf(AsyncComponent.class));
+        assertThat(((AsyncComponent) wrapped).getRepeatInterval(), equalTo(Duration.ofSeconds(1)));
+        ((AsyncComponent) wrapped).update();
+        assertThat(wrapped.getReport(), equalTo(new Report(INFO, "testtest")));
+        verify(updateHook).accept(eq(new Report(INFO, "testtest")));
+        verify(asyncComponentListener).accept(any(AsyncComponent.class), eq(new Report(INFO, "testtest")));
     }
 }
