@@ -67,7 +67,7 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.8.5'
-    testCompile group: 'com.youdevise', name: 'Matchers', version: '0.0.1234'
+    testCompile group: 'com.youdevise', name: 'Matchers', version: '0.0.1259'
     testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.6.0'
 
     testRuntime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
