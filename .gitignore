@@ -6,3 +6,4 @@ build
 .eclipse
 gradle.properties
 .idea
+/*.iml
