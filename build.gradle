@@ -5,9 +5,12 @@ if (doSigning) {
     apply plugin: 'signing'
 }
 apply plugin: 'eclipse'
+if (project.hasProperty('repoUrl')) {
+    apply plugin: 'jarmangit'
+}
 
 group = 'com.timgroup'
-ext.url = 'https://github.com/youdevise/Tucker'
+ext.url = 'https://github.com/tim-group/Tucker'
 
 sourceCompatibility = 1.8
 
@@ -169,6 +172,26 @@ task hgignore {
             file('.gitignore').eachLine { line ->
                 out.println line
             }
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        if (project.hasProperty('repoUrl')) {
+            maven {
+                name "nexus"
+                url "${project.repoUrl}/groups/public"
+            }
+        }
+        else {
+            mavenCentral()
+        }
+    }
+
+    dependencies {
+        if (project.hasProperty('repoUrl')) {
+            classpath "com.timgroup:gradle-jarmangit:1.0.+"
         }
     }
 }
