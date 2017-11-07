@@ -17,6 +17,10 @@ import static java.lang.String.format;
 public final class FileDescriptorComponent extends Component {
     /*nullable*/ private final FileDescriptorProvider fileDescriptorProvider;
 
+    /**
+     * @deprecated Use {@link #create()}
+     */
+    @Deprecated
     public FileDescriptorComponent() {
         this(FileDescriptorProvider.getDefault().orElse(null));
     }
@@ -24,6 +28,16 @@ public final class FileDescriptorComponent extends Component {
     public FileDescriptorComponent(/*nullable*/ FileDescriptorProvider fileDescriptorProvider) {
         super("FileDescriptorComponent", "Used file descriptors");
         this.fileDescriptorProvider = fileDescriptorProvider;
+    }
+
+    public static Component create() {
+        return create("FileDescriptorComponent", "Used file descriptors");
+    }
+
+    public static Component create(String id, String label) {
+        return FileDescriptorProvider.getDefault()
+                .map(provider -> Component.supplyReport(id, label, () -> report(provider)))
+                .orElseGet(() -> Component.supplyInfo(id, label, () -> "File descriptor usage not applicable on this platform"));
     }
 
     public interface FileDescriptorProvider {
@@ -62,15 +76,19 @@ public final class FileDescriptorComponent extends Component {
     @Override
     public Report getReport() {
         if (fileDescriptorProvider == null) {
-            return new Report(INFO, "File descriptior usage not applicable on this platform");
+            return new Report(INFO, "File descriptor usage not applicable on this platform");
         }
 
+        return report(fileDescriptorProvider);
+    }
+
+    private static Report report(FileDescriptorProvider fileDescriptorProvider) {
         Long used = fileDescriptorProvider.used();
         Long total = fileDescriptorProvider.total();
         double ratio = used.doubleValue() / total.doubleValue();
-        
+
         String message = format("%s/%s used", used, total);
-        
+
         if (ratio > 0.9) {
             return new Report(CRITICAL, message);
         } else if (ratio > 0.5) {

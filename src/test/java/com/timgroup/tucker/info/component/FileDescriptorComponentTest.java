@@ -1,16 +1,22 @@
 package com.timgroup.tucker.info.component;
 
+import com.google.common.collect.ImmutableList;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.component.FileDescriptorComponent.FileDescriptorProvider;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 
 import static com.timgroup.tucker.info.Status.CRITICAL;
+import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.text.StringContainsInOrder.stringContainsInOrder;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -48,5 +54,13 @@ public class FileDescriptorComponentTest {
 
         assertTrue(provider.total() > 0);
         assertTrue(provider.used() > 0);
+    }
+
+    @Test public void
+    fileDescriptorComponentGivesStats() {
+        assumeTrue(FileDescriptorProvider.getDefault().isPresent());
+        Report report = FileDescriptorComponent.create().getReport();
+        assertThat(report.getStatus(), not(equalTo(INFO)));
+        assertThat((String) report.getValue(), stringContainsInOrder(ImmutableList.of("/", " used")));
     }
 }
