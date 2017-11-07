@@ -1,18 +1,18 @@
 package com.timgroup.tucker.info.component;
 
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.component.FileDescriptorComponent.FileDescriptorProvider;
+import org.junit.AssumptionViolatedException;
+import org.junit.Test;
+
 import static com.timgroup.tucker.info.Status.CRITICAL;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
-import static org.junit.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-
-import org.junit.Test;
-
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.component.FileDescriptorComponent.FileDescriptorProvider;
 
 public class FileDescriptorComponentTest {
     private FileDescriptorProvider fileDescriptorProvider = mock(FileDescriptorComponent.FileDescriptorProvider.class);
@@ -44,8 +44,8 @@ public class FileDescriptorComponentTest {
     
     @Test public void
     fileDescriptorProviderGivesStats() {
-        FileDescriptorProvider provider = new FileDescriptorProvider();
-        
+        FileDescriptorProvider provider = FileDescriptorProvider.getDefault().orElseThrow(() -> new AssumptionViolatedException("No provider available on this platform"));
+
         assertTrue(provider.total() > 0);
         assertTrue(provider.used() > 0);
     }

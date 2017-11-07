@@ -1,66 +1,70 @@
 package com.timgroup.tucker.info.component;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.util.Optional;
+
+import com.sun.management.UnixOperatingSystemMXBean;
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Report;
+
 import static com.timgroup.tucker.info.Status.CRITICAL;
+import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
 import static java.lang.String.format;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.reflect.Method;
-
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Report;
-
-
-public class FileDescriptorComponent extends Component {
-    private FileDescriptorProvider fileDescriptorProvider;
+public final class FileDescriptorComponent extends Component {
+    /*nullable*/ private final FileDescriptorProvider fileDescriptorProvider;
 
     public FileDescriptorComponent() {
-        this(new FileDescriptorProvider());
+        this(FileDescriptorProvider.getDefault().orElse(null));
     }
     
-    public FileDescriptorComponent(FileDescriptorProvider fileDescriptorProvider) {
+    public FileDescriptorComponent(/*nullable*/ FileDescriptorProvider fileDescriptorProvider) {
         super("FileDescriptorComponent", "Used file descriptors");
         this.fileDescriptorProvider = fileDescriptorProvider;
     }
 
-    public static class FileDescriptorProvider {
-        private OperatingSystemMXBean mxBean;
-        private Method getOpenFileDescriptorCount;
-        private Method getMaxFileDescriptorCount;
+    public interface FileDescriptorProvider {
+        Long used();
+        Long total();
 
-        public FileDescriptorProvider() {
-            mxBean = ManagementFactory.getOperatingSystemMXBean();
-            try {
-                getOpenFileDescriptorCount = mxBean.getClass().getDeclaredMethod("getOpenFileDescriptorCount");
-                getMaxFileDescriptorCount = mxBean.getClass().getDeclaredMethod("getMaxFileDescriptorCount");
-                getOpenFileDescriptorCount.setAccessible(true);
-                getMaxFileDescriptorCount.setAccessible(true);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        static Optional<FileDescriptorProvider> getDefault() {
+            OperatingSystemMXBean systemMXBean = ManagementFactory.getOperatingSystemMXBean();
+            if (systemMXBean instanceof UnixOperatingSystemMXBean) {
+                return Optional.of(new UnixOperationSystemProviderImpl((UnixOperatingSystemMXBean) systemMXBean));
+            }
+            else {
+                return Optional.empty();
             }
         }
-        
+    }
+
+    private static final class UnixOperationSystemProviderImpl implements FileDescriptorProvider {
+        private final UnixOperatingSystemMXBean unixOperatingSystemMXBean;
+
+        public UnixOperationSystemProviderImpl(UnixOperatingSystemMXBean unixOperatingSystemMXBean) {
+            this.unixOperatingSystemMXBean = unixOperatingSystemMXBean;
+        }
+
+        @Override
         public Long used() {
-            try {
-                return (Long) getOpenFileDescriptorCount.invoke(mxBean);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return unixOperatingSystemMXBean.getOpenFileDescriptorCount();
         }
-        
+
+        @Override
         public Long total() {
-            try {
-                return (Long) getMaxFileDescriptorCount.invoke(mxBean);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }       
+            return unixOperatingSystemMXBean.getMaxFileDescriptorCount();
         }
     }
 
     @Override
     public Report getReport() {
+        if (fileDescriptorProvider == null) {
+            return new Report(INFO, "File descriptior usage not applicable on this platform");
+        }
+
         Long used = fileDescriptorProvider.used();
         Long total = fileDescriptorProvider.total();
         double ratio = used.doubleValue() / total.doubleValue();
