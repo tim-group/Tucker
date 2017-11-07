@@ -1,40 +1,12 @@
 apply plugin: 'java'
-apply plugin: 'maven'
-def doSigning = gradle.startParameter.taskNames.contains("signArchives")
-if (doSigning) {
-    apply plugin: 'signing'
-}
-apply plugin: 'eclipse'
-if (project.hasProperty('repoUrl')) {
-    apply plugin: 'com.timgroup.jarmangit'
-}
+apply plugin: 'maven-publish'
+apply plugin: 'com.timgroup.jarmangit'
 
 group = 'com.timgroup'
-ext.url = 'https://github.com/tim-group/Tucker'
+if (System.getenv("BUILD_NUMBER")) version = "1.0.${System.getenv('BUILD_NUMBER')}"
 
-sourceCompatibility = 1.8
-
-def majorVersion = 1
-def minorVersion = 0
-
-/** for Maven Central; manually bump major and/or minor version numbers before building */
-def isPublicRelease() {
-    return "".equals(System.getenv('BUILD_NUMBER'))
-}
-
-/** CI builds */
-def isPrivateRelease() {
-    return !isPublicRelease() && System.getenv('BUILD_NUMBER') != null
-}
-
-if (isPublicRelease()) {
-    version = "${majorVersion}.${minorVersion}"
-} else if (isPrivateRelease()) {
-    def buildNumber = System.getenv('BUILD_NUMBER')
-    version = "${majorVersion}.${minorVersion}.${buildNumber}"
-} else /* dev build */ {
-    def timestamp = new Date().format('yyyyMMdd-HHmmss', TimeZone.getTimeZone('UTC'))
-    version = "${majorVersion}.${minorVersion}-${timestamp}"
+ext {
+    slf4jVersion = "1.7.5"
 }
 
 jar {
@@ -42,139 +14,103 @@ jar {
         attributes(
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
-            'Implementation-Vendor': 'youDevise Ltd',
-            'Implementation-Vendor-Id': project.group,
-            'Implementation-URL': project.url
+            'Implementation-Vendor': 'TIM Group Ltd'
         )
     }
 }
 
+tasks.withType(JavaCompile) {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+    options.encoding = "UTF-8"
+    options.incremental = true
+    options.deprecation = true
+    options.compilerArgs << "-parameters"
+}
+
 repositories {
-    if (project.hasProperty('repoUrl')) {
-        maven {
-            name "nexus"
-            url "${project.repoUrl}/groups/public"
-        }
-    } else {
-        mavenCentral()
+    maven {
+        name "nexus"
+        url "${project.repoUrl}/groups/public"
     }
 }
 
-def slf4jVersion = '1.7.5'
-
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
-    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1' // optional
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.6.0'
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "javax.servlet:javax.servlet-api:3.0.1" // optional
+    compile "com.fasterxml.jackson.core:jackson-core:2.6.0"
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.8.5'
-    testCompile group: 'com.youdevise', name: 'Matchers', version: '0.0.1259'
-    testCompile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.6.0'
+    testCompile "junit:junit:4.12"
+    testCompile "org.mockito:mockito-core:1.8.5"
+    testCompile "com.youdevise:Matchers:0.0.1259"
+    testCompile "com.fasterxml.jackson.core:jackson-databind:2.6.0"
 
-    testRuntime group: 'org.slf4j', name: 'slf4j-simple', version: slf4jVersion
+    testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
 }
+
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            name "nexus"
+            url "${project.repoUrl}/repositories/yd-release-candidates"
+            credentials {
+                username = project.repoUsername
+                password = project.repoPassword
+            }
+        }
+        maven {
+            name "localFiles"
+            url "${rootProject.buildDir}/repo"
+        }
+    }
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId project.ext.has('artifactId') ? project.ext.artifactId
+                    : project == rootProject ? project.name
+                    : rootProject.name + project.path.replace(':', '-')
+            from components.java
+            artifact(sourcesJar)
+            artifact(javadocJar)
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = DELEGATE_FIRST
+                    name project.ext.has('pomName') ? project.ext.pomName : project.name
+                    description project.description
+                    url "https://github.com/tim-group/Tucker"
+                    licenses {
+                        license {
+                            name 'The BSD 2-Clause License'
+                            url 'http://opensource.org/licenses/BSD-2-Clause'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            email 'opensource@timgroup.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+assemble.dependsOn(sourcesJar)
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
- 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-task pom {
-    ext.pom = pom {
-        project {
-            name project.name
-            description 'Tucker is a small library for gently and politely helping with the communication and management of application status.'
-            url project.url
-            
-            packaging 'jar'
-            
-            scm {
-                url "scm:${project.url}"
-                connection 'scm:git:https://github.com/youdevise/Tucker.git'
-                developerConnection 'scm:git:git://github.com/youdevise/Tucker.git'
-            }
-            
-            licenses {
-                license {
-                    name 'The BSD 2-Clause License'
-                    url 'http://opensource.org/licenses/BSD-2-Clause'
-                    distribution 'repo'
-                }
-            }
-            
-            developers {
-                developer {
-                    email 'opensource@timgroup.com'
-                }
-            }
-        }
-    }
-    doLast {
-        pom.writeTo("$buildDir/pom.xml")
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (doSigning) {
-                beforeDeployment { deployment ->
-                    signing.signPom(deployment)
-                }
-            }
-            
-            if (project.hasProperty('repoUrl')) {
-                repository(url: "${project.repoUrl}/repositories/yd-release-candidates") {
-                    authentication(userName: project.repoUsername, password: project.repoPassword)
-                }
-            }
-            
-            pom = tasks.pom.pom
-        }
-    }
-}
-uploadArchives.dependsOn pom
-
-if (doSigning) {
-    signing {
-        sign configurations.archives
-    }
-    
-    signArchives.doFirst {
-        assert file('gradle.properties').isFile(), "in order to sign anything, you need to supply signing properties via gradle.properties - see http://www.gradle.org/docs/current/userguide/signing_plugin.html"
-    }
-}
-
-eclipse {
-    classpath {
-        defaultOutputDir = file('.eclipse')
-    }
-}
-
-task hgignore {
-    doLast {
-        // gitignore and hgignore syntax are similar enough that this works (for now)
-        file('.hgignore').withWriter { out ->
-            out.println 'syntax: glob'
-            out.println '.hgignore'
-            file('.gitignore').eachLine { line ->
-                out.println line
-            }
-        }
-    }
-}
+assemble.dependsOn(javadocJar)
 
 buildscript {
     repositories {
