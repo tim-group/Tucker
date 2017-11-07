@@ -6,7 +6,7 @@ if (doSigning) {
 }
 apply plugin: 'eclipse'
 if (project.hasProperty('repoUrl')) {
-    apply plugin: 'jarmangit'
+    apply plugin: 'com.timgroup.jarmangit'
 }
 
 group = 'com.timgroup'
@@ -191,7 +191,7 @@ buildscript {
 
     dependencies {
         if (project.hasProperty('repoUrl')) {
-            classpath "com.timgroup:gradle-jarmangit:1.0.+"
+            classpath "com.timgroup:gradle-jarmangit:1.1.+"
         }
     }
 }
