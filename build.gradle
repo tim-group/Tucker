@@ -6,7 +6,7 @@ group = 'com.timgroup'
 if (System.getenv("BUILD_NUMBER")) version = "1.0.${System.getenv('BUILD_NUMBER')}"
 
 ext {
-    slf4jVersion = "1.7.5"
+    slf4jVersion = "1.7.25"
 }
 
 jar {
