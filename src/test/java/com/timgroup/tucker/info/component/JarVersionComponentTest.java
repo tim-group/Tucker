@@ -1,11 +1,10 @@
 package com.timgroup.tucker.info.component;
 
+import com.timgroup.tucker.info.Status;
 import org.junit.Test;
 
-import com.timgroup.tucker.info.Status;
-import com.timgroup.tucker.info.component.JarVersionComponent;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class JarVersionComponentTest {
     
@@ -23,6 +22,7 @@ public class JarVersionComponentTest {
     @Test
     public void reportValueIsImplementationVersionOfPackageContainingAnchorClass() throws Exception {
         String jdkVersion = System.getProperty("java.version");
+        assumeFalse("Doesn't work like this on Java 9", jdkVersion.startsWith("9."));
         assertEquals(jdkVersion, new JarVersionComponent(String.class).getReport().getValue());
     }
     
