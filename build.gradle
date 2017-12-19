@@ -1,6 +1,8 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'com.timgroup.jarmangit'
+plugins {
+    id "java"
+    id "maven-publish"
+    id "com.timgroup.jarmangit" version "1.1.86"
+}
 
 group = 'com.timgroup'
 if (System.getenv("BUILD_NUMBER")) version = "1.0.${System.getenv('BUILD_NUMBER')}"
@@ -19,7 +21,7 @@ jar {
     }
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).all {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
     options.encoding = "UTF-8"
@@ -29,9 +31,10 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
+    mavenCentral()
     maven {
-        name "nexus"
-        url "${project.repoUrl}/groups/public"
+        name "timgroup"
+        url "$repoUrl/groups/public"
     }
 }
 
@@ -53,17 +56,15 @@ apply plugin: 'maven-publish'
 
 publishing {
     repositories {
-        maven {
-            name "nexus"
-            url "${project.repoUrl}/repositories/yd-release-candidates"
-            credentials {
-                username = project.repoUsername
-                password = project.repoPassword
+        if (project.hasProperty("repoUrl")) {
+            maven {
+                name "nexus"
+                url "${project.repoUrl}/repositories/yd-release-candidates"
+                credentials {
+                    username = project.repoUsername
+                    password = project.repoPassword
+                }
             }
-        }
-        maven {
-            name "localFiles"
-            url "${rootProject.buildDir}/repo"
         }
     }
     publications {
@@ -111,23 +112,3 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 assemble.dependsOn(javadocJar)
-
-buildscript {
-    repositories {
-        if (project.hasProperty('repoUrl')) {
-            maven {
-                name "nexus"
-                url "${project.repoUrl}/groups/public"
-            }
-        }
-        else {
-            mavenCentral()
-        }
-    }
-
-    dependencies {
-        if (project.hasProperty('repoUrl')) {
-            classpath "com.timgroup:gradle-jarmangit:1.1.+"
-        }
-    }
-}
