@@ -1,6 +1,10 @@
 What is it?
 ===========
 
+.. image:: https://travis-ci.org/tim-group/Tucker.svg?branch=master
+    :target: https://travis-ci.org/tim-group/Tucker.. image:: https://travis-ci.org/tim-group/Tucker.svg?branch=master
+
+
 Tucker is a small library for gently and politely helping with the communication and management of application status.
 
 Tucker contains two main parts. Firstly, a simple framework for building a 'status page', summarising a variety of information about the application, rendering it as an XML document, and perhaps serving it over HTTP. Secondly, a simple state machine describing the lifecycle of an application process, with ways to manipulate it, and ways to hook actions into transitions.
@@ -10,13 +14,13 @@ The second part does not yet exist.
 How do i build it?
 ==================
 
-With Gradle (http://www.gradle.org/). We are using version 1.7. To build, simply do::
+With Gradle (http://www.gradle.org/). To build, simply do::
 
-    gradle clean build
+    ./gradlew build
 
 This builds a jar file in ``build/libs``. To use this in other projects, you might like to install it in your local Maven repository::
 
-    gradle install
+    ./gradlew publishToMavenLocal
 
 How do i know the artifacts are kosher?
 =======================================
