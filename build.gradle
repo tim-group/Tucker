@@ -53,8 +53,6 @@ dependencies {
     testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
 }
 
-apply plugin: 'maven-publish'
-
 publishing {
     repositories {
         if (project.hasProperty("repoUrl")) {
