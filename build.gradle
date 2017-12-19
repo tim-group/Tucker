@@ -1,5 +1,5 @@
 plugins {
-    id "java"
+    id "java-library"
     id "maven-publish"
     id "com.timgroup.jarmangit" version "1.1.86"
 }
@@ -36,9 +36,9 @@ repositories {
 
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
 dependencies {
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
-    compile "javax.servlet:javax.servlet-api:3.0.1" // optional
-    compile "com.fasterxml.jackson.core:jackson-core:2.6.0"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "javax.servlet:javax.servlet-api:3.0.1"
+    implementation "com.fasterxml.jackson.core:jackson-core:2.6.0"
 
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-core:1.8.5"
