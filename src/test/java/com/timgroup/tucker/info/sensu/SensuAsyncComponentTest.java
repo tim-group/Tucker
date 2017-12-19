@@ -27,11 +27,11 @@ import static com.timgroup.tucker.info.Status.WARNING;
 import static com.timgroup.tucker.info.async.AsyncSettings.settings;
 import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.SPECIAL_CHARACTERS;
 import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.wrapping;
-import static com.youdevise.testutils.matchers.json.JsonEquivalenceMatchers.equivalentTo;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
+import static org.araqnid.hamkrest.json.EquivalenceMatchersKt.equivalentTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
@@ -54,7 +54,7 @@ public class SensuAsyncComponentTest {
         component.updateValue(OK, "It worked");
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
-        assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
+        com.natpryce.hamkrest.assertion.Assert.assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
                     "'name': 'component-id', " +
                     "'output': 'It worked', " +
                     "'status': 0, " +
@@ -69,7 +69,7 @@ public class SensuAsyncComponentTest {
         component.updateValue(OK, value);
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port()).update();
 
-        assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
+        com.natpryce.hamkrest.assertion.Assert.assertThat(fakeSensuClient.nextResult(), equivalentTo("{" +
                 "'name': 'component-id', " +
                 String.format("'output': '%s', ", value.toString()) +
                 "'status': 0, " +
