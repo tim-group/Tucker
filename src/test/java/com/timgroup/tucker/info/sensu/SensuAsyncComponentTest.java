@@ -1,5 +1,13 @@
 package com.timgroup.tucker.info.sensu;
 
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.async.AsyncComponent;
+import com.timgroup.tucker.info.component.SimpleValueComponent;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.ExternalResource;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,14 +20,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.async.AsyncComponent;
-import com.timgroup.tucker.info.component.SimpleValueComponent;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.ExternalResource;
-
 import static com.timgroup.tucker.info.Status.CRITICAL;
 import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
@@ -27,18 +27,20 @@ import static com.timgroup.tucker.info.Status.WARNING;
 import static com.timgroup.tucker.info.async.AsyncSettings.settings;
 import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.SPECIAL_CHARACTERS;
 import static com.timgroup.tucker.info.sensu.SensuAsyncComponent.wrapping;
-import static com.youdevise.testutils.matchers.ExceptionMatcher.anExceptionOfType;
 import static com.youdevise.testutils.matchers.json.JsonEquivalenceMatchers.equivalentTo;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.hasToString;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 public class SensuAsyncComponentTest {
     @Rule public final FakeSensuClient fakeSensuClient = new FakeSensuClient();
@@ -80,8 +82,7 @@ public class SensuAsyncComponentTest {
     throws_illegal_state_exception_when_the_component_id_contains_spaces_or_special_characters() {
         String componentId = "/-+!@#$%^&())\";:[]{}\\ |wetyk 678dfgh";
         SimpleValueComponent component = new SimpleValueComponent(componentId, "component label");
-        exception.expect(anExceptionOfType(IllegalStateException.class)
-                .withTheMessage("the component id: " + componentId + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS));
+        exception.expect(both(instanceOf(IllegalStateException.class)).and(hasToString(containsString("the component id: " + componentId + " cannot contain spaces or special characters like " + SPECIAL_CHARACTERS))));
 
         wrapping(component, settings().withStalenessLimit(ofSeconds(54)), emptyList(), fakeSensuClient.port());
 
