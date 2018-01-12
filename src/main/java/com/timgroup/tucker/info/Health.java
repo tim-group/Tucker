@@ -24,4 +24,8 @@ public interface Health extends Supplier<Health.State> {
     static Health combined(Health... healths) {
         return Arrays.stream(healths).reduce(Health::and).orElse(ALWAYS_HEALTHY);
     }
+
+    static Health startUp(Health health) {
+        return StaysHealthy.onceHealthy(health);
+    }
 }
