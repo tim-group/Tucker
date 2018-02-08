@@ -1,13 +1,11 @@
 package com.timgroup.tucker.info.component;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import org.junit.Test;
-
-import com.timgroup.tucker.info.Status;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public final class MemoryUsageComponentTest {
 
@@ -15,13 +13,6 @@ public final class MemoryUsageComponentTest {
     public void defaultIdAndLabelAreSuitable() throws Exception {
         assertEquals("memoryUsage", new MemoryUsageComponent().getId());
         assertEquals("JVM Memory Usage", new MemoryUsageComponent().getLabel());
-    }
-
-    @Test
-    public void reportStatusReflectsUsage() throws Exception {
-        assertEquals(Status.OK, new MemoryUsageComponent().getReport().getStatus());
-        assertEquals(Status.WARNING, new MemoryUsageComponent(0, 100).getReport().getStatus());
-        assertEquals(Status.CRITICAL, new MemoryUsageComponent(0, 0).getReport().getStatus());
     }
 
     @Test
