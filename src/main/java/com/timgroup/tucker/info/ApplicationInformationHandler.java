@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import com.timgroup.tucker.info.status.StatusPage;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,8 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.timgroup.tucker.info.status.StatusPage;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 public class ApplicationInformationHandler {
 
@@ -27,7 +27,7 @@ public class ApplicationInformationHandler {
         dispatch.put("/health", new HealthWriter(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
-        dispatch.put("/status", new StatusPageWriter(statusPage));
+        dispatch.put("/status", new StatusPageWriter(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
@@ -124,15 +124,17 @@ public class ApplicationInformationHandler {
 
     private static final class StatusPageWriter implements Handler {
         private final StatusPageGenerator statusPageGenerator;
+        private final Health health;
 
-        public StatusPageWriter(StatusPageGenerator statusPage) {
+        public StatusPageWriter(StatusPageGenerator statusPage, Health health) {
             this.statusPageGenerator = statusPage;
+            this.health = health;
         }
 
         @Override public void handle(WebResponse response) throws IOException {
             try (OutputStreamWriter writer = new OutputStreamWriter(response.respond("text/xml", UTF_8), UTF_8)) {
                 StatusPage report = statusPageGenerator.getApplicationReport();
-                report.render(writer);
+                report.render(writer, health);
             }
         }
     }

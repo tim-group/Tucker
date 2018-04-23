@@ -1,7 +1,13 @@
 package com.timgroup.tucker.info;
 
-import static com.timgroup.tucker.info.Health.State.healthy;
-import static com.timgroup.tucker.info.Health.State.ill;
+import com.timgroup.tucker.info.component.VersionComponent;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
+import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import static com.timgroup.tucker.info.Stoppable.State.safe;
 import static com.timgroup.tucker.info.Stoppable.State.unwise;
 import static org.junit.Assert.assertEquals;
@@ -10,19 +16,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import org.junit.Test;
-
-import com.timgroup.tucker.info.component.VersionComponent;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
-
 public class ApplicationInformationHandlerTest {
 
     private final Stoppable stoppable = mock(Stoppable.class);
-    private final Health health = mock(Health.class);
+    private final Health health = Health.ALWAYS_HEALTHY;
     private volatile String versionString = "0";
     private final VersionComponent version = new VersionComponent() {
         @Override public Report getReport() {
@@ -62,7 +59,7 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_healthy_returns_healthy() throws Exception {
-        when(health.get()).thenReturn(healthy);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -77,7 +74,9 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_not_healthy_returns_ill() throws Exception {
-        when(health.get()).thenReturn(ill);
+        Health alwaysIll = Health.healthyWhen(() -> false);
+
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 

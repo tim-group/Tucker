@@ -1,10 +1,28 @@
 package com.timgroup.tucker.info.status;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Runbook;
+import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.component.VersionComponent;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,30 +40,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import com.timgroup.tucker.info.Runbook;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Health;
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.Status;
-import com.timgroup.tucker.info.component.VersionComponent;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StatusPageGeneratorTest {
     
@@ -73,7 +70,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        assertEquals(1, root.getElementsByTagName("component").getLength());
+        assertEquals(2, root.getElementsByTagName("component").getLength());
         
         Element timestamp = getSingleElementByTagName(root, "timestamp");
         
@@ -105,6 +102,21 @@ public class StatusPageGeneratorTest {
     }
 
     @Test
+    public void healthExposedInStatusPage() throws Exception {
+        StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version, Clock.fixed(Instant.parse("2016-05-25T00:47:33.651Z"), ZoneOffset.UTC));
+
+        Document document = render(statusPage, () -> Health.State.ill);
+
+        Element root = document.getDocumentElement();
+        Element component = getElementByIndex(root, "component", 0, 2);
+
+        assertEquals("health", component.getAttribute("id"));
+        assertEquals("info", component.getAttribute("class"));
+        assertEquals("Health: ill", component.getTextContent());
+        assertEquals("ill", getSingleElementByTagName(component, "value").getTextContent());
+    }
+
+    @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
         statusPage.addComponent(new Component("mycomponent", "Number of coincidences today") {
@@ -120,7 +132,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -165,7 +177,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -210,7 +222,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Eschatological immanency", component.getTextContent());
@@ -255,7 +267,7 @@ public class StatusPageGeneratorTest {
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Red wire or green wire: wrong wire", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
@@ -297,7 +309,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
         assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
                 component.getTextContent().contains(expectedRunbookText));
@@ -316,7 +328,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
         String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
         assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
                 component.getTextContent().contains(expectedRunbookText));
@@ -335,7 +347,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
 
         String reportSpecificRunbookLocation = "http://the-solution-is-described-here.com";
         String componentSpecificRunbookLocation = "http://uncaught-exception-runbook.com";
@@ -359,7 +371,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getSecondElementByTagName(root, "component");
+        Element component = getLastElementByTagName(root, "component");
 
         String componentSpecificRunbookLocation = "Runbook: http://uncaught-exception-runbook.com";
 
@@ -398,21 +410,26 @@ public class StatusPageGeneratorTest {
     }
 
     private Element getSingleElementByTagName(Element element, String name) {
-        NodeList elementsByTagName = element.getElementsByTagName(name);
-        assertEquals(1, elementsByTagName.getLength());
-        return (Element) elementsByTagName.item(0);
+        return getElementByIndex(element, name, 0, 1);
     }
     
-    private Element getSecondElementByTagName(Element element, String name) {
-        NodeList elementsByTagName = element.getElementsByTagName(name);
-        assertEquals(2, elementsByTagName.getLength());
-        return (Element) elementsByTagName.item(1);
+    private Element getLastElementByTagName(Element element, String name) {
+        return getElementByIndex(element, name, 2, 3);
     }
-    
-    private Document render(StatusPageGenerator statusPage) throws ParserConfigurationException, SAXException, IOException {
+
+    private Element getElementByIndex(Element element, String name, int index, int expectedNumberOfElements) {
+        NodeList elementsByTagName = element.getElementsByTagName(name);
+        assertEquals(expectedNumberOfElements, elementsByTagName.getLength());
+        return (Element) elementsByTagName.item(index);
+    }
+
+    private Document render(StatusPageGenerator statusPage) throws IOException, SAXException, ParserConfigurationException {
+        return render(statusPage, Health.ALWAYS_HEALTHY);
+    }
+    private Document render(StatusPageGenerator statusPage, Health health) throws ParserConfigurationException, SAXException, IOException {
         StringWriter writer = new StringWriter();
         
-        statusPage.getApplicationReport().render(writer);
+        statusPage.getApplicationReport().render(writer, health);
         
         InputSource source = new InputSource(new StringReader(writer.toString()));
         Document document = parse(source);

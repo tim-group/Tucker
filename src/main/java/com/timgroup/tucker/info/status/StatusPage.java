@@ -1,5 +1,16 @@
 package com.timgroup.tucker.info.status;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.timgroup.tucker.info.Component;
+import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.Runbook;
+import com.timgroup.tucker.info.Status;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
@@ -9,18 +20,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.timgroup.tucker.info.Component;
-import com.timgroup.tucker.info.Health;
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.Runbook;
-import com.timgroup.tucker.info.Status;
 
 public class StatusPage {
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
@@ -65,7 +64,7 @@ public class StatusPage {
         return applicationStatus;
     }
     
-    public void render(Writer writer) throws IOException {
+    public void render(Writer writer, Health health) throws IOException {
         try {
             XMLStreamWriter out = XML_OUTPUT_FACTORY.createXMLStreamWriter(writer);
             out.writeStartDocument();
@@ -76,30 +75,14 @@ public class StatusPage {
             out.writeAttribute(ATTR_ID, applicationId);
             out.writeAttribute(ATTR_CLASS, applicationStatus.name().toLowerCase());
             out.writeAttribute(ATTR_HOST, hostname);
-            
+
+            Component healthComponent = Component.supplyInfo("health", "Health", () -> health.get().name());
+            writeComponentReport(out, healthComponent, healthComponent.getReport());
+
             for (Entry<Component, Report> componentReport : componentReports.entrySet()) {
                 Component component = componentReport.getKey();
                 Report report = componentReport.getValue();
-                out.writeStartElement(TAG_COMPONENT);
-                out.writeAttribute(ATTR_ID, component.getId());
-                out.writeAttribute(ATTR_CLASS, report.getStatus().name().toLowerCase());
-                out.writeCharacters(component.getLabel());
-                if (report.hasValue()) {
-                    out.writeCharacters(": ");
-                    if (report.isSuccessful()) {
-                        out.writeStartElement(TAG_VALUE);
-                        out.writeCharacters(String.valueOf(report.getValue()));
-                        writeRunbookLinkIfPresent(out, report.getRunbook());
-                        out.writeEndElement();
-                    } else {
-                        out.writeStartElement(TAG_EXCEPTION);
-                        out.writeCharacters(report.getException().getMessage());
-                        writeRunbookLinkIfPresent(out, report.getRunbook());
-                        out.writeEndElement();
-                    }
-
-                }
-                out.writeEndElement();
+                writeComponentReport(out, component, report);
             }
             
             out.writeStartElement(TAG_TIMESTAMP);
@@ -112,6 +95,29 @@ public class StatusPage {
         } catch (XMLStreamException e) {
             throw new IOException(e);
         }
+    }
+
+    private void writeComponentReport(XMLStreamWriter out, Component component, Report report) throws XMLStreamException {
+        out.writeStartElement(TAG_COMPONENT);
+        out.writeAttribute(ATTR_ID, component.getId());
+        out.writeAttribute(ATTR_CLASS, report.getStatus().name().toLowerCase());
+        out.writeCharacters(component.getLabel());
+        if (report.hasValue()) {
+            out.writeCharacters(": ");
+            if (report.isSuccessful()) {
+                out.writeStartElement(TAG_VALUE);
+                out.writeCharacters(String.valueOf(report.getValue()));
+                writeRunbookLinkIfPresent(out, report.getRunbook());
+                out.writeEndElement();
+            } else {
+                out.writeStartElement(TAG_EXCEPTION);
+                out.writeCharacters(report.getException().getMessage());
+                writeRunbookLinkIfPresent(out, report.getRunbook());
+                out.writeEndElement();
+            }
+
+        }
+        out.writeEndElement();
     }
 
     private void writeRunbookLinkIfPresent(XMLStreamWriter out, Optional<Runbook> optionalRunbook) throws XMLStreamException {

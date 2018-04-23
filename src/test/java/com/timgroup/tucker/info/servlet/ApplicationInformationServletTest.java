@@ -1,17 +1,17 @@
 package com.timgroup.tucker.info.servlet;
 
-import static com.timgroup.tucker.info.Health.ALWAYS_HEALTHY;
-import static com.timgroup.tucker.info.Status.INFO;
-import static com.timgroup.tucker.info.Stoppable.ALWAYS_STOPPABLE;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.Report;
+import com.timgroup.tucker.info.component.VersionComponent;
+import com.timgroup.tucker.info.status.StatusPage;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,20 +21,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import com.timgroup.tucker.info.Health;
-import com.timgroup.tucker.info.Report;
-import com.timgroup.tucker.info.component.VersionComponent;
-import com.timgroup.tucker.info.status.StatusPage;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
+import static com.timgroup.tucker.info.Health.ALWAYS_HEALTHY;
+import static com.timgroup.tucker.info.Status.INFO;
+import static com.timgroup.tucker.info.Stoppable.ALWAYS_STOPPABLE;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ApplicationInformationServletTest {
 
@@ -49,7 +47,7 @@ public class ApplicationInformationServletTest {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(Matchers.any(Writer.class));
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).render(any(Writer.class), any(Health.class));
         HttpServletRequest request = mockRequest("/status");
         HttpServletResponse response = mock(HttpServletResponse.class);
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
@@ -68,7 +66,7 @@ public class ApplicationInformationServletTest {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class), eq(Health.State.healthy));
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(any(Writer.class), eq(Health.State.healthy));
         HttpServletRequest request = mockRequest("/status.json");
         HttpServletResponse response = mock(HttpServletResponse.class);
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
@@ -88,7 +86,7 @@ public class ApplicationInformationServletTest {
         StatusPageGenerator statusPage = mock(StatusPageGenerator.class);
         StatusPage applicationReport = mock(StatusPage.class);
         when(statusPage.getApplicationReport()).thenReturn(applicationReport);
-        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(Matchers.any(Writer.class), eq(Health.State.healthy));
+        doAnswer(new WriteOneCharacter('a')).when(applicationReport).renderJson(any(Writer.class), eq(Health.State.healthy));
         HttpServletRequest request = mockRequest("/status", Collections.singletonMap("callback", callbackFunction));
         HttpServletResponse response = mock(HttpServletResponse.class);
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
