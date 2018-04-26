@@ -12,6 +12,18 @@ import com.timgroup.tucker.info.Status;
  * @see java.lang.System#getProperties
  */
 public class JvmVersionComponent extends Component {
+    public static final String versionInfoString;
+
+    static {
+        String basicVersion = System.getProperty("java.version");
+        String vendorVersion = System.getProperty("java.vendor.version");
+        if (basicVersion.equals("10")) {
+            versionInfoString = vendorVersion;
+        }
+        else {
+            versionInfoString = basicVersion;
+        }
+    }
 
     public JvmVersionComponent() {
         super("jvmversion", "JVM Version");
@@ -19,7 +31,7 @@ public class JvmVersionComponent extends Component {
 
     @Override
     public Report getReport() {
-        return new Report(Status.INFO, System.getProperty("java.version"));
+        return new Report(Status.INFO, versionInfoString);
     }
 
 }
