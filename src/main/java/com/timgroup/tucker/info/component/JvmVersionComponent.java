@@ -17,8 +17,8 @@ public class JvmVersionComponent extends Component {
     static {
         String basicVersion = System.getProperty("java.version");
         String vendorVersion = System.getProperty("java.vendor.version");
-        if (basicVersion.equals("10")) {
-            versionInfoString = vendorVersion;
+        if (basicVersion.equals("10") || basicVersion.startsWith("10.")) {
+            versionInfoString = basicVersion + " (" + vendorVersion + ")";
         }
         else {
             versionInfoString = basicVersion;
