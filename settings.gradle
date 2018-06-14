@@ -1,1 +1,3 @@
 rootProject.name = "Tucker"
+
+enableFeaturePreview('STABLE_PUBLISHING')

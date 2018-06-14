@@ -50,6 +50,20 @@ dependencies {
     testRuntime "org.slf4j:slf4j-simple:$slf4jVersion"
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+assemble.dependsOn(sourcesJar)
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+assemble.dependsOn(javadocJar)
+
 publishing {
     repositories {
         if (project.hasProperty("repoUrl")) {
@@ -94,17 +108,3 @@ publishing {
         }
     }
 }
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-assemble.dependsOn(sourcesJar)
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-assemble.dependsOn(javadocJar)
