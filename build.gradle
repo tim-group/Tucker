@@ -25,7 +25,6 @@ tasks.withType(JavaCompile).all {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
     options.encoding = "UTF-8"
-    options.incremental = true
     options.deprecation = true
     options.compilerArgs << "-parameters"
 }
