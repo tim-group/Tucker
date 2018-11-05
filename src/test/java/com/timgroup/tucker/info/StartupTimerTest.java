@@ -26,6 +26,6 @@ public class StartupTimerTest {
 
         Thread.sleep(20L);
 
-        Mockito.verify(logger).info("{\"eventType\":\"JvmUptimeAtFirstHealthy\",\"event\":{\"durationSeconds\":1}}");
+        Mockito.verify(logger).info("{\"eventType\":\"JvmUptimeAtFirstHealthy\",\"event\":{\"durationSeconds\":1},\"retention_period\":\"long\"}");
     }
 }

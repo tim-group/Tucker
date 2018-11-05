@@ -40,6 +40,6 @@ public final class StartupTimer {
         }
 
         long jvmUptimeSeconds = (long) Math.ceil((double) runtimeMXBean.getUptime() / 1000.0);
-        logger.info("{\"eventType\":\"JvmUptimeAtFirstHealthy\",\"event\":{\"durationSeconds\":" + jvmUptimeSeconds + "}}");
+        logger.info("{\"eventType\":\"JvmUptimeAtFirstHealthy\",\"event\":{\"durationSeconds\":" + jvmUptimeSeconds + "},\"retention_period\":\"long\"}");
     }
 }
