@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.math.RoundingMode;
 import java.time.Duration;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public final class StartupTimer {
 
@@ -16,6 +13,7 @@ public final class StartupTimer {
     private final RuntimeMXBean runtimeMXBean;
     private final Health health;
     private final Duration pollingInterval;
+    private volatile boolean stopRequested;
 
     public StartupTimer(Health health) {
         this(LoggerFactory.getLogger(StartupTimer.class), ManagementFactory.getRuntimeMXBean(), health, Duration.ofSeconds(1L));
@@ -29,11 +27,20 @@ public final class StartupTimer {
     }
 
     public void start() {
-        Executors.newSingleThreadExecutor().execute(this::checkAndLogHealth);
+        Thread thread = new Thread(this::checkAndLogHealth);
+        thread.setName("StartupTimer");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    public void stop() {
+        stopRequested = true;
     }
 
     private void checkAndLogHealth() {
         while (health.get() != Health.State.healthy) {
+            if (stopRequested)
+                return;
             try {
                 Thread.sleep(pollingInterval.toMillis());
             } catch (InterruptedException ignored) {}

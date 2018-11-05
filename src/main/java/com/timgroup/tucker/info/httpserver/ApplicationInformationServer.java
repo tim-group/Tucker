@@ -1,6 +1,11 @@
 package com.timgroup.tucker.info.httpserver;
 
-import static java.util.concurrent.Executors.newFixedThreadPool;
+import com.sun.net.httpserver.HttpServer;
+import com.timgroup.tucker.info.ApplicationInformationHandler;
+import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.StartupTimer;
+import com.timgroup.tucker.info.Stoppable;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -9,12 +14,7 @@ import java.net.URI;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.net.httpserver.HttpServer;
-import com.timgroup.tucker.info.ApplicationInformationHandler;
-import com.timgroup.tucker.info.Health;
-import com.timgroup.tucker.info.Stoppable;
-import com.timgroup.tucker.info.StartupTimer;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class ApplicationInformationServer {
 
@@ -23,23 +23,24 @@ public class ApplicationInformationServer {
     }
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
-        new StartupTimer(health).start();
-        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health));
+        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health), health);
     }
 
-    private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler) throws IOException {
-        return new ApplicationInformationServer(port, handler);
+    private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler, Health health) throws IOException {
+        return new ApplicationInformationServer(port, handler, health);
     }
 
     private final String hostname;
     private final HttpServer server;
+    private final StartupTimer startupTimer;
 
-    private ApplicationInformationServer(int port, ApplicationInformationHandler handler) throws IOException {
+    private ApplicationInformationServer(int port, ApplicationInformationHandler handler, Health health) throws IOException {
         this.hostname = defaultHostname();
         URI potentialBaseUri = URI.create(String.format("http://%s:%d/info", hostname, port));
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext(potentialBaseUri.getPath(), new ApplicationInformationHttpHandler(handler, potentialBaseUri));
         server.setExecutor(newFixedThreadPool(5, new TuckerThreadFactory()));
+        startupTimer = new StartupTimer(health);
     }
 
     private static String defaultHostname() {
@@ -55,10 +56,12 @@ public class ApplicationInformationServer {
     }
 
     public void start() {
+        startupTimer.start();
         server.start();
     }
 
     public void stop() {
+        startupTimer.stop();
         server.stop(0);
     }
 
