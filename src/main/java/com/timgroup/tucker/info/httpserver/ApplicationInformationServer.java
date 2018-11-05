@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,20 +13,22 @@ import com.sun.net.httpserver.HttpServer;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
+import com.timgroup.tucker.info.StartupTimer;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class ApplicationInformationServer {
 
-    public static ApplicationInformationServer create(int port, ApplicationInformationHandler handler) throws IOException {
-        return new ApplicationInformationServer(port, handler);
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
+        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
+        new StartupTimer(health).start();
         return create(port, new ApplicationInformationHandler(statusPage, stoppable, health));
     }
 
-    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
-        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
+    private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler) throws IOException {
+        return new ApplicationInformationServer(port, handler);
     }
 
     private final String hostname;
