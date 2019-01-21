@@ -38,14 +38,19 @@ public final class StartupTimer {
     }
 
     private void checkAndLogHealth() {
-        while (health.get() != Health.State.healthy) {
-            if (stopRequested)
-                return;
-            try {
-                Thread.sleep(pollingInterval.toMillis());
-            } catch (InterruptedException ignored) {}
+        try {
+            while (health.get() != Health.State.healthy) {
+                if (stopRequested)
+                    return;
+                try {
+                    Thread.sleep(pollingInterval.toMillis());
+                } catch (InterruptedException ignored) {
+                }
+            }
+        } catch (Throwable t) {
+            logger.error("Error occurred whilst waiting for healthy status", t);
+            throw t;
         }
-
         long jvmUptimeSeconds = (long) Math.ceil((double) runtimeMXBean.getUptime() / 1000.0);
         logger.info("{\"eventType\":\"JvmUptimeAtFirstHealthy\",\"event\":{\"durationSeconds\":" + jvmUptimeSeconds + "},\"retention_period\":\"long\"}");
     }
