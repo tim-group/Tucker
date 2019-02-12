@@ -19,11 +19,7 @@ import static org.mockito.Mockito.verify;
 
 public class PendingUntilComponentTest {
 
-    private final Component criticalComponent = new Component("always-critical", "Critical Label") {
-        @Override public Report getReport() {
-            return new Report(Status.CRITICAL, "I am critical");
-        }
-    };
+    private final Component criticalComponent = Component.supplyReport("always-critical", "Critical Label", () -> new Report(Status.CRITICAL, "I am critical"));
 
     private final Instant pendingUntil = Instant.parse("2017-11-30T12:47:33.651Z");
     private final Clock clockJustBeforePendingUntil = Clock.fixed(pendingUntil.minusSeconds(1), ZoneId.systemDefault());
@@ -41,12 +37,7 @@ public class PendingUntilComponentTest {
 
     @Test public void
     returnsInfoStatusIfWrappedComponentThrowsUncaughtException() {
-        Component exceptionThrowingComponent = new Component("test", "test") {
-            @Override
-            public Report getReport() {
-                throw new IllegalStateException("I will always throw an exception");
-            }
-        };
+        Component exceptionThrowingComponent = Component.supplyReport("test", "test", () -> { throw new IllegalStateException("I will always throw an exception"); });
         PendingUntilComponent pending = new PendingUntilComponent(exceptionThrowingComponent, pendingUntil, clockJustBeforePendingUntil, PendingComponent.NO_OP);
 
         assertThat(pending.getReport().getStatus(), is(Status.INFO));
@@ -70,12 +61,7 @@ public class PendingUntilComponentTest {
     @Test public void
     notifiesCallBackOfComponentStateChange() {
         AtomicReference<Report> theReport = new AtomicReference<>(new Report(Status.OK, "I'm fine"));
-        Component changingStatusComponent = new Component("test", "test") {
-            @Override
-            public Report getReport() {
-                return theReport.get();
-            }
-        };
+        Component changingStatusComponent = Component.supplyReport("test", "test", theReport::get);
 
         ComponentStateChangeCallback callback = mock(ComponentStateChangeCallback.class);
 

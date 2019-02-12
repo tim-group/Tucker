@@ -1,16 +1,16 @@
 package com.timgroup.tucker.info.async;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import org.junit.After;
 import org.junit.Test;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.timgroup.tucker.info.Status.OK;
 import static com.timgroup.tucker.info.Status.WARNING;
@@ -31,11 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class AsyncComponentSchedulerTest {
     private AsyncComponentScheduler scheduler;
 
-    private Component healthyWellBehavedComponent = new Component("my-test-component-id", "My Test Component Label") {
-        @Override public Report getReport() {
-            return new Report(OK, "It's all good.");
-        }
-    };
+    private final Component healthyWellBehavedComponent = Component.supplyReport("my-test-component-id", "My Test Component Label", () -> new Report(OK, "It's all good."));
     
     private AsyncComponentScheduler schedule(AsyncComponent asyncComponent) {
         if (scheduler != null) {
@@ -146,17 +142,15 @@ public class AsyncComponentSchedulerTest {
     }
 
     private Component neverReturnsComponent(final TestingSemaphore invoked) {
-        return new Component("my-never-returning-component-id", "My Never Returning Component") {
-            @Override public Report getReport() {
-                try {
-                    invoked.completed();
-                    new CountDownLatch(1).await();
-                } catch (InterruptedException e) {
-                    throw new AssertionError(e);
-                }
-                throw new IllegalStateException("Should never have completed");
+        return Component.supplyReport("my-never-returning-component-id", "My Never Returning Component", () -> {
+            try {
+                invoked.completed();
+                new CountDownLatch(1).await();
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
             }
-        };
+            throw new IllegalStateException("Should never have completed");
+        });
     }
 
     @Test
@@ -200,18 +194,15 @@ public class AsyncComponentSchedulerTest {
     }
     
     private Component nthCallNeverReturns(final int callsThatWillReturnQuickly) {
-        return new Component("my-eventually-never-returns-component-id", "My Eventually Never Returns Component") {
-            private final Semaphore quickReturnSemaphore = new Semaphore(callsThatWillReturnQuickly);
-
-            @Override public Report getReport() {
-                try {
-                    quickReturnSemaphore.acquire();
-                    return new Report(OK, "Everything's fine");
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        Semaphore quickReturnSemaphore = new Semaphore(callsThatWillReturnQuickly);
+        return Component.supplyReport("my-eventually-never-returns-component-id", "My Eventually Never Returns Component", () -> {
+            try {
+                quickReturnSemaphore.acquire();
+                return new Report(OK, "Everything's fine");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        };
+        });
     }
 
     @Test
@@ -240,16 +231,13 @@ public class AsyncComponentSchedulerTest {
     }
     
     private Component initiallyThrowsExceptionComponent() {
-        return new Component("my-initially-throws-exception-id", "My Initially Throws Exception Component") {
-            private AtomicInteger timesCalled = new AtomicInteger(0);
-
-            @Override public Report getReport() {
-                if (timesCalled.getAndIncrement() == 0) {
-                    throw new IllegalStateException("Thrown by component");
-                }
-                return new Report(OK, "Recovered");
+        AtomicInteger timesCalled = new AtomicInteger(0);
+        return Component.supplyReport("my-initially-throws-exception-id", "My Initially Throws Exception Component", () -> {
+            if (timesCalled.getAndIncrement() == 0) {
+                throw new IllegalStateException("Thrown by component");
             }
-        };
+            return new Report(OK, "Recovered");
+        });
     }
 
     @Test
@@ -294,12 +282,9 @@ public class AsyncComponentSchedulerTest {
     }
     
     private Component throwsErrorComponent(final TestingSemaphore componentInvoked) {
-        return new Component("my-error-throwing-component-id", "My Error-Throwing Component") {
-            @Override public Report getReport() {
-                componentInvoked.completed();
-                throw new NoSuchMethodError("Unrecoverable error from component");
-            }
-        };
+        return Component.supplyReport("my-error-throwing-component-id", "My Error-Throwing Component", () -> {
+            componentInvoked.completed();
+            throw new NoSuchMethodError("Unrecoverable error from component");
+        });
     }
-
 }

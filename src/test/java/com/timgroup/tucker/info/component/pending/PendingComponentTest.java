@@ -1,12 +1,12 @@
 package com.timgroup.tucker.info.component.pending;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.ComponentStateChangeCallback;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.String.valueOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,11 +16,7 @@ import static org.mockito.Mockito.verify;
 
 public class PendingComponentTest {
 
-    private final Component criticalComponent = new Component("always-critical", "Critical Label") {
-        @Override public Report getReport() {
-            return new Report(Status.CRITICAL, "I am critical");
-        }
-    };
+    private final Component criticalComponent = Component.supplyReport("always-critical", "Critical Label", () -> new Report(Status.CRITICAL, "I am critical"));
 
     @Test public void
     returnsInfoStatusRegardlessOfWrappedComponentStatus() {
@@ -31,12 +27,7 @@ public class PendingComponentTest {
 
     @Test public void
     returnsInfoStatusIfWrappedComponentThrowsUncaughtException() {
-        Component exceptionThrowingComponent = new Component("test", "test") {
-            @Override
-            public Report getReport() {
-                throw new IllegalStateException("I will always throw an exception");
-            }
-        };
+        Component exceptionThrowingComponent = Component.supplyReport("test", "test", () -> { throw new IllegalStateException("I will always throw an exception"); });
         PendingComponent pending = new PendingComponent(exceptionThrowingComponent, PendingComponent.NO_OP);
 
         assertThat(pending.getReport().getStatus(), is(Status.INFO));
@@ -53,12 +44,7 @@ public class PendingComponentTest {
     @Test public void
     notifiesCallBackOfComponentStateChange() {
         AtomicReference<Report> theReport = new AtomicReference<>(new Report(Status.OK, "I'm fine"));
-        Component changingStatusComponent = new Component("test", "test") {
-            @Override
-            public Report getReport() {
-                return theReport.get();
-            }
-        };
+        Component changingStatusComponent = Component.supplyReport("test", "test", theReport::get);
 
         ComponentStateChangeCallback callback = mock(ComponentStateChangeCallback.class);
 

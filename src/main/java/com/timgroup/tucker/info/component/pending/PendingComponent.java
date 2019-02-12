@@ -11,9 +11,7 @@ import static java.lang.String.valueOf;
 
 public final class PendingComponent extends Component {
 
-    public static final ComponentStateChangeCallback NO_OP = new ComponentStateChangeCallback() {
-        @Override public void stateChanged(Component component, Report previous, Report current) { }
-    };
+    public static final ComponentStateChangeCallback NO_OP = (component, previous, current) -> { };
 
     public static final ComponentStateChangeCallback LOGGING_CALLBACK = new LoggingCallback();
 

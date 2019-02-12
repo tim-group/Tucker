@@ -1,12 +1,12 @@
 package com.timgroup.tucker.info.async;
 
-import java.net.URI;
-import java.time.Duration;
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import org.junit.Test;
+
+import java.net.URI;
+import java.time.Duration;
 
 import static com.timgroup.tucker.info.Status.INFO;
 import static com.timgroup.tucker.info.Status.OK;
@@ -22,11 +22,7 @@ import static org.mockito.Mockito.verify;
 
 public class AsyncComponentTest {
 
-    private final Component healthyWellBehavedComponent = new Component("my-test-component-id", "My Test Component Label") {
-        @Override public Report getReport() {
-            return new Report(OK, "It's all good.");
-        }
-    };
+    private final Component healthyWellBehavedComponent = Component.supplyReport("my-test-component-id", "My Test Component Label", () -> new Report(OK, "It's all good."));
     
     @Test
     public void returnsIdAndLabelOfWrappedComponent() {
@@ -59,12 +55,7 @@ public class AsyncComponentTest {
     @Test
     public void returnsWarningWhenComponentFails() {
         Error error = new Error();
-        Component failingComponent = new Component("test", "test") {
-            @Override
-            public Report getReport() {
-                throw error;
-            }
-        };
+        Component failingComponent = Component.supplyReport("test", "test", () -> { throw error; });
         AsyncComponent asyncComponent = AsyncComponent.wrapping(failingComponent);
 
         asyncComponent.update();
