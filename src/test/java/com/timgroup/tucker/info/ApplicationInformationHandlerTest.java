@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import static com.timgroup.tucker.info.Stoppable.State.safe;
 import static com.timgroup.tucker.info.Stoppable.State.unwise;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
