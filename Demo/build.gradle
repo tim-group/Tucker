@@ -31,3 +31,13 @@ mainClassName = 'infrastructure.JettyLauncher'
 run {
     args = [httpPort.toString()]
 }
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId "Tucker-Demo"
+            from components.java
+        }
+    }
+}
