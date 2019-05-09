@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 
 public class PendingUntilComponentTest {
 
-    private final Component criticalComponent = Component.supplyReport("always-critical", "Critical Label", () -> new Report(Status.CRITICAL, "I am critical"));
+    private final Component criticalComponent = Component.of("always-critical", "Critical Label", new Report(Status.CRITICAL, "I am critical"));
 
     private final Instant pendingUntil = Instant.parse("2017-11-30T12:47:33.651Z");
     private final Clock clockJustBeforePendingUntil = Clock.fixed(pendingUntil.minusSeconds(1), ZoneId.systemDefault());

@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 
 public class AsyncComponentTest {
 
-    private final Component healthyWellBehavedComponent = Component.supplyReport("my-test-component-id", "My Test Component Label", () -> new Report(OK, "It's all good."));
+    private final Component healthyWellBehavedComponent = Component.of("my-test-component-id", "My Test Component Label", new Report(OK, "It's all good."));
     
     @Test
     public void returnsIdAndLabelOfWrappedComponent() {
@@ -71,7 +71,7 @@ public class AsyncComponentTest {
         AsyncComponentListener asyncComponentListener = mock(AsyncComponentListener.class);
 
         AsyncSettings settings = AsyncSettings.settings().withRepeatSchedule(Duration.ofSeconds(1)).withUpdateHook(updateHook);
-        AsyncComponent asyncComponent = AsyncComponent.wrapping(Component.supplyInfo("test", "test", () -> "test"), settings).withListener(asyncComponentListener);
+        AsyncComponent asyncComponent = AsyncComponent.wrapping(Component.info("test", "test", "test"), settings).withListener(asyncComponentListener);
 
         Component wrapped = asyncComponent.mapValue(v -> v + "test").withRunbook(URI.create("http://www.example.com")).withStatusNoWorseThan(Status.WARNING);
 

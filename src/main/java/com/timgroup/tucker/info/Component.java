@@ -87,6 +87,21 @@ public abstract class Component {
         return mapReport(r -> r.withStatusNoWorseThan(notWorse));
     }
 
+    public static Component of(String id, String label, Report report) {
+        requireNonNull(report);
+        return new Component(id, label) {
+            @Override
+            public Report getReport() {
+                return report;
+            }
+
+            @Override
+            public String toString() {
+                return getId() + ":" + report;
+            }
+        };
+    }
+
     public static Component supplyReport(String id, String label, Supplier<Report> supplier) {
         requireNonNull(supplier);
         return new Component(id, label) {
@@ -98,6 +113,21 @@ public abstract class Component {
             @Override
             public String toString() {
                 return getId() + ":" + supplier;
+            }
+        };
+    }
+
+    public static Component info(String id, String label, String info) {
+        Report report = new Report(Status.INFO, info);
+        return new Component(id, label) {
+            @Override
+            public Report getReport() {
+                return report;
+            }
+
+            @Override
+            public String toString() {
+                return getId() + ":info:" + info;
             }
         };
     }

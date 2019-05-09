@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 
 public class StatusChangedAdapterTest {
-    private Component component = Component.supplyInfo("my-component-id", "My Component", () -> "nothing to see here");
+    private Component component = Component.info("my-component-id", "My Component", "nothing to see here");
     private ComponentStateChangeCallback mockCallback = mock(ComponentStateChangeCallback.class);
     private StatusChangedAdapter adapter = new StatusChangedAdapter(component, mockCallback);
 

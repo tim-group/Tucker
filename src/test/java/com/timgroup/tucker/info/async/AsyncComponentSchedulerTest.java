@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class AsyncComponentSchedulerTest {
     private AsyncComponentScheduler scheduler;
 
-    private final Component healthyWellBehavedComponent = Component.supplyReport("my-test-component-id", "My Test Component Label", () -> new Report(OK, "It's all good."));
+    private final Component healthyWellBehavedComponent = Component.of("my-test-component-id", "My Test Component Label", new Report(OK, "It's all good."));
     
     private AsyncComponentScheduler schedule(AsyncComponent asyncComponent) {
         if (scheduler != null) {

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 
 public class PendingComponentTest {
 
-    private final Component criticalComponent = Component.supplyReport("always-critical", "Critical Label", () -> new Report(Status.CRITICAL, "I am critical"));
+    private final Component criticalComponent = Component.of("always-critical", "Critical Label", new Report(Status.CRITICAL, "I am critical"));
 
     @Test public void
     returnsInfoStatusRegardlessOfWrappedComponentStatus() {

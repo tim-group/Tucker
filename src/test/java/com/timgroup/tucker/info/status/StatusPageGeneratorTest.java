@@ -119,7 +119,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnInformativeComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Number of coincidences today", () -> new Report(Status.INFO, 23)));
+        statusPage.addComponent(Component.of("mycomponent", "Number of coincidences today", new Report(Status.INFO, 23)));
         
         Document document = render(statusPage);
         
@@ -137,7 +137,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnInformativeComponentStatusToJSON() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Number of coincidences today", () -> new Report(Status.INFO, 23)));
+        statusPage.addComponent(Component.of("mycomponent", "Number of coincidences today", new Report(Status.INFO, 23)));
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
@@ -154,7 +154,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddANormativeComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Number of coincidences today", () -> new Report(Status.CRITICAL, 23)));
+        statusPage.addComponent(Component.of("mycomponent", "Number of coincidences today", new Report(Status.CRITICAL, 23)));
         
         Document document = render(statusPage);
         
@@ -172,7 +172,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddANormativeComponentStatusToJSON() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Number of coincidences today", () -> new Report(Status.CRITICAL, 23)));
+        statusPage.addComponent(Component.of("mycomponent", "Number of coincidences today", new Report(Status.CRITICAL, 23)));
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
@@ -189,7 +189,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddANormativeComponentStatusWithoutAValue() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Eschatological immanency", () -> new Report(Status.CRITICAL)));
+        statusPage.addComponent(Component.of("mycomponent", "Eschatological immanency", new Report(Status.CRITICAL)));
         
         Document document = render(statusPage);
         
@@ -207,7 +207,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddANormativeComponentStatusWithoutAValueToJSON() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Eschatological immanency", () -> new Report(Status.CRITICAL)));
+        statusPage.addComponent(Component.of("mycomponent", "Eschatological immanency", new Report(Status.CRITICAL)));
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
@@ -275,8 +275,8 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnOptionalRunbookToReportAndLocationWillBePrintedInComponentStatus() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Red wire or green wire",
-                () -> new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com"))));
+        statusPage.addComponent(Component.of("mycomponent", "Red wire or green wire",
+                new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com"))));
 
         Document document = render(statusPage);
 
@@ -290,8 +290,8 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddAnOptionalRunbookToReportAndItWillOverrideUncaughtExceptionRunbook() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Red wire or green wire",
-                () -> new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com")))
+        statusPage.addComponent(Component.of("mycomponent", "Red wire or green wire",
+                new Report(Status.CRITICAL, "brown wire?", new Runbook("http://the-solution-is-described-here.com")))
                 .withRunbook(new Runbook("http://uncaught-exception-runbook.com")));
 
         Document document = render(statusPage);
@@ -311,7 +311,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void optionalRunbookFromComponentIsDisplayedIfReportDoesNotProvideOne() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Red wire or green wire", () -> new Report(Status.CRITICAL, "brown wire?"))
+        statusPage.addComponent(Component.of("mycomponent", "Red wire or green wire", new Report(Status.CRITICAL, "brown wire?"))
                 .withRunbook(new Runbook("http://uncaught-exception-runbook.com")));
 
         Document document = render(statusPage);
@@ -328,8 +328,8 @@ public class StatusPageGeneratorTest {
     @Test
     public void canAddOptionalRunbookToReportAndItWillBeIncludedInJson() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Eschatological immanency",
-                () -> new Report(Status.CRITICAL).withRunbook(new Runbook("http://the-solution-is-described-here.com"))));
+        statusPage.addComponent(Component.of("mycomponent", "Eschatological immanency",
+                new Report(Status.CRITICAL).withRunbook(new Runbook("http://the-solution-is-described-here.com"))));
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
@@ -339,7 +339,7 @@ public class StatusPageGeneratorTest {
     @Test
     public void whenOptionalRunbookIsNotIncludedItIsNullInJson() throws Exception {
         StatusPageGenerator statusPage = new StatusPageGenerator("myapp", version);
-        statusPage.addComponent(Component.supplyReport("mycomponent", "Eschatological immanency", () -> new Report(Status.CRITICAL)));
+        statusPage.addComponent(Component.of("mycomponent", "Eschatological immanency", new Report(Status.CRITICAL)));
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 

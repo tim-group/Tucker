@@ -1,12 +1,12 @@
 package com.timgroup.tucker.info.component;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.util.Optional;
-
 import com.sun.management.UnixOperatingSystemMXBean;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.util.Optional;
 
 import static com.timgroup.tucker.info.Status.CRITICAL;
 import static com.timgroup.tucker.info.Status.INFO;
@@ -37,7 +37,7 @@ public final class FileDescriptorComponent extends Component {
     public static Component create(String id, String label) {
         return FileDescriptorProvider.getDefault()
                 .map(provider -> Component.supplyReport(id, label, () -> report(provider)))
-                .orElseGet(() -> Component.supplyInfo(id, label, () -> "File descriptor usage not applicable on this platform"));
+                .orElseGet(() -> Component.info(id, label, "File descriptor usage not applicable on this platform"));
     }
 
     public interface FileDescriptorProvider {
