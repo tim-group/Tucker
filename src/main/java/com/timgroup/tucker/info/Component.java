@@ -147,15 +147,19 @@ public abstract class Component {
         };
     }
 
-    public static Component combine(String id, String label, BinaryOperator<Object> operator, Component... components) {
+    public static Component combine(String id, String label, BinaryOperator<Status> statusOperator, BinaryOperator<Object> valueOperator, Component... components) {
         if (components.length == 0) throw new IllegalArgumentException("components must not be empty");
         return supplyReport(id, label, () -> {
             Report[] reports = new Report[components.length];
             for (int i = 0; i < components.length; i++) {
                 reports[i] = components[i].getReport();
             }
-            return Report.combine(operator, reports);
+            return Report.combine(statusOperator, valueOperator, reports);
         });
+    }
+
+    public static Component combine(String id, String label, BinaryOperator<Object> operator, Component... components) {
+        return combine(id, label, Status::or, operator, components);
     }
 
     public static Component combineStringValues(String id, String label, BinaryOperator<String> operator, Component... components) {

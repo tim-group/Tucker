@@ -70,10 +70,13 @@ public final class Report {
         return this;
     }
 
-    public static Report combine(BinaryOperator<Object> operator, Report... reports) {
+    public static Report combine(BinaryOperator<Status> statusOperator, BinaryOperator<Object> valueOperator, Report... reports) {
         if (reports.length == 0) throw new IllegalArgumentException("reports must not be empty");
-        //noinspection ConstantConditions
-        return Arrays.stream(reports).reduce((r1, r2) -> new Report(r1.status.or(r2.status), operator.apply(r1.value, r2.value), r1.runbook != null ? r1.runbook : r2.runbook)).get();
+        return Arrays.stream(reports).reduce((r1, r2) -> new Report(statusOperator.apply(r1.status, r2.status), valueOperator.apply(r1.value, r2.value), r1.runbook != null ? r1.runbook : r2.runbook)).get();
+    }
+
+    public static Report combine(BinaryOperator<Object> operator, Report... reports) {
+        return combine(Status::or, operator, reports);
     }
 
     public static Report combineStringValues(BinaryOperator<String> operator, Report... reports) {

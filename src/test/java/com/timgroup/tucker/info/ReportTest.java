@@ -1,10 +1,12 @@
 package com.timgroup.tucker.info;
 
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Test;
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -54,5 +56,14 @@ public class ReportTest {
         assertEquals(Status.OK, new Report(Status.WARNING, null).withStatusNoWorseThan(Status.OK).getStatus());
         assertEquals(Status.OK, new Report(Status.CRITICAL, null).withStatusNoWorseThan(Status.OK).getStatus());
         assertEquals(Status.INFO, new Report(Status.OK, null).withStatusNoWorseThan(Status.INFO).getStatus());
+    }
+
+    @Test
+    public void joinStringValues() throws Exception {
+        Report r1 = new Report(Status.OK, "nothing happening");
+        Report r2 = new Report(Status.CRITICAL, "this is fine");
+        Report report = Report.joinStringValues(r1, r2);
+
+        assertThat(report, equalTo(new Report(Status.CRITICAL, "nothing happening\nthis is fine")));
     }
 }
