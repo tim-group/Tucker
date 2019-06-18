@@ -1,26 +1,25 @@
 package infrastructure;
 
-import static java.lang.Integer.parseInt;
-
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.AvailableComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static java.lang.Integer.parseInt;
 
 public class JettyLauncher {
 
@@ -41,7 +40,9 @@ public class JettyLauncher {
         StatusPageGenerator statusPage = new StatusPageGenerator("reference-implementation", new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(availableComponent);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
+        MetricRegistry registry = new MetricRegistry();
+
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, registry);
 
         context.getServletHandler().setStartWithUnavailable(false);
         context.addServlet(new ServletHolder(statusPageServlet), "/info/*");

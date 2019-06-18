@@ -1,5 +1,6 @@
 package com.timgroup.tucker.demo;
 
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
@@ -9,13 +10,12 @@ import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import java.net.URL;
 
 @SuppressWarnings("serial")
 public class DemoStatusPageServlet extends ApplicationInformationServlet {
 
     public DemoStatusPageServlet() {
-        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
+        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new MetricRegistry());
     }
 
     private static StatusPageGenerator statusPage() {

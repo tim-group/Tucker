@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info;
 
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 import org.junit.Test;
@@ -10,7 +11,10 @@ import java.io.OutputStream;
 
 import static com.timgroup.tucker.info.Stoppable.State.safe;
 import static com.timgroup.tucker.info.Stoppable.State.unwise;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -130,5 +134,31 @@ public class ApplicationInformationHandlerTest {
         handler.handle("/status", response);
 
         verify(responseContent).close();
+    }
+
+    @Test
+    public void prints_all_metrics_in_plain_text() throws IOException {
+        MetricRegistry metricRegistry = new MetricRegistry();
+        metricRegistry.counter("my_first_metric").inc();
+        metricRegistry.histogram("my_first_histogram").update(42);
+
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, metricRegistry);
+
+        final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
+
+        final WebResponse response = mock(WebResponse.class);
+        when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
+
+        handler.handle("/metrics", response);
+
+        verify(response).respond("text/plain", "UTF-8");
+        assertThat(responseContent.toString(), allOf(
+                containsString("my_first_metric.count 1\n"),
+                containsString("\nmy_first_histogram.count 1\n"),
+                containsString("\nmy_first_histogram.min 42\n"),
+                containsString("\nmy_first_histogram.max 42\n"),
+                containsString("\nmy_first_histogram.p999 42.00\n")
+
+        ));
     }
 }

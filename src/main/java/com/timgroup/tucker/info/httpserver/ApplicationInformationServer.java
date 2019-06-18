@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.httpserver;
 
+import com.codahale.metrics.MetricRegistry;
 import com.sun.net.httpserver.HttpServer;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
@@ -18,12 +19,28 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class ApplicationInformationServer {
 
+    /**
+     * Deprecated as it will use a default, empty MetricRegistry. Pass your application's MetricRegistry instead.
+     */
+    @Deprecated
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health, MetricRegistry metricRegistry) throws IOException {
+        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health, metricRegistry);
+    }
+
+    /**
+     * Deprecated as it will use a default, empty MetricRegistry. Pass your application's MetricRegistry instead.
+     */
+    @Deprecated
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
-        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health), health);
+        return create(port, statusPage, stoppable, health, new MetricRegistry());
+    }
+
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) throws IOException {
+        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry), health);
     }
 
     private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler, Health health) throws IOException {

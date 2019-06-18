@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.servlet;
 
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.StartupTimer;
@@ -31,8 +32,19 @@ public class ApplicationInformationServlet extends HttpServlet {
      * @param health Indicator for application health
      */
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
+        this(statusPage, stoppable, health, new MetricRegistry());
+    }
+
+    /**
+     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
+     *
+     * @param statusPage Status page generator
+     * @param stoppable Indicator for stoppability
+     * @param health Indicator for application health
+     */
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
         this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry);
         this.startupTimer = new StartupTimer(health);
     }
 
@@ -45,7 +57,20 @@ public class ApplicationInformationServlet extends HttpServlet {
      */
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
         this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, new MetricRegistry());
+        this.startupTimer = new StartupTimer(health);
+    }
+
+    /**
+     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
+     *
+     * @param applicationId Application name
+     * @param stoppable Indicator for stoppability
+     * @param health Indicator for application health
+     */
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
+        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry);
         this.startupTimer = new StartupTimer(health);
     }
 

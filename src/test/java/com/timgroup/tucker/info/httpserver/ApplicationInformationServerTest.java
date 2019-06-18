@@ -1,5 +1,17 @@
 package com.timgroup.tucker.info.httpserver;
 
+import com.codahale.metrics.MetricRegistry;
+import com.timgroup.tucker.info.component.JarVersionComponent;
+import com.timgroup.tucker.info.status.StatusPageGenerator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+
 import static com.timgroup.tucker.info.Health.ALWAYS_HEALTHY;
 import static com.timgroup.tucker.info.Stoppable.ALWAYS_STOPPABLE;
 import static com.timgroup.tucker.info.httpserver.ApplicationInformationServer.create;
@@ -7,18 +19,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.timgroup.tucker.info.component.JarVersionComponent;
-import com.timgroup.tucker.info.status.StatusPageGenerator;
 
 public class ApplicationInformationServerTest {
     StatusPageGenerator statusPage;
@@ -28,7 +28,7 @@ public class ApplicationInformationServerTest {
     @Before public void
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
-        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new MetricRegistry());
         server.start();
     }
 

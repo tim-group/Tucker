@@ -1,8 +1,6 @@
 package com.timgroup.tucker.info.httpserver;
 
-import java.io.IOException;
-import java.time.ZonedDateTime;
-
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
@@ -10,12 +8,19 @@ import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 
+import java.io.IOException;
+import java.time.ZonedDateTime;
+
 public class ApplicationInformationServerDemo {
 
     public static void main(String[] args) throws IOException {
         StatusPageGenerator statusPage = new StatusPageGenerator("tuckerDemo", new JarVersionComponent(Object.class));
         statusPage.addComponent(new TimeComponent());
-        ApplicationInformationServer server = ApplicationInformationServer.create(choosePort(args), statusPage, Health.ALWAYS_HEALTHY);
+
+        MetricRegistry metricRegistry = new MetricRegistry();
+        metricRegistry.counter("my_applications_special_counter_metric").inc();
+
+        ApplicationInformationServer server = ApplicationInformationServer.create(choosePort(args), statusPage, Health.ALWAYS_HEALTHY, metricRegistry);
         server.start();
 
         System.out.println(server.getBase());
