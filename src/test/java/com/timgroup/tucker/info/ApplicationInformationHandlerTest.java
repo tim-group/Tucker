@@ -153,11 +153,11 @@ public class ApplicationInformationHandlerTest {
 
         verify(response).respond("text/plain", "UTF-8");
         assertThat(responseContent.toString(), allOf(
-                containsString("my_first_metric.count 1\n"),
-                containsString("\nmy_first_histogram.count 1\n"),
+                containsString("my_first_histogram.count 1\n"),
                 containsString("\nmy_first_histogram.min 42\n"),
                 containsString("\nmy_first_histogram.max 42\n"),
-                containsString("\nmy_first_histogram.p999 42.00\n")
+                containsString("\nmy_first_histogram.p999 42.00\n"),
+                containsString("my_first_metric.count 1\n")
 
         ));
     }
