@@ -18,8 +18,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Runtime.getRuntime;
 
 public class JettyLauncher {
 
@@ -41,6 +43,7 @@ public class JettyLauncher {
         statusPage.addComponent(availableComponent);
 
         MetricRegistry registry = new MetricRegistry();
+        registry.gauge("uptime", () -> ManagementFactory.getRuntimeMXBean()::getUptime);
 
         ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, registry);
 
@@ -50,10 +53,6 @@ public class JettyLauncher {
         context.addServlet(new ServletHolder(new MakeAvailableServlet()), "/makeavailable");
         context.addServlet(new ServletHolder(new MakeUnvailableServlet()), "/makeunavailable");
         server.setHandler(context);
-    }
-
-    public void sink() throws Exception {
-        server.stop();
     }
 
     public void launch() throws Exception {
@@ -82,7 +81,9 @@ public class JettyLauncher {
     }
 
     public static void main(String[] args) throws Exception {
-        new JettyLauncher(parseInt(args[0])).launch();
+        JettyLauncher jettyLauncher = new JettyLauncher(parseInt(args[0]));
+        jettyLauncher.launch();
+        getRuntime().addShutdownHook(new Thread(jettyLauncher::stopQuietly, "shutdown"));
     }
 
     private class MakeAvailableServlet extends HttpServlet {
