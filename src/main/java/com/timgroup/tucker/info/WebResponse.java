@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public interface WebResponse {
+
+    void setHeader(String name, String value) throws IOException;
     
-    public OutputStream respond(String contentType, String characterEncoding) throws IOException;
+    OutputStream respond(String contentType, String characterEncoding) throws IOException;
     
-    public void reject(int status, String message) throws IOException;
+    void reject(int status, String message) throws IOException;
     
-    public void redirect(String relativePath) throws IOException;
+    void redirect(String relativePath) throws IOException;
     
 }

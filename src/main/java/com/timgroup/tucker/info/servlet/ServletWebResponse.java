@@ -1,12 +1,11 @@
 package com.timgroup.tucker.info.servlet;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import com.timgroup.tucker.info.WebResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.timgroup.tucker.info.WebResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class ServletWebResponse implements WebResponse {
     
@@ -17,7 +16,12 @@ public class ServletWebResponse implements WebResponse {
         this.request = request;
         this.response = servletResponse;
     }
-    
+
+    @Override
+    public void setHeader(String name, String value) throws IOException {
+        response.setHeader(name, value);
+    }
+
     @Override
     public OutputStream respond(String contentType, String characterEncoding) throws IOException {
         response.setCharacterEncoding(characterEncoding);

@@ -99,6 +99,11 @@ public class ApplicationInformationHandler {
         }
 
         @Override
+        public void setHeader(String name, String value) throws IOException {
+            underlying.setHeader(name, value);
+        }
+
+        @Override
         public OutputStream respond(String contentType, String characterEncoding) throws IOException {
             if (!contentType.equalsIgnoreCase("application/json")) {
                 return underlying.respond(contentType, characterEncoding);
@@ -274,6 +279,9 @@ public class ApplicationInformationHandler {
 
         @Override
         public void handle(WebResponse response) throws IOException {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Methods", "GET");
+            response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
             MetricsFormatter formatter = new MetricsFormatter(new PrintStream(response.respond("text/plain", UTF_8)));
             formatter.report(metricRegistry);
         }

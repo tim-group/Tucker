@@ -1,12 +1,12 @@
 package com.timgroup.tucker.info.httpserver;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.timgroup.tucker.info.WebResponse;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.timgroup.tucker.info.WebResponse;
 
 public class HttpServerWebResponse implements WebResponse {
 
@@ -18,6 +18,11 @@ public class HttpServerWebResponse implements WebResponse {
     public HttpServerWebResponse(HttpExchange exchange, URI base) {
         this.exchange = exchange;
         this.base = base;
+    }
+
+    @Override
+    public void setHeader(String name, String value) throws IOException {
+        exchange.getResponseHeaders().add(name, value);
     }
 
     @Override
