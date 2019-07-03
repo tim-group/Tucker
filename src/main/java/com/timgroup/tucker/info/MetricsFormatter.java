@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static com.codahale.metrics.MetricAttribute.COUNT;
 import static com.codahale.metrics.MetricAttribute.M15_RATE;
@@ -44,7 +45,7 @@ class MetricsFormatter {
     }
 
     void format() {
-        for (Map.Entry<String, Metric> metric: metricRegistry.getMetrics().entrySet()) {
+        for (Map.Entry<String, Metric> metric: new TreeMap<>(metricRegistry.getMetrics()).entrySet()) {
             if (metric.getValue() instanceof Gauge) {
                 reportGauge(metric.getKey(), (Gauge)metric.getValue());
             } else if (metric.getValue() instanceof Counter) {
