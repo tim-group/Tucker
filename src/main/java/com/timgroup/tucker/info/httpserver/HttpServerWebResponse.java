@@ -33,6 +33,11 @@ public class HttpServerWebResponse implements WebResponse {
     }
 
     @Override
+    public void respond(int statusCode) throws IOException {
+        exchange.sendResponseHeaders(statusCode, 0);
+    }
+
+    @Override
     public void reject(int status, String message) throws IOException {
         exchange.getResponseHeaders().add("Content-Type", "text/plain;charset=" + StandardCharsets.UTF_8.name());
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);

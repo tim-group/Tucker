@@ -92,7 +92,31 @@ public class ApplicationInformationHandlerTest {
         verify(response).respond("text/plain", "UTF-8");
         assertEquals("ill", responseContent.toString());
     }
-    
+
+    @Test
+    public void when_application_is_healthy_returns_ready() throws Exception {
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
+
+        final WebResponse response = mock(WebResponse.class);
+
+        handler.handle("/ready", response);
+
+        verify(response).respond(204);
+    }
+
+    @Test
+    public void when_application_is_not_healthy_returns_unready() throws Exception {
+        Health alwaysIll = Health.healthyWhen(() -> false);
+
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
+
+        final WebResponse response = mock(WebResponse.class);
+
+        handler.handle("/ready", response);
+
+        verify(response).respond(503);
+    }
+
     @Test
     public void when_application_is_stoppable_returns_safe() throws Exception {
         when(stoppable.get()).thenReturn(safe);

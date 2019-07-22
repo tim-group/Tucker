@@ -24,11 +24,17 @@ public class ServletWebResponse implements WebResponse {
 
     @Override
     public OutputStream respond(String contentType, String characterEncoding) throws IOException {
+        response.setStatus(200);
         response.setCharacterEncoding(characterEncoding);
         response.setContentType(contentType);
         return response.getOutputStream();
     }
-    
+
+    @Override
+    public void respond(int statusCode) throws IOException {
+        response.setStatus(statusCode);
+    }
+
     @Override
     public void reject(int status, String message) throws IOException {
         response.sendError(status, message);

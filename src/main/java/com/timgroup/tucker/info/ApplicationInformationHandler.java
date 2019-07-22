@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class ApplicationInformationHandler {
 
@@ -27,6 +30,7 @@ public class ApplicationInformationHandler {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new HealthWriter(health));
+        dispatch.put("/ready", new ReadyWriter(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
         dispatch.put("/metrics", new MetricsWriter(metricRegistry));
@@ -112,6 +116,11 @@ public class ApplicationInformationHandler {
         }
 
         @Override
+        public void respond(int statusCode) throws IOException {
+            underlying.respond(statusCode);
+        }
+
+        @Override
         public void reject(int status, String message) throws IOException {
             underlying.reject(status, message);
         }
@@ -178,6 +187,27 @@ public class ApplicationInformationHandler {
         @Override public void handle(WebResponse response) throws IOException {
             try (OutputStream out = response.respond("text/plain", UTF_8)) {
                 out.write(health.get().name().getBytes(StandardCharsets.UTF_8));
+            }
+        }
+    }
+
+    private static final class ReadyWriter implements Handler {
+        private Health health;
+
+        public ReadyWriter(Health health) {
+            this.health = health;
+        }
+
+        @Override public void handle(WebResponse response) throws IOException {
+            switch(health.get()) {
+                case healthy: {
+                    response.respond(HTTP_NO_CONTENT);
+                    break;
+                }
+                case ill: {
+                    response.respond(HTTP_UNAVAILABLE);
+                    break;
+                }
             }
         }
     }
