@@ -4,7 +4,10 @@ import com.codahale.metrics.MetricRegistry;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -15,7 +18,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MetricsFormatterTest {
 
-    @Test public void metrics_are_printed_in_name_order() {
+    @Test public void metrics_are_printed() throws IOException {
         MetricRegistry registry = new MetricRegistry();
         registry.gauge("uptime", () -> () -> 42L);
         registry.counter("thingy").inc();
@@ -23,19 +26,21 @@ public class MetricsFormatterTest {
         registry.histogram("histo").update(27);
         registry.histogram("ahisto").update(26);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new MetricsFormatter(new PrintStream(outputStream), registry).format();
+        StringWriter output = new StringWriter();
+        new MetricsFormatter(registry).format(output);
 
-        List<String> keysInOutputOrder = Stream.of(outputStream.toString().split("\n"))
+        List<String> keysInOutputOrder = Stream.of(output.toString().split("\n"))
+                .filter(line -> !line.matches("^#.*"))
                 .map(line -> line.split("\\s+")[0])
+                .sorted()
                 .collect(toList());
 
         assertThat(keysInOutputOrder, equalTo(asList(
-                "ahisto.count", "ahisto.max", "ahisto.mean", "ahisto.min", "ahisto.stddev", "ahisto.p50", "ahisto.p75", "ahisto.p95", "ahisto.p98", "ahisto.p99", "ahisto.p999",
-                "histo.count", "histo.max", "histo.mean", "histo.min", "histo.stddev", "histo.p50", "histo.p75", "histo.p95", "histo.p98", "histo.p99", "histo.p999",
-                "thingy.count",
+                "ahisto_count", "ahisto{quantile=\"0.5\",}", "ahisto{quantile=\"0.75\",}", "ahisto{quantile=\"0.95\",}", "ahisto{quantile=\"0.98\",}", "ahisto{quantile=\"0.99\",}", "ahisto{quantile=\"0.999\",}",
+                "histo_count", "histo{quantile=\"0.5\",}", "histo{quantile=\"0.75\",}", "histo{quantile=\"0.95\",}", "histo{quantile=\"0.98\",}", "histo{quantile=\"0.99\",}", "histo{quantile=\"0.999\",}",
+                "thingy",
                 "uptime",
-                "uther_thingy.count"
+                "uther_thingy"
         )));
     }
 }

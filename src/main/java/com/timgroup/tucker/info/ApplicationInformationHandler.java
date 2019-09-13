@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -274,10 +275,10 @@ public class ApplicationInformationHandler {
 
     private static final class MetricsWriter implements Handler {
 
-        private final MetricRegistry metricRegistry;
+        private final MetricsFormatter formatter;
 
         public MetricsWriter(MetricRegistry metricRegistry) {
-            this.metricRegistry = metricRegistry;
+            this.formatter = new MetricsFormatter(metricRegistry);
         }
 
         @Override
@@ -286,8 +287,7 @@ public class ApplicationInformationHandler {
             response.setHeader("Access-Control-Allow-Methods", "GET");
             response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
-            new MetricsFormatter(new PrintStream(response.respond("text/plain", UTF_8)), metricRegistry)
-                    .format();
+            formatter.format(new OutputStreamWriter(response.respond(MetricsFormatter.CONTENT_TYPE, UTF_8)));
         }
     }
 

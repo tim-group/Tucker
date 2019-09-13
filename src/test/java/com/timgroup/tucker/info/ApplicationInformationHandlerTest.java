@@ -171,18 +171,14 @@ public class ApplicationInformationHandlerTest {
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
         final WebResponse response = mock(WebResponse.class);
-        when(response.respond("text/plain", "UTF-8")).thenReturn(responseContent);
+        when(response.respond(MetricsFormatter.CONTENT_TYPE, "UTF-8")).thenReturn(responseContent);
 
         handler.handle("/metrics", response);
 
-        verify(response).respond("text/plain", "UTF-8");
         assertThat(responseContent.toString(), allOf(
-                containsString("my_first_histogram.count 1\n"),
-                containsString("\nmy_first_histogram.min 42\n"),
-                containsString("\nmy_first_histogram.max 42\n"),
-                containsString("\nmy_first_histogram.p999 42.00\n"),
-                containsString("my_first_metric.count 1\n")
-
+                containsString("my_first_histogram_count 1.0\n"),
+                containsString("\nmy_first_histogram{quantile=\"0.999\",} 42.0\n"),
+                containsString("my_first_metric 1.0\n")
         ));
     }
 }
