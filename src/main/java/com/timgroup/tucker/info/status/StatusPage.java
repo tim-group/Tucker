@@ -7,6 +7,7 @@ import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Runbook;
 import com.timgroup.tucker.info.Status;
+import io.prometheus.client.Collector;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -17,6 +18,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -24,6 +28,8 @@ import java.util.Optional;
 public class StatusPage {
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
+    private static final List<String> METRIC_LABELS = Arrays.asList("component", "status");
+
 
     private static final String TAG_APPLICATION = "application";
     private static final String TAG_COMPONENT = "component";
@@ -170,5 +176,26 @@ public class StatusPage {
             jgen.writeStringField(TAG_TIMESTAMP, timestamp.truncatedTo(ChronoUnit.SECONDS).toString());
             jgen.writeEndObject();
         }
+    }
+
+    public Collector.MetricFamilySamples convertToMetrics() {
+        List<Collector.MetricFamilySamples.Sample> samples = new ArrayList<>(componentReports.size());
+
+        for (Map.Entry<Component, Report> componentReport : componentReports.entrySet()) {
+            for(Status status : Status.values()) {
+                samples.add(new Collector.MetricFamilySamples.Sample(
+                        "tucker_component_status",
+                        METRIC_LABELS,
+                        Arrays.asList(componentReport.getKey().getId(), status.name().toLowerCase()),
+                        componentReport.getValue().getStatus() == status ? 1 : 0));
+            }
+        }
+
+        return new Collector.MetricFamilySamples(
+                "tucker_component_status",
+                Collector.Type.GAUGE,
+                "Tucker Status Page Component Status converted to metrics.",
+                samples);
+
     }
 }

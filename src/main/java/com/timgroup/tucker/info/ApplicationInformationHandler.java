@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -17,7 +15,6 @@ import java.util.Map;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class ApplicationInformationHandler {
@@ -34,7 +31,7 @@ public class ApplicationInformationHandler {
         dispatch.put("/ready", new ReadyWriter(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
-        dispatch.put("/metrics", new MetricsWriter(metricRegistry));
+        dispatch.put("/metrics", new MetricsWriter(metricRegistry, statusPage));
         dispatch.put("/status", new StatusPageWriter(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
@@ -277,8 +274,8 @@ public class ApplicationInformationHandler {
 
         private final MetricsFormatter formatter;
 
-        public MetricsWriter(MetricRegistry metricRegistry) {
-            this.formatter = new MetricsFormatter(metricRegistry);
+        public MetricsWriter(MetricRegistry metricRegistry, StatusPageGenerator statusPage) {
+            this.formatter = new MetricsFormatter(metricRegistry, statusPage);
         }
 
         @Override
