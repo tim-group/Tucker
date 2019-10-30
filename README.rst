@@ -2,7 +2,7 @@ What is it?
 ===========
 
 .. image:: https://travis-ci.org/tim-group/Tucker.svg?branch=master
-    :target: https://travis-ci.org/tim-group/Tucker.. image:: https://travis-ci.org/tim-group/Tucker.svg?branch=master
+    :target: https://travis-ci.org/tim-group/Tucker
 
 
 Tucker is a small library for gently and politely helping with the communication and management of application status.
