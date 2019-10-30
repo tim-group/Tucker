@@ -4,7 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.component.ConstantValueComponent;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -73,12 +72,10 @@ public class MetricsFormatterTest {
         assertThat(metrics, hasEntry("tucker_component_status{component=\"test-comp\",status=\"critical\",}", 0.0));
     }
 
-    @NotNull
     private Map<String, Double> extractMetrics(StringWriter output) {
         return Stream.of(output.toString().split("\n"))
                 .filter(line -> !(line.matches("^#.*") || line.trim().equals("")))
                 .map(line -> line.split("\\s+"))
                 .collect(Collectors.toMap(parts -> parts[0], parts -> Double.parseDouble(parts[1])));
     }
-
 }
