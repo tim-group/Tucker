@@ -28,7 +28,6 @@ class MetricsFormatter {
         dropwizardMetrics(samples);
         statusPageMetrics(samples);
         TextFormat.write004(output, Collections.enumeration(samples));
-        output.flush();
     }
 
     private void statusPageMetrics(List<Collector.MetricFamilySamples> samples) {

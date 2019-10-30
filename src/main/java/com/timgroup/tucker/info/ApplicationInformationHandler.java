@@ -280,11 +280,13 @@ public class ApplicationInformationHandler {
 
         @Override
         public void handle(WebResponse response) throws IOException {
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Methods", "GET");
-            response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
+            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(MetricsFormatter.CONTENT_TYPE, UTF_8), UTF_8)) {
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Access-Control-Allow-Methods", "GET");
+                response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
-            formatter.format(new OutputStreamWriter(response.respond(MetricsFormatter.CONTENT_TYPE, UTF_8)));
+                formatter.format(writer);
+            }
         }
     }
 

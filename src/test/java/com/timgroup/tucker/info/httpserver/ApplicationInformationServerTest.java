@@ -56,6 +56,14 @@ public class ApplicationInformationServerTest {
         assertThat(statusPageJavascript, endsWith("})"));
     }
 
+    @Test
+    public void
+    whenAServerIsRunningMetricsCanBeRequested() throws IOException {
+        String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
+
+        assertThat(metrics, containsString("tucker_component_status"));
+    }
+
     private String load(String url) throws IOException {
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(new URL(url).openStream()));
