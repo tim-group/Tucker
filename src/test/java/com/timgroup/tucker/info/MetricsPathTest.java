@@ -7,7 +7,6 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,13 +14,14 @@ import java.util.stream.Stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 
-public class MetricsFormatterTest {
+public class MetricsPathTest {
     private final MetricRegistry registry = new MetricRegistry();
     private final StatusPageGenerator statusPage = new StatusPageGenerator("testing", new VersionComponent() {
         @Override public Report getReport() {
             return new Report(Status.INFO, "1.0.0");
         }
     });
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(statusPage, null, null, registry);
 
     @Test
     public void dropwizard_metrics_are_printed() throws IOException {
@@ -31,10 +31,10 @@ public class MetricsFormatterTest {
         registry.histogram("histo").update(27);
         registry.histogram("ahisto").update(26);
 
-        StringWriter output = new StringWriter();
-        new MetricsFormatter(registry, statusPage).format(output);
+        StringWebResponse response = new StringWebResponse();
+        handler.handle("/metrics", response);
 
-        Map<String, Double> metrics = extractMetrics(output);
+        Map<String, Double> metrics = extractMetrics(response.bodyString());
 
         assertThat(metrics, hasEntry("ahisto_count", 1.0));
         assertThat(metrics, hasEntry("ahisto{quantile=\"0.5\",}", 26.0));
@@ -57,23 +57,8 @@ public class MetricsFormatterTest {
         assertThat(metrics, hasEntry("uther_thingy", 1.0));
     }
 
-    @Test
-    public void status_page_components_are_metrics() throws IOException {
-        statusPage.addComponent(new ConstantValueComponent("test-comp", "Test Component:", Status.OK, "unused"));
-
-        StringWriter output = new StringWriter();
-        new MetricsFormatter(registry, statusPage).format(output);
-
-        Map<String, Double> metrics = extractMetrics(output);
-
-        assertThat(metrics, hasEntry("tucker_component_status{component=\"test-comp\",status=\"ok\",}", 1.0));
-        assertThat(metrics, hasEntry("tucker_component_status{component=\"test-comp\",status=\"info\",}", 0.0));
-        assertThat(metrics, hasEntry("tucker_component_status{component=\"test-comp\",status=\"warning\",}", 0.0));
-        assertThat(metrics, hasEntry("tucker_component_status{component=\"test-comp\",status=\"critical\",}", 0.0));
-    }
-
-    private Map<String, Double> extractMetrics(StringWriter output) {
-        return Stream.of(output.toString().split("\n"))
+    private Map<String, Double> extractMetrics(String output) {
+        return Stream.of(output.split("\n"))
                 .filter(line -> !(line.matches("^#.*") || line.trim().equals("")))
                 .map(line -> line.split("\\s+"))
                 .collect(Collectors.toMap(parts -> parts[0], parts -> Double.parseDouble(parts[1])));

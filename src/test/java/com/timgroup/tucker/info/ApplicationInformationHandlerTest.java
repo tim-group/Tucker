@@ -3,6 +3,7 @@ package com.timgroup.tucker.info;
 import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import io.prometheus.client.exporter.common.TextFormat;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -171,7 +172,7 @@ public class ApplicationInformationHandlerTest {
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
         final WebResponse response = mock(WebResponse.class);
-        when(response.respond(MetricsFormatter.CONTENT_TYPE, "UTF-8")).thenReturn(responseContent);
+        when(response.respond(TextFormat.CONTENT_TYPE_004, "UTF-8")).thenReturn(responseContent);
 
         handler.handle("/metrics", response);
 

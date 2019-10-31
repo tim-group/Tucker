@@ -28,8 +28,11 @@ public class ApplicationInformationServerTest {
     @Before public void
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
-        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new MetricRegistry());
-        server.start();
+        MetricRegistry metricRegistry = new MetricRegistry();
+        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, metricRegistry);
+        metricRegistry.timer("startup_time").time(() -> {
+            server.start();
+        });
     }
 
     @After public void
@@ -58,10 +61,18 @@ public class ApplicationInformationServerTest {
 
     @Test
     public void
+    whenAServerIsRunningStatusMetricsCanBeRequested() throws IOException {
+        String metrics = load(String.format("http://localhost:%d/info/status.metrics", server.getBase().getPort()));
+
+        assertThat(metrics, containsString("tucker_component_status"));
+    }
+
+    @Test
+    public void
     whenAServerIsRunningMetricsCanBeRequested() throws IOException {
         String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
 
-        assertThat(metrics, containsString("tucker_component_status"));
+        assertThat(metrics, containsString("startup_time"));
     }
 
     private String load(String url) throws IOException {

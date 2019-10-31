@@ -3,6 +3,8 @@ package com.timgroup.tucker.info;
 import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import io.prometheus.client.dropwizard.DropwizardExports;
+import io.prometheus.client.exporter.common.TextFormat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +12,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,9 +35,10 @@ public class ApplicationInformationHandler {
         dispatch.put("/ready", new ReadyWriter(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
-        dispatch.put("/metrics", new MetricsWriter(metricRegistry, statusPage));
+        dispatch.put("/metrics", new MetricsWriter(metricRegistry));
         dispatch.put("/status", new StatusPageWriter(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
+        dispatch.put("/status.metrics", new StatusPageMetricsWriter(statusPage));
         dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
         jsonpDispatch.put("/status", new StatusPageJsonWriter(statusPage, health));
@@ -175,6 +180,21 @@ public class ApplicationInformationHandler {
         }
     }
 
+    private static final class StatusPageMetricsWriter implements Handler {
+        private final StatusPageGenerator statusPageGenerator;
+
+        public StatusPageMetricsWriter(StatusPageGenerator statusPage) {
+            this.statusPageGenerator = statusPage;
+        }
+
+        @Override public void handle(WebResponse response) throws IOException {
+            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(TextFormat.CONTENT_TYPE_004, UTF_8), UTF_8)) {
+                StatusPage report = statusPageGenerator.getApplicationReport();
+                TextFormat.write004(writer, Collections.enumeration(Arrays.asList(report.convertToMetrics())));
+            }
+        }
+    }
+
     private static final class HealthWriter implements Handler {
         private Health health;
 
@@ -271,21 +291,21 @@ public class ApplicationInformationHandler {
     }
 
     private static final class MetricsWriter implements Handler {
+        private final MetricRegistry metricRegistry;
 
-        private final MetricsFormatter formatter;
-
-        public MetricsWriter(MetricRegistry metricRegistry, StatusPageGenerator statusPage) {
-            this.formatter = new MetricsFormatter(metricRegistry, statusPage);
+        public MetricsWriter(MetricRegistry metricRegistry) {
+            this.metricRegistry = metricRegistry;
         }
 
         @Override
         public void handle(WebResponse response) throws IOException {
-            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(MetricsFormatter.CONTENT_TYPE, UTF_8), UTF_8)) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(TextFormat.CONTENT_TYPE_004, UTF_8), UTF_8)) {
                 response.setHeader("Access-Control-Allow-Origin", "*");
                 response.setHeader("Access-Control-Allow-Methods", "GET");
                 response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
-                formatter.format(writer);
+                DropwizardExports exports = new DropwizardExports(metricRegistry);
+                TextFormat.write004(writer, Collections.enumeration(exports.collect()));
             }
         }
     }
