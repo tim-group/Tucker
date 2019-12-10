@@ -15,6 +15,26 @@ ext {
     httpPort = 8888
 }
 
+tasks.withType(JavaCompile).all {
+    options.encoding = "UTF-8"
+    options.deprecation = true
+    options.compilerArgs << "-parameters"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.named("jar").configure {
+    manifest {
+        attributes(
+                'Automatic-Module-Name': 'com.timgroup.tucker.demo'
+        )
+    }
+}
+
 dependencies {
     implementation project(":")
     implementation "org.slf4j:slf4j-api:$slf4jVersion"

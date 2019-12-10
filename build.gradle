@@ -22,12 +22,25 @@ jar {
 }
 
 tasks.withType(JavaCompile).all {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
     options.encoding = "UTF-8"
     options.deprecation = true
     options.compilerArgs << "-parameters"
     options.compilerArgs << "-Xlint:unchecked"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.named("jar").configure {
+    manifest {
+        attributes(
+                'Automatic-Module-Name': 'com.timgroup.tucker'
+        )
+    }
 }
 
 repositories {
@@ -53,20 +66,6 @@ dependencies {
     testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-assemble.dependsOn(sourcesJar)
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-assemble.dependsOn(javadocJar)
-
 publishing {
     repositories {
         if (project.hasProperty("repoUrl")) {
@@ -86,8 +85,6 @@ publishing {
                     : project == rootProject ? project.name
                     : rootProject.name + project.path.replace(':', '-')
             from components.java
-            artifact(sourcesJar)
-            artifact(javadocJar)
             pom.withXml {
                 asNode().children().last() + {
                     resolveStrategy = DELEGATE_FIRST
