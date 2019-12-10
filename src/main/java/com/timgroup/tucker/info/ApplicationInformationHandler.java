@@ -45,6 +45,10 @@ public class ApplicationInformationHandler {
         jsonpDispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
     }
 
+    /**
+     * Deprecated as it will use a default, empty MetricRegistry. Pass your application's MetricRegistry instead.
+     */
+    @Deprecated
     public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         this(statusPage, stoppable, health, new MetricRegistry());
     }
