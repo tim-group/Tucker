@@ -14,6 +14,7 @@ import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Runbook;
 import com.timgroup.tucker.info.Status;
+import com.timgroup.tucker.info.component.SourceRepositoryComponent;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.log.JsonFormatter;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class StatusPageGenerator {
         this.versionComponent = versionComponent;
         this.clock = clock;
         components.add(versionComponent);
+        components.add(new SourceRepositoryComponent(getClass().getClassLoader()));
     }
 
     public void addComponent(Component component) {

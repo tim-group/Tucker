@@ -1,7 +1,9 @@
 package com.timgroup.tucker.info.status;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
@@ -42,6 +44,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class StatusPageGeneratorTest {
@@ -70,7 +73,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        assertEquals(2, root.getElementsByTagName("component").getLength());
+        assertEquals(3, root.getElementsByTagName("component").getLength()); // health, version, source repository
         
         Element timestamp = getSingleElementByTagName(root, "timestamp");
         
@@ -88,7 +91,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", object.at("/status").asText());
         assertEquals("healthy", object.at("/health").asText());
 
-        assertEquals(1, object.at("/components").size());
+        assertEquals(2, object.at("/components").size()); // version, source repository
         assertEquals("2016-05-25T00:47:33Z", object.at("/timestamp").asText());
     }
 
@@ -108,9 +111,8 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage, () -> Health.State.ill);
 
         Element root = document.getDocumentElement();
-        Element component = getElementByIndex(root, "component", 0, 2);
+        Element component = getElementById(root, "health");
 
-        assertEquals("health", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
         assertEquals("Health: ill", component.getTextContent());
         assertEquals("ill", getSingleElementByTagName(component, "value").getTextContent());
@@ -127,7 +129,7 @@ public class StatusPageGeneratorTest {
         assertEquals("ok", root.getAttribute("class"));
         assertEquals(Status.OK, statusPage.getApplicationReport().getApplicationStatus());
         
-        Element component = getLastElementByTagName(root, "component");
+        Element component = getElementById(root, "mycomponent");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("info", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -143,12 +145,10 @@ public class StatusPageGeneratorTest {
 
         assertEquals("ok", object.at("/status").asText());
 
-        assertEquals(2, object.at("/components").size());
-
-        assertEquals("mycomponent", object.at("/components/1/id").asText());
-        assertEquals("info", object.at("/components/1/status").asText());
-        assertEquals("Number of coincidences today", object.at("/components/1/label").asText());
-        assertEquals("23", object.at("/components/1/value").asText());
+        JsonNode mycomponentNode = findComponentById(object, "mycomponent");
+        assertEquals("info", mycomponentNode.get("status").asText());
+        assertEquals("Number of coincidences today", mycomponentNode.get("label").asText());
+        assertEquals("23", mycomponentNode.get("value").asText());
     }
 
     @Test
@@ -161,8 +161,8 @@ public class StatusPageGeneratorTest {
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
-        
-        Element component = getLastElementByTagName(root, "component");
+
+        Element component = getElementById(root, "mycomponent");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Number of coincidences today: 23", component.getTextContent());
@@ -178,12 +178,10 @@ public class StatusPageGeneratorTest {
 
         assertEquals("critical", object.at("/status").asText());
 
-        assertEquals(2, object.at("/components").size());
-
-        assertEquals("mycomponent", object.at("/components/1/id").asText());
-        assertEquals("critical", object.at("/components/1/status").asText());
-        assertEquals("Number of coincidences today", object.at("/components/1/label").asText());
-        assertEquals("23", object.at("/components/1/value").asText());
+        JsonNode node = findComponentById(object, "mycomponent");
+        assertEquals("critical", node.get("status").asText());
+        assertEquals("Number of coincidences today", node.get("label").asText());
+        assertEquals("23", node.get("value").asText());
     }
 
     @Test
@@ -196,8 +194,8 @@ public class StatusPageGeneratorTest {
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
-        
-        Element component = getLastElementByTagName(root, "component");
+
+        Element component = getElementById(root, "mycomponent");
         assertEquals("mycomponent", component.getAttribute("id"));
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Eschatological immanency", component.getTextContent());
@@ -213,12 +211,10 @@ public class StatusPageGeneratorTest {
 
         assertEquals("critical", object.at("/status").asText());
 
-        assertEquals(2, object.at("/components").size());
-
-        assertEquals("mycomponent", object.at("/components/1/id").asText());
-        assertEquals("critical", object.at("/components/1/status").asText());
-        assertEquals("Eschatological immanency", object.at("/components/1/label").asText());
-        assertTrue(object.at("/components/1/value").isMissingNode());
+        JsonNode node = findComponentById(object, "mycomponent");
+        assertEquals("critical", node.get("status").asText());
+        assertEquals("Eschatological immanency", node.get("label").asText());
+        assertNull(node.get("value"));
     }
 
     @Test
@@ -231,8 +227,8 @@ public class StatusPageGeneratorTest {
         Element root = document.getDocumentElement();
         assertEquals("critical", root.getAttribute("class"));
         assertEquals(Status.CRITICAL, statusPage.getApplicationReport().getApplicationStatus());
-        
-        Element component = getLastElementByTagName(root, "component");
+
+        Element component = getElementById(root, "mycomponent");
         assertEquals("critical", component.getAttribute("class"));
         assertEquals("Red wire or green wire: wrong wire", component.getTextContent());
         assertEquals(0, component.getElementsByTagName("value").getLength());
@@ -248,12 +244,11 @@ public class StatusPageGeneratorTest {
 
         assertEquals("critical", object.at("/status").asText());
 
-        assertEquals(2, object.at("/components").size());
+        JsonNode node = findComponentById(object, "mycomponent");
 
-        assertEquals("mycomponent", object.at("/components/1/id").asText());
-        assertEquals("critical", object.at("/components/1/status").asText());
-        assertEquals("Red wire or green wire", object.at("/components/1/label").asText());
-        assertEquals("wrong wire", object.at("/components/1/exception").asText());
+        assertEquals("critical", node.get("status").asText());
+        assertEquals("Red wire or green wire", node.get("label").asText());
+        assertEquals("wrong wire", node.get("exception").asText());
     }
 
     @Test
@@ -266,7 +261,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getLastElementByTagName(root, "component");
+        Element component = getElementById(root, "mycomponent");
         String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
         assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
                 component.getTextContent().contains(expectedRunbookText));
@@ -281,7 +276,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getLastElementByTagName(root, "component");
+        Element component = getElementById(root, "mycomponent");
         String expectedRunbookText = "Runbook: http://the-solution-is-described-here.com";
         assertTrue("Expected component with text [" + component.getTextContent() + "] to contain [" + expectedRunbookText + "]",
                 component.getTextContent().contains(expectedRunbookText));
@@ -297,7 +292,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getLastElementByTagName(root, "component");
+        Element component = getElementById(root, "mycomponent");
 
         String reportSpecificRunbookLocation = "http://the-solution-is-described-here.com";
         String componentSpecificRunbookLocation = "http://uncaught-exception-runbook.com";
@@ -317,7 +312,7 @@ public class StatusPageGeneratorTest {
         Document document = render(statusPage);
 
         Element root = document.getDocumentElement();
-        Element component = getLastElementByTagName(root, "component");
+        Element component = getElementById(root, "mycomponent");
 
         String componentSpecificRunbookLocation = "Runbook: http://uncaught-exception-runbook.com";
 
@@ -333,7 +328,7 @@ public class StatusPageGeneratorTest {
 
         ObjectNode object = renderJson(statusPage, Health.ALWAYS_HEALTHY);
 
-        assertEquals("http://the-solution-is-described-here.com", object.at("/components/1/runbook/locationUrl").asText());
+        assertEquals("http://the-solution-is-described-here.com", findComponentById(object, "mycomponent").at("/runbook/locationUrl").asText());
     }
 
     @Test
@@ -346,15 +341,26 @@ public class StatusPageGeneratorTest {
         assertEquals("null", object.at("/components/1/runbook/locationUrl").asText());
     }
 
+    private JsonNode findComponentById(ObjectNode object, String id) {
+        JsonNode jsonNode = null;
+        for (JsonNode node : (ArrayNode) object.at("/components")) {
+            if (node.get("id").asText().equals(id)) {
+                jsonNode = node;
+            }
+        }
+        return jsonNode;
+    }
+
     private Element getSingleElementByTagName(Element element, String name) {
         return getElementByIndex(element, name, 0, 1);
     }
-    
-    private Element getLastElementByTagName(Element element, String name) {
-        return getElementByIndex(element, name, 2, 3);
+
+    private Element getElementById(Element element, String id) {
+        return element.getOwnerDocument().getElementById(id);
     }
 
     private Element getElementByIndex(Element element, String name, int index, int expectedNumberOfElements) {
+
         NodeList elementsByTagName = element.getElementsByTagName(name);
         assertEquals(expectedNumberOfElements, elementsByTagName.getLength());
         return (Element) elementsByTagName.item(index);
