@@ -3,9 +3,8 @@ package com.timgroup.tucker.info.component;
 import com.timgroup.tucker.info.Status;
 import org.junit.Test;
 
-import javax.servlet.ServletConfig;
-import java.nio.file.Files;
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,8 +38,7 @@ public final class SourceRepositoryComponentTest {
         when(classLoader.getResource("META-INF/MANIFEST.MF")).thenReturn(getClass().getResource("broken.manifest"));
         SourceRepositoryComponent component = new SourceRepositoryComponent(classLoader);
 
-        assertEquals("Unable to read manifest: invalid header field",
-                     String.valueOf(component.getReport().getValue()));
+        assertThat(String.valueOf(component.getReport().getValue()), containsString("Unable to read manifest: "));
     }
 
     @Test
