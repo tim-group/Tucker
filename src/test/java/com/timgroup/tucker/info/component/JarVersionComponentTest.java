@@ -22,7 +22,7 @@ public class JarVersionComponentTest {
     @Test
     public void reportValueIsImplementationVersionOfPackageContainingAnchorClass() throws Exception {
         String jdkVersion = System.getProperty("java.version");
-        assumeFalse("Doesn't work like this on Java 9", jdkVersion.startsWith("9.") || jdkVersion.startsWith("10") || jdkVersion.startsWith("11") || jdkVersion.startsWith("12"));
+        assumeFalse("Doesn't work like this on Java 9", jdkVersion.startsWith("9.") || jdkVersion.startsWith("10") || jdkVersion.startsWith("11") || jdkVersion.startsWith("12")|| jdkVersion.startsWith("13"));
         assertEquals(jdkVersion, new JarVersionComponent(String.class).getReport().getValue());
     }
     
