@@ -10,7 +10,7 @@ import com.timgroup.tucker.info.Status;
  *
  * @see <a href="http://docs.oracle.com/javase/6/docs/technotes/guides/jar/jar.html">JavaSE reference</a>
  */
-public class JarVersionComponent extends VersionComponent {
+public final class JarVersionComponent extends VersionComponent {
 
     private final Class<?> anchorClass;
 

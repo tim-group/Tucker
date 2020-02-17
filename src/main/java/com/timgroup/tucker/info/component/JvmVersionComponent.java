@@ -11,7 +11,7 @@ import com.timgroup.tucker.info.Status;
  *
  * @see java.lang.System#getProperties
  */
-public class JvmVersionComponent extends Component {
+public final class JvmVersionComponent extends Component {
     public static final String versionInfoString;
 
     static {

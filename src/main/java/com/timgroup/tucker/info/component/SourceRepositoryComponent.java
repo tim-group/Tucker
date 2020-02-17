@@ -7,15 +7,10 @@ import com.timgroup.tucker.info.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-public class SourceRepositoryComponent extends Component {
+public final class SourceRepositoryComponent extends Component {
 
     private static final String SOURCE_REPO_NOT_FOUND = "Source repository information not found";
 

@@ -6,7 +6,7 @@ import com.timgroup.tucker.info.Status;
 
 import static java.lang.String.format;
 
-public class MemoryUsageComponent extends Component {
+public final class MemoryUsageComponent extends Component {
     private static final double PERCENTAGE = 100.0;
 
     public MemoryUsageComponent() {

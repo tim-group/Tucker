@@ -1,10 +1,10 @@
 package com.timgroup.tucker.info.component;
 
-import java.io.DataInputStream;
-
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
+
+import java.io.DataInputStream;
 
 /**
  * Reports a version extracted from the leading bytes of the specified anchor class.
@@ -13,7 +13,7 @@ import com.timgroup.tucker.info.Status;
  *
  * @see <a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.1">JavaSE reference</a>
  */
-public class ClassFileVersionComponent  extends Component {
+public final class ClassFileVersionComponent  extends Component {
 
     private final Class<?> anchorClass;
 

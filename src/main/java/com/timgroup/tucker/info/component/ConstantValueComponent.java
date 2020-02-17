@@ -4,7 +4,7 @@ import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 
-public class ConstantValueComponent extends Component {
+public final class ConstantValueComponent extends Component {
 
     private final Report report;
 

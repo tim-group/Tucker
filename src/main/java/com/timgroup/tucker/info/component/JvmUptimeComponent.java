@@ -8,7 +8,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.time.Duration;
 
-public class JvmUptimeComponent extends Component {
+public final class JvmUptimeComponent extends Component {
 
     private final RuntimeMXBean runtimeMXBean;
 
