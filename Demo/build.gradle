@@ -4,15 +4,12 @@ plugins {
     id "maven-publish"
 }
 
-repositories {
-    mavenLocal()
-    jcenter()
+ext {
+    httpPort = 8888
 }
 
-ext {
-    slf4jVersion = '1.7.13'
-    jettyVersion = '9.4.14.v20181114'
-    httpPort = 8888
+repositories {
+    jcenter()
 }
 
 tasks.withType(JavaCompile).all {
