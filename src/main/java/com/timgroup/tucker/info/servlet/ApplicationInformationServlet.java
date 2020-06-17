@@ -3,6 +3,7 @@ package com.timgroup.tucker.info.servlet;
 import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.LegacyMetricsWriter;
 import com.timgroup.tucker.info.MetricsWriter;
 import com.timgroup.tucker.info.StartupTimer;
 import com.timgroup.tucker.info.Stoppable;
@@ -25,15 +26,15 @@ public class ApplicationInformationServlet extends HttpServlet {
     private final StatusPageGenerator statusPage;
     private final StartupTimer startupTimer;
 
-    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
         this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry, metricsWriter);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricsWriter);
         this.startupTimer = new StartupTimer(health);
     }
 
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
         this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry, metricsWriter);
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricsWriter);
         this.startupTimer = new StartupTimer(health);
     }
 
@@ -56,7 +57,7 @@ public class ApplicationInformationServlet extends HttpServlet {
      * @param health     Indicator for application health
      */
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(statusPage, stoppable, health, metricRegistry, null);
+        this(statusPage, stoppable, health, new LegacyMetricsWriter(metricRegistry));
     }
 
     /**
@@ -78,7 +79,7 @@ public class ApplicationInformationServlet extends HttpServlet {
      * @param health        Indicator for application health
      */
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(applicationId, stoppable, health, metricRegistry, null);
+        this(applicationId, stoppable, health, new LegacyMetricsWriter(metricRegistry));
     }
 
     public final StatusPageGenerator getStatusPageGenerator() {
@@ -111,7 +112,6 @@ public class ApplicationInformationServlet extends HttpServlet {
     public static class Builder {
         private Stoppable stoppable = Stoppable.ALWAYS_STOPPABLE;
         private Health health = Health.ALWAYS_HEALTHY;
-        private MetricRegistry metricRegistry = new MetricRegistry();
         private MetricsWriter metricsWriter;
 
         private StatusPageGenerator statusPage;
@@ -136,7 +136,7 @@ public class ApplicationInformationServlet extends HttpServlet {
         }
 
         public Builder setMetricRegistry(MetricRegistry metricRegistry) {
-            this.metricRegistry = metricRegistry;
+            this.metricsWriter = new LegacyMetricsWriter(metricRegistry);
             return this;
         }
 
@@ -147,9 +147,9 @@ public class ApplicationInformationServlet extends HttpServlet {
 
         public ApplicationInformationServlet build() {
             if (statusPage != null) {
-                return new ApplicationInformationServlet(statusPage, stoppable, health, metricRegistry, metricsWriter);
+                return new ApplicationInformationServlet(statusPage, stoppable, health, metricsWriter);
             } else {
-                return new ApplicationInformationServlet(applicationId, stoppable, health, metricRegistry, metricsWriter);
+                return new ApplicationInformationServlet(applicationId, stoppable, health, metricsWriter);
             }
         }
     }

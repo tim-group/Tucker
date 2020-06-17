@@ -3,7 +3,6 @@ package com.timgroup.tucker.info;
 import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.dropwizard.DropwizardExports;
 import io.prometheus.client.exporter.common.TextFormat;
 
 import java.io.IOException;
@@ -28,14 +27,14 @@ public class ApplicationInformationHandler {
     private final Map<String, Handler> dispatch = new HashMap<>();
     private final Map<String, Handler> jsonpDispatch = new HashMap<>();
 
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new HealthHandler(health));
         dispatch.put("/ready", new ReadyHandler(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentHandler(statusPage.getVersionComponent()));
-        dispatch.put("/metrics", new MetricsHandler(metricRegistry));
+        dispatch.put("/metrics", new MetricsHandler(metricsWriter));
         dispatch.put("/status", new StatusPageHandler(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
         dispatch.put("/status.metrics", new StatusPageMetricsHandler(statusPage));
@@ -46,7 +45,7 @@ public class ApplicationInformationHandler {
     }
 
     public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(statusPage, stoppable, health, metricRegistry, null);
+        this(statusPage, stoppable, health, new LegacyMetricsWriter(metricRegistry));
     }
 
     /**
@@ -299,10 +298,10 @@ public class ApplicationInformationHandler {
     }
 
     private static final class MetricsHandler implements Handler {
-        private final MetricRegistry metricRegistry;
+        private final MetricsWriter metricsWriter;
 
-        public MetricsHandler(MetricRegistry metricRegistry) {
-            this.metricRegistry = metricRegistry;
+        public MetricsHandler(MetricsWriter metricsWriter) {
+            this.metricsWriter = metricsWriter;
         }
 
         @Override
@@ -312,8 +311,7 @@ public class ApplicationInformationHandler {
                 response.setHeader("Access-Control-Allow-Methods", "GET");
                 response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
 
-                DropwizardExports exports = new DropwizardExports(metricRegistry);
-                TextFormat.write004(writer, Collections.enumeration(exports.collect()));
+                metricsWriter.writeMetrics(writer);
             }
         }
     }

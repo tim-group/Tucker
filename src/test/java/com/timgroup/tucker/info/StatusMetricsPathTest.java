@@ -1,6 +1,5 @@
 package com.timgroup.tucker.info;
 
-import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.component.ConstantValueComponent;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -20,7 +19,7 @@ public class StatusMetricsPathTest {
             return new Report(Status.INFO, "1.0.0");
         }
     });
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(statusPage, null, null, null);
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(statusPage, null, null, (MetricsWriter) null);
 
     @Test
     public void status_page_components_are_metrics() throws IOException {
