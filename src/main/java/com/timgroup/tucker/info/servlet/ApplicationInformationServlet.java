@@ -3,6 +3,7 @@ package com.timgroup.tucker.info.servlet;
 import com.codahale.metrics.MetricRegistry;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
+import com.timgroup.tucker.info.MetricsWriter;
 import com.timgroup.tucker.info.StartupTimer;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;
@@ -24,12 +25,24 @@ public class ApplicationInformationServlet extends HttpServlet {
     private final StatusPageGenerator statusPage;
     private final StartupTimer startupTimer;
 
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
+        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry, metricsWriter);
+        this.startupTimer = new StartupTimer(health);
+    }
+
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
+        this.statusPage = statusPage;
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry, metricsWriter);
+        this.startupTimer = new StartupTimer(health);
+    }
+
     /**
      * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
      *
      * @param statusPage Status page generator
-     * @param stoppable Indicator for stoppability
-     * @param health Indicator for application health
+     * @param stoppable  Indicator for stoppability
+     * @param health     Indicator for application health
      */
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         this(statusPage, stoppable, health, new MetricRegistry());
@@ -39,39 +52,33 @@ public class ApplicationInformationServlet extends HttpServlet {
      * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
      *
      * @param statusPage Status page generator
-     * @param stoppable Indicator for stoppability
-     * @param health Indicator for application health
+     * @param stoppable  Indicator for stoppability
+     * @param health     Indicator for application health
      */
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry);
-        this.startupTimer = new StartupTimer(health);
+        this(statusPage, stoppable, health, metricRegistry, null);
     }
 
     /**
      * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
      *
      * @param applicationId Application name
-     * @param stoppable Indicator for stoppability
-     * @param health Indicator for application health
+     * @param stoppable     Indicator for stoppability
+     * @param health        Indicator for application health
      */
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
-        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, new MetricRegistry());
-        this.startupTimer = new StartupTimer(health);
+        this(applicationId, stoppable, health, new MetricRegistry());
     }
 
     /**
      * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
      *
      * @param applicationId Application name
-     * @param stoppable Indicator for stoppability
-     * @param health Indicator for application health
+     * @param stoppable     Indicator for stoppability
+     * @param health        Indicator for application health
      */
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry);
-        this.startupTimer = new StartupTimer(health);
+        this(applicationId, stoppable, health, metricRegistry, null);
     }
 
     public final StatusPageGenerator getStatusPageGenerator() {
@@ -96,9 +103,54 @@ public class ApplicationInformationServlet extends HttpServlet {
         ServletWebResponse webResponse = new ServletWebResponse(request, response);
         if (callback != null) {
             handler.handleJSONP(path, callback, webResponse);
-        }
-        else {
+        } else {
             handler.handle(path, webResponse);
+        }
+    }
+
+    public static class Builder {
+        private Stoppable stoppable = Stoppable.ALWAYS_STOPPABLE;
+        private Health health = Health.ALWAYS_HEALTHY;
+        private MetricRegistry metricRegistry = new MetricRegistry();
+        private MetricsWriter metricsWriter;
+
+        private StatusPageGenerator statusPage;
+        private String applicationId;
+
+        public Builder(StatusPageGenerator statusPage) {
+            this.statusPage = statusPage;
+        }
+
+        public Builder(String applicationId) {
+            this.applicationId = applicationId;
+        }
+
+        public Builder setStoppable(Stoppable stoppable) {
+            this.stoppable = stoppable;
+            return this;
+        }
+
+        public Builder setHealth(Health health) {
+            this.health = health;
+            return this;
+        }
+
+        public Builder setMetricRegistry(MetricRegistry metricRegistry) {
+            this.metricRegistry = metricRegistry;
+            return this;
+        }
+
+        public Builder setMetricsWriter(MetricsWriter metricsWriter) {
+            this.metricsWriter = metricsWriter;
+            return this;
+        }
+
+        public ApplicationInformationServlet build() {
+            if (statusPage != null) {
+                return new ApplicationInformationServlet(statusPage, stoppable, health, metricRegistry, metricsWriter);
+            } else {
+                return new ApplicationInformationServlet(applicationId, stoppable, health, metricRegistry, metricsWriter);
+            }
         }
     }
 }

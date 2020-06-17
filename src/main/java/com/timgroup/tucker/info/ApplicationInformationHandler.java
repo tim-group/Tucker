@@ -28,21 +28,25 @@ public class ApplicationInformationHandler {
     private final Map<String, Handler> dispatch = new HashMap<>();
     private final Map<String, Handler> jsonpDispatch = new HashMap<>();
 
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry, MetricsWriter metricsWriter) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
-        dispatch.put("/health", new HealthWriter(health));
-        dispatch.put("/ready", new ReadyWriter(health));
+        dispatch.put("/health", new HealthHandler(health));
+        dispatch.put("/ready", new ReadyHandler(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
-        dispatch.put("/version", new ComponentWriter(statusPage.getVersionComponent()));
-        dispatch.put("/metrics", new MetricsWriter(metricRegistry));
-        dispatch.put("/status", new StatusPageWriter(statusPage, health));
-        dispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
-        dispatch.put("/status.metrics", new StatusPageMetricsWriter(statusPage));
-        dispatch.put("/status-page.dtd", new ResourceWriter(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
-        dispatch.put("/status-page.css", new ResourceWriter(StatusPageGenerator.CSS_FILENAME, "text/css"));
-        jsonpDispatch.put("/status", new StatusPageJsonWriter(statusPage, health));
-        jsonpDispatch.put("/status.json", new StatusPageJsonWriter(statusPage, health));
+        dispatch.put("/version", new ComponentHandler(statusPage.getVersionComponent()));
+        dispatch.put("/metrics", new MetricsHandler(metricRegistry));
+        dispatch.put("/status", new StatusPageHandler(statusPage, health));
+        dispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
+        dispatch.put("/status.metrics", new StatusPageMetricsHandler(statusPage));
+        dispatch.put("/status-page.dtd", new ResourceHandler(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
+        dispatch.put("/status-page.css", new ResourceHandler(StatusPageGenerator.CSS_FILENAME, "text/css"));
+        jsonpDispatch.put("/status", new StatusPageJsonHandler(statusPage, health));
+        jsonpDispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
+    }
+
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
+        this(statusPage, stoppable, health, metricRegistry, null);
     }
 
     /**
@@ -150,11 +154,11 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class StatusPageWriter implements Handler {
+    private static final class StatusPageHandler implements Handler {
         private final StatusPageGenerator statusPageGenerator;
         private final Health health;
 
-        public StatusPageWriter(StatusPageGenerator statusPage, Health health) {
+        public StatusPageHandler(StatusPageGenerator statusPage, Health health) {
             this.statusPageGenerator = statusPage;
             this.health = health;
         }
@@ -167,11 +171,11 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class StatusPageJsonWriter implements Handler {
+    private static final class StatusPageJsonHandler implements Handler {
         private final StatusPageGenerator statusPageGenerator;
         private final Health health;
 
-        public StatusPageJsonWriter(StatusPageGenerator statusPage, Health health) {
+        public StatusPageJsonHandler(StatusPageGenerator statusPage, Health health) {
             this.statusPageGenerator = statusPage;
             this.health = health;
         }
@@ -184,10 +188,10 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class StatusPageMetricsWriter implements Handler {
+    private static final class StatusPageMetricsHandler implements Handler {
         private final StatusPageGenerator statusPageGenerator;
 
-        public StatusPageMetricsWriter(StatusPageGenerator statusPage) {
+        public StatusPageMetricsHandler(StatusPageGenerator statusPage) {
             this.statusPageGenerator = statusPage;
         }
 
@@ -199,10 +203,10 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class HealthWriter implements Handler {
+    private static final class HealthHandler implements Handler {
         private Health health;
 
-        public HealthWriter(Health health) {
+        public HealthHandler(Health health) {
             this.health = health;
         }
 
@@ -213,10 +217,10 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class ReadyWriter implements Handler {
+    private static final class ReadyHandler implements Handler {
         private Health health;
 
-        public ReadyWriter(Health health) {
+        public ReadyHandler(Health health) {
             this.health = health;
         }
 
@@ -248,10 +252,10 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class ComponentWriter implements Handler {
+    private static final class ComponentHandler implements Handler {
         private final Component component;
 
-        public ComponentWriter(Component component) {
+        public ComponentHandler(Component component) {
             this.component = component;
         }
 
@@ -264,11 +268,11 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class ResourceWriter implements Handler {
+    private static final class ResourceHandler implements Handler {
         private final String resourceName;
         private final String contentType;
 
-        public ResourceWriter(String resourceName, String contentType) {
+        public ResourceHandler(String resourceName, String contentType) {
             this.resourceName = resourceName;
             this.contentType = contentType;
         }
@@ -294,10 +298,10 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class MetricsWriter implements Handler {
+    private static final class MetricsHandler implements Handler {
         private final MetricRegistry metricRegistry;
 
-        public MetricsWriter(MetricRegistry metricRegistry) {
+        public MetricsHandler(MetricRegistry metricRegistry) {
             this.metricRegistry = metricRegistry;
         }
 
