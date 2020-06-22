@@ -17,7 +17,8 @@ jar {
         attributes(
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
-            'Implementation-Vendor': 'TIM Group Ltd'
+            'Implementation-Vendor': 'TIM Group Ltd',
+            'Automatic-Module-Name': 'com.timgroup.tucker'
         )
     }
 }
@@ -36,16 +37,10 @@ java {
     withJavadocJar()
 }
 
-tasks.named("jar").configure {
-    manifest {
-        attributes(
-                'Automatic-Module-Name': 'com.timgroup.tucker'
-        )
-    }
-}
-
 repositories {
-    jcenter()
+    maven {
+        url = "$repoUrl/groups/public"
+    }
 }
 
 // some of these dependencies are optional, in that they are needed to build, but might not be needed to run; Gradle does currently let us say so
@@ -56,6 +51,7 @@ dependencies {
     implementation "io.prometheus:simpleclient_dropwizard:0.6.0"
     implementation "io.prometheus:simpleclient_common:0.6.0"
     api "io.dropwizard.metrics:metrics-core:3.2.0"
+    api "com.timgroup:tim-metrics:1.0.18" // autobump
 
     testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.25.1"
@@ -86,26 +82,6 @@ publishing {
                     : project == rootProject ? project.name
                     : rootProject.name + project.path.replace(':', '-')
             from components.java
-            pom.withXml {
-                asNode().children().last() + {
-                    resolveStrategy = DELEGATE_FIRST
-                    name project.ext.has('pomName') ? project.ext.pomName : project.name
-                    description project.description
-                    url "https://github.com/tim-group/Tucker"
-                    licenses {
-                        license {
-                            name 'The BSD 2-Clause License'
-                            url 'http://opensource.org/licenses/BSD-2-Clause'
-                            distribution 'repo'
-                        }
-                    }
-                    developers {
-                        developer {
-                            email 'opensource@timgroup.com'
-                        }
-                    }
-                }
-            }
         }
     }
 }

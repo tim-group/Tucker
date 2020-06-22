@@ -9,7 +9,9 @@ ext {
 }
 
 repositories {
-    jcenter()
+    maven {
+        url = "$repoUrl/groups/public"
+    }
 }
 
 tasks.withType(JavaCompile).all {

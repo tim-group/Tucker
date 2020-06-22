@@ -1,10 +1,10 @@
 package com.timgroup.tucker.info.servlet;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.MetricsWriter;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.LegacyMetricsWriter;
-import com.timgroup.tucker.info.MetricsWriter;
 import com.timgroup.tucker.info.StartupTimer;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.ServletVersionComponent;

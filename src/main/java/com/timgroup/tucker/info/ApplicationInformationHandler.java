@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.MetricsWriter;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 import io.prometheus.client.exporter.common.TextFormat;

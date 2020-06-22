@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info;
 
+import com.timgroup.metrics.MetricsWriter;
 import com.timgroup.tucker.info.component.ConstantValueComponent;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;

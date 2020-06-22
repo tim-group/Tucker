@@ -1,6 +1,6 @@
 package com.timgroup.tucker.demo;
 
-import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
@@ -15,7 +15,7 @@ import com.timgroup.tucker.info.status.StatusPageGenerator;
 public class DemoStatusPageServlet extends ApplicationInformationServlet {
 
     public DemoStatusPageServlet() {
-        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new MetricRegistry());
+        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new Metrics().getMetricWriter());
     }
 
     private static StatusPageGenerator statusPage() {

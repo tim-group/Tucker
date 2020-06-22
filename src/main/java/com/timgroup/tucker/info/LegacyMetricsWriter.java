@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.MetricsWriter;
 import io.prometheus.client.dropwizard.DropwizardExports;
 import io.prometheus.client.exporter.common.TextFormat;
 
