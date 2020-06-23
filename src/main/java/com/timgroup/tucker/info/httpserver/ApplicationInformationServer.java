@@ -2,6 +2,7 @@ package com.timgroup.tucker.info.httpserver;
 
 import com.codahale.metrics.MetricRegistry;
 import com.sun.net.httpserver.HttpServer;
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.StartupTimer;
@@ -27,8 +28,18 @@ public class ApplicationInformationServer {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
+    /**
+     * Pass Metrics in favor of MetricRegistry
+     *
+     * @see #create(int, StatusPageGenerator, Health, Metrics)
+     */
+    @Deprecated
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health, MetricRegistry metricRegistry) throws IOException {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health, metricRegistry);
+    }
+
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health, Metrics metrics) throws IOException {
+        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health, metrics);
     }
 
     /**
@@ -39,8 +50,18 @@ public class ApplicationInformationServer {
         return create(port, statusPage, stoppable, health, new MetricRegistry());
     }
 
+    /**
+     * Pass Metrics in favor of MetricRegistry
+     *
+     * @see #create(int, StatusPageGenerator, Stoppable, Health, Metrics)
+     */
+    @Deprecated
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) throws IOException {
         return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, metricRegistry), health);
+    }
+
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, Metrics metrics) throws IOException {
+        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, metrics.getMetricWriter()), health);
     }
 
     private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler, Health health) throws IOException {
