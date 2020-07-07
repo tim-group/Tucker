@@ -34,7 +34,7 @@ public class HttpServerWebResponse implements WebResponse {
 
     @Override
     public void respond(int statusCode) throws IOException {
-        exchange.sendResponseHeaders(statusCode, 0);
+        exchange.sendResponseHeaders(statusCode, -1);
     }
 
     @Override

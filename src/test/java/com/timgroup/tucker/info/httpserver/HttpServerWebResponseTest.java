@@ -59,4 +59,11 @@ public class HttpServerWebResponseTest {
         assertEquals(base.resolve(relativePath.substring(1)).toString(), headers.getFirst("location"));
     }
 
+    @Test
+    public void respondWithNoContent() throws Exception {
+        new HttpServerWebResponse(exchange, null).respond(204);
+
+        verify(exchange).sendResponseHeaders(204, -1);
+    }
+
 }
