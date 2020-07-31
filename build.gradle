@@ -51,7 +51,7 @@ dependencies {
     implementation "io.prometheus:simpleclient_dropwizard:0.6.0"
     implementation "io.prometheus:simpleclient_common:0.6.0"
     api "io.dropwizard.metrics:metrics-core:3.2.0"
-    api "com.timgroup:tim-metrics:1.0.30" // autobump
+    api "com.timgroup:tim-metrics:1.0.31" // autobump
 
     testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.25.1"
