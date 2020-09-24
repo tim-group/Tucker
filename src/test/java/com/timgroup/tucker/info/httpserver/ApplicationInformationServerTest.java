@@ -1,8 +1,11 @@
 package com.timgroup.tucker.info.httpserver;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.Metrics;
+import com.timgroup.metrics.MetricsConfig;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import io.prometheus.client.CollectorRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,9 +31,9 @@ public class ApplicationInformationServerTest {
     @Before public void
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
-        MetricRegistry metricRegistry = new MetricRegistry();
-        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, metricRegistry);
-        metricRegistry.timer("startup_time").time(() -> {
+        Metrics metrics = new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG);
+        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, metrics);
+        metrics.getMetricRegistry().timer("startup_time").time(() -> {
             server.start();
         });
     }
@@ -73,6 +76,14 @@ public class ApplicationInformationServerTest {
         String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
 
         assertThat(metrics, containsString("startup_time"));
+    }
+
+    @Test
+    public void
+    whenAServerIsRunningMetricsAlsoIncludesTuckerComponenetStatusMetrics() throws IOException {
+        String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
+
+        assertThat(metrics, containsString("tucker_component_status"));
     }
 
     private String load(String url) throws IOException {

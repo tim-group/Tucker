@@ -28,7 +28,7 @@ import java.util.Optional;
 public class StatusPage {
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
-    private static final List<String> METRIC_LABELS = Arrays.asList("component", "status");
+    public static final List<String> METRIC_LABELS = Arrays.asList("component", "status");
 
 
     private static final String TAG_APPLICATION = "application";
