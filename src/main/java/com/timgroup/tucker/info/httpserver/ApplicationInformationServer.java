@@ -61,7 +61,7 @@ public class ApplicationInformationServer {
     }
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, Metrics metrics) throws IOException {
-        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, metrics.getMetricWriter()), health);
+        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, null != metrics ? metrics.getMetricWriter() : null), health);
     }
 
     private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler, Health health) throws IOException {

@@ -35,7 +35,9 @@ public class ApplicationInformationHandler {
         dispatch.put("/ready", new ReadyHandler(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentHandler(statusPage.getVersionComponent()));
-        dispatch.put("/metrics", new MetricsHandler(metricsWriter));
+        if (null != metricsWriter) {
+            dispatch.put("/metrics", new MetricsHandler(metricsWriter));
+        }
         dispatch.put("/status", new StatusPageHandler(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
         dispatch.put("/status.metrics", new StatusPageMetricsHandler(statusPage));
