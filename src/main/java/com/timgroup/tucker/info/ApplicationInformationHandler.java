@@ -1,6 +1,5 @@
 package com.timgroup.tucker.info;
 
-import com.codahale.metrics.MetricRegistry;
 import com.timgroup.metrics.MetricsWriter;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -45,18 +44,6 @@ public class ApplicationInformationHandler {
         dispatch.put("/status-page.css", new ResourceHandler(StatusPageGenerator.CSS_FILENAME, "text/css"));
         jsonpDispatch.put("/status", new StatusPageJsonHandler(statusPage, health));
         jsonpDispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
-    }
-
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(statusPage, stoppable, health, new LegacyMetricsWriter(metricRegistry));
-    }
-
-    /**
-     * Deprecated as it will use a default, empty MetricRegistry. Pass your application's MetricRegistry instead.
-     */
-    @Deprecated
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
-        this(statusPage, stoppable, health, new MetricRegistry());
     }
 
     public void handle(String path, WebResponse response) throws IOException {

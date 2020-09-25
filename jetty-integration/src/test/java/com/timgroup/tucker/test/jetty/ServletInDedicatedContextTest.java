@@ -1,5 +1,6 @@
 package com.timgroup.tucker.test.jetty;
 
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
@@ -31,7 +32,7 @@ public class ServletInDedicatedContextTest {
     private static final Logger LOG = getLogger(ServletInDedicatedContextTest.class);
 
     public static ApplicationInformationServlet demoServlet() {
-        return new ApplicationInformationServlet("ServletInRootContextTest-demo", Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
+        return new ApplicationInformationServlet("ServletInRootContextTest-demo", Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new Metrics().getMetricWriter());
     }
 
     @Rule

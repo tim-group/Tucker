@@ -1,5 +1,6 @@
 package com.timgroup.tucker.info.servlet;
 
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.component.VersionComponent;
@@ -53,7 +54,7 @@ public class ApplicationInformationServletTest {
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
         when(response.getOutputStream()).thenReturn(out);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter());
         statusPageServlet.service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
@@ -72,7 +73,7 @@ public class ApplicationInformationServletTest {
         GoldfishServletOutputStream out = new GoldfishServletOutputStream();
         when(response.getOutputStream()).thenReturn(out);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter());
         statusPageServlet.service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
@@ -98,7 +99,7 @@ public class ApplicationInformationServletTest {
         };
         when(response.getOutputStream()).thenReturn(out);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter());
         statusPageServlet.service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
@@ -136,7 +137,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest(null);
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter()).service(request, response);
 
         verify(response).sendRedirect("/Foo/info/status");
     }
@@ -148,7 +149,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter()).service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("application/xml-dtd");
@@ -162,7 +163,7 @@ public class ApplicationInformationServletTest {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(newServletOutputStream(buffer));
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter()).service(request, response);
 
         verify(response).setCharacterEncoding("UTF-8");
         verify(response).setContentType("text/css");
@@ -180,7 +181,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/rubbish");
         HttpServletResponse response = mock(HttpServletResponse.class);
 
-        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY).service(request, response);
+        new ApplicationInformationServlet(new StatusPageGenerator("", version), ALWAYS_STOPPABLE, ALWAYS_HEALTHY, new Metrics().getMetricWriter()).service(request, response);
         verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), anyString());
     }
 

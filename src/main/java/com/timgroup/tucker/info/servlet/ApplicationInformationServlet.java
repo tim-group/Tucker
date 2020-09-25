@@ -38,50 +38,6 @@ public class ApplicationInformationServlet extends HttpServlet {
         this.startupTimer = new StartupTimer(health);
     }
 
-    /**
-     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
-     *
-     * @param statusPage Status page generator
-     * @param stoppable  Indicator for stoppability
-     * @param health     Indicator for application health
-     */
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
-        this(statusPage, stoppable, health, new MetricRegistry());
-    }
-
-    /**
-     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
-     *
-     * @param statusPage Status page generator
-     * @param stoppable  Indicator for stoppability
-     * @param health     Indicator for application health
-     */
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(statusPage, stoppable, health, new LegacyMetricsWriter(metricRegistry));
-    }
-
-    /**
-     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
-     *
-     * @param applicationId Application name
-     * @param stoppable     Indicator for stoppability
-     * @param health        Indicator for application health
-     */
-    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
-        this(applicationId, stoppable, health, new MetricRegistry());
-    }
-
-    /**
-     * Use {@link Stoppable#ALWAYS_STOPPABLE} if you don't care about stoppable.
-     *
-     * @param applicationId Application name
-     * @param stoppable     Indicator for stoppability
-     * @param health        Indicator for application health
-     */
-    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricRegistry metricRegistry) {
-        this(applicationId, stoppable, health, new LegacyMetricsWriter(metricRegistry));
-    }
-
     public final StatusPageGenerator getStatusPageGenerator() {
         return statusPage;
     }
@@ -132,11 +88,6 @@ public class ApplicationInformationServlet extends HttpServlet {
 
         public Builder setHealth(Health health) {
             this.health = health;
-            return this;
-        }
-
-        public Builder setMetricRegistry(MetricRegistry metricRegistry) {
-            this.metricsWriter = new LegacyMetricsWriter(metricRegistry);
             return this;
         }
 

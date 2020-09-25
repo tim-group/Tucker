@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -32,7 +33,7 @@ public class ApplicationInformationHandlerTest {
         }
     };
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health);
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, new Metrics().getMetricWriter());
 
     @Test
     public void responds_to_version_request_when_null_version() throws Exception {
@@ -64,7 +65,7 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_healthy_returns_healthy() throws Exception {
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY,  new Metrics().getMetricWriter());
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -81,7 +82,7 @@ public class ApplicationInformationHandlerTest {
     public void when_application_is_not_healthy_returns_ill() throws Exception {
         Health alwaysIll = Health.healthyWhen(() -> false);
 
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll,  new Metrics().getMetricWriter());
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -96,7 +97,7 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_healthy_returns_ready() throws Exception {
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY,  new Metrics().getMetricWriter());
 
         final WebResponse response = mock(WebResponse.class);
 
@@ -109,7 +110,7 @@ public class ApplicationInformationHandlerTest {
     public void when_application_is_not_healthy_returns_unready() throws Exception {
         Health alwaysIll = Health.healthyWhen(() -> false);
 
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll,  new Metrics().getMetricWriter());
 
         final WebResponse response = mock(WebResponse.class);
 
@@ -163,11 +164,12 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void prints_all_metrics_in_plain_text() throws IOException {
-        MetricRegistry metricRegistry = new MetricRegistry();
+        Metrics metrics = new Metrics();
+        MetricRegistry metricRegistry =metrics.getMetricRegistry();
         metricRegistry.counter("my_first_metric").inc();
         metricRegistry.histogram("my_first_histogram").update(42);
 
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, metricRegistry);
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, metrics.getMetricWriter());
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 

@@ -1,6 +1,7 @@
 package com.timgroup.tucker.info;
 
 import com.codahale.metrics.MetricRegistry;
+import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.component.ConstantValueComponent;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
@@ -15,13 +16,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 
 public class MetricsPathTest {
-    private final MetricRegistry registry = new MetricRegistry();
+    private final Metrics metrics = new Metrics();
+    private final MetricRegistry registry = metrics.getMetricRegistry();
     private final StatusPageGenerator statusPage = new StatusPageGenerator("testing", new VersionComponent() {
         @Override public Report getReport() {
             return new Report(Status.INFO, "1.0.0");
         }
     });
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(statusPage, null, null, registry);
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(statusPage, null, null, metrics.getMetricWriter());
 
     @Test
     public void dropwizard_metrics_are_printed() throws IOException {
@@ -58,6 +60,7 @@ public class MetricsPathTest {
     }
 
     private Map<String, Double> extractMetrics(String output) {
+        System.out.println(output);
         return Stream.of(output.split("\n"))
                 .filter(line -> !(line.matches("^#.*") || line.trim().equals("")))
                 .map(line -> line.split("\\s+"))
