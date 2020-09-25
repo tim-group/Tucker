@@ -38,6 +38,14 @@ public class ApplicationInformationServlet extends HttpServlet {
         this.startupTimer = new StartupTimer(health);
     }
 
+    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
+        this(applicationId, stoppable, health, null );
+    }
+
+    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
+        this(statusPage, stoppable, health, null);
+    }
+
     public final StatusPageGenerator getStatusPageGenerator() {
         return statusPage;
     }

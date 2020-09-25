@@ -46,6 +46,10 @@ public class ApplicationInformationHandler {
         jsonpDispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
     }
 
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
+        this(statusPage, stoppable, health, null);
+    }
+
     public void handle(String path, WebResponse response) throws IOException {
         if (dispatch.containsKey(path)) {
             dispatch.get(path).handle(response);

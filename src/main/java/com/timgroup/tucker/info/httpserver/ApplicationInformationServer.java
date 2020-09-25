@@ -20,10 +20,17 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 
 public class ApplicationInformationServer {
 
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
+        return ApplicationInformationServer.create(port, statusPage, health, null);
+    }
+
+    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
+        return ApplicationInformationServer.create(port, statusPage, stoppable, health, null);
+    }
+
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health, Metrics metrics) throws IOException {
         return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health, metrics);
     }
-
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, Metrics metrics) throws IOException {
         return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, null != metrics ? metrics.getMetricWriter() : null), health);
