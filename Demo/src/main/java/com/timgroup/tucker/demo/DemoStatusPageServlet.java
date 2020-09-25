@@ -1,6 +1,8 @@
 package com.timgroup.tucker.demo;
 
+import com.codahale.metrics.MetricRegistry;
 import com.timgroup.metrics.Metrics;
+import com.timgroup.metrics.MetricsConfig;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
@@ -10,12 +12,13 @@ import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
+import io.prometheus.client.CollectorRegistry;
 
 @SuppressWarnings("serial")
 public class DemoStatusPageServlet extends ApplicationInformationServlet {
 
     public DemoStatusPageServlet() {
-        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new Metrics().getMetricWriter());
+        super(statusPage(), Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG).getMetricWriter());
     }
 
     private static StatusPageGenerator statusPage() {
