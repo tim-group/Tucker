@@ -46,24 +46,12 @@ public class StatusPageGenerator {
         this.applicationId = applicationId;
         this.versionComponent = versionComponent;
         this.clock = clock;
-        addComponent(versionComponent);
-        addComponent(new SourceRepositoryComponent(getClass().getClassLoader()));
+        registerMetricsAndAddComponent(versionComponent);
+        registerMetricsAndAddComponent(new SourceRepositoryComponent(getClass().getClassLoader()));
     }
 
     public void addComponent(Component component) {
-        components.add(component);
-        configureStatusMetricsFor(component);
-    }
-
-    private void configureStatusMetricsFor(Component component) {
-        for(Status status : Status.values()) {
-            STATUS_GAUGE.setChild(new Gauge.Child() {
-                @Override public double get() {
-                    Report report = component.getReport();  //TODO: waz - chat with max on this. We will be calling this multiple times  (once per status) - hoping its okay as slow ones should be async components.
-                    return report.getStatus() == status ? 1 : 0;
-                }
-            }, component.getId(), status.name().toLowerCase());
-        }
+        registerMetricsAndAddComponent(component);
     }
 
     public StatusPage getApplicationReport() {
@@ -102,5 +90,21 @@ public class StatusPageGenerator {
 
     public Component getVersionComponent() {
         return versionComponent;
+    }
+
+    private void registerMetricsAndAddComponent(Component component) {
+        components.add(component);
+        configureStatusMetricsFor(component);
+    }
+
+    private void configureStatusMetricsFor(Component component) {
+        for(Status status : Status.values()) {
+            STATUS_GAUGE.setChild(new Gauge.Child() {
+                @Override public double get() {
+                    Report report = component.getReport();  //TODO: waz - chat with max on this. We will be calling this multiple times  (once per status) - hoping its okay as slow ones should be async components.
+                    return report.getStatus() == status ? 1 : 0;
+                }
+            }, component.getId(), status.name().toLowerCase());
+        }
     }
 }
