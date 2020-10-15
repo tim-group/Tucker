@@ -32,7 +32,7 @@ public class ServletInRootContextTest {
     private static final Logger LOG = getLogger(ServletInRootContextTest.class);
 
     public static ApplicationInformationServlet demoServlet() {
-        return new ApplicationInformationServlet("ServletInRootContextTest-demo", Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, new Metrics().getMetricWriter());
+        return new ApplicationInformationServlet("ServletInRootContextTest-demo", Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
     }
 
     @Rule

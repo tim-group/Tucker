@@ -48,7 +48,7 @@ public class JettyLauncher {
         MetricRegistry registry = metrics.getMetricRegistry();
         registry.gauge("uptime", () -> ManagementFactory.getRuntimeMXBean()::getUptime);
 
-        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY, metrics.getMetricWriter());
+        ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
 
         context.getServletHandler().setStartWithUnavailable(false);
         context.addServlet(new ServletHolder(statusPageServlet), "/info/*");
