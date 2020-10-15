@@ -278,7 +278,7 @@ public class AsyncComponentSchedulerTest {
 
         componentInvoked.waitFor("Component to be invoked");
 
-        assertTrue(componentInvoked.completedAgainIn(10, MILLISECONDS));
+        assertTrue(componentInvoked.completedAgainIn(50, MILLISECONDS));
     }
     
     private Component throwsErrorComponent(final TestingSemaphore componentInvoked) {
