@@ -1,8 +1,6 @@
 package com.timgroup.tucker.info.httpserver;
 
-import com.codahale.metrics.MetricRegistry;
 import com.sun.net.httpserver.HttpServer;
-import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.ApplicationInformationHandler;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.StartupTimer;
@@ -21,19 +19,11 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 public class ApplicationInformationServer {
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health) throws IOException {
-        return ApplicationInformationServer.create(port, statusPage, health, null);
+        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health);
     }
 
     public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health) throws IOException {
-        return ApplicationInformationServer.create(port, statusPage, stoppable, health, null);
-    }
-
-    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Health health, Metrics metrics) throws IOException {
-        return ApplicationInformationServer.create(port, statusPage, Stoppable.ALWAYS_STOPPABLE, health, metrics);
-    }
-
-    public static ApplicationInformationServer create(int port, StatusPageGenerator statusPage, Stoppable stoppable, Health health, Metrics metrics) throws IOException {
-        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health, null != metrics ? metrics.getMetricWriter() : null), health);
+        return create(port, new ApplicationInformationHandler(statusPage, stoppable, health), health);
     }
 
     private static ApplicationInformationServer create(int port, ApplicationInformationHandler handler, Health health) throws IOException {

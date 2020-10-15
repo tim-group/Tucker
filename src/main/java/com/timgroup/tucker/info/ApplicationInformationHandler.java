@@ -1,6 +1,5 @@
 package com.timgroup.tucker.info;
 
-import com.timgroup.metrics.MetricsWriter;
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -27,27 +26,19 @@ public class ApplicationInformationHandler {
     private final Map<String, Handler> dispatch = new HashMap<>();
     private final Map<String, Handler> jsonpDispatch = new HashMap<>();
 
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
+    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
         dispatch.put(null, new RedirectTo("/status"));
         dispatch.put("", new RedirectTo("/status"));
         dispatch.put("/health", new HealthHandler(health));
         dispatch.put("/ready", new ReadyHandler(health));
         dispatch.put("/stoppable", new StoppableWriter(stoppable));
         dispatch.put("/version", new ComponentHandler(statusPage.getVersionComponent()));
-        if (null != metricsWriter) {
-            dispatch.put("/metrics", new MetricsHandler(metricsWriter));
-        }
         dispatch.put("/status", new StatusPageHandler(statusPage, health));
         dispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
-        dispatch.put("/status.metrics", new StatusPageMetricsHandler(statusPage));
         dispatch.put("/status-page.dtd", new ResourceHandler(StatusPageGenerator.DTD_FILENAME, "application/xml-dtd"));
         dispatch.put("/status-page.css", new ResourceHandler(StatusPageGenerator.CSS_FILENAME, "text/css"));
         jsonpDispatch.put("/status", new StatusPageJsonHandler(statusPage, health));
         jsonpDispatch.put("/status.json", new StatusPageJsonHandler(statusPage, health));
-    }
-
-    public ApplicationInformationHandler(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
-        this(statusPage, stoppable, health, null);
     }
 
     public void handle(String path, WebResponse response) throws IOException {
@@ -181,21 +172,6 @@ public class ApplicationInformationHandler {
         }
     }
 
-    private static final class StatusPageMetricsHandler implements Handler {
-        private final StatusPageGenerator statusPageGenerator;
-
-        public StatusPageMetricsHandler(StatusPageGenerator statusPage) {
-            this.statusPageGenerator = statusPage;
-        }
-
-        @Override public void handle(WebResponse response) throws IOException {
-            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(TextFormat.CONTENT_TYPE_004, UTF_8), UTF_8)) {
-                StatusPage report = statusPageGenerator.getApplicationReport();
-                TextFormat.write004(writer, Collections.enumeration(Arrays.asList(report.convertToMetrics())));
-            }
-        }
-    }
-
     private static final class HealthHandler implements Handler {
         private Health health;
 
@@ -290,24 +266,4 @@ public class ApplicationInformationHandler {
             }
         }
     }
-
-    private static final class MetricsHandler implements Handler {
-        private final MetricsWriter metricsWriter;
-
-        public MetricsHandler(MetricsWriter metricsWriter) {
-            this.metricsWriter = metricsWriter;
-        }
-
-        @Override
-        public void handle(WebResponse response) throws IOException {
-            try (OutputStreamWriter writer = new OutputStreamWriter(response.respond(TextFormat.CONTENT_TYPE_004, UTF_8), UTF_8)) {
-                response.setHeader("Access-Control-Allow-Origin", "*");
-                response.setHeader("Access-Control-Allow-Methods", "GET");
-                response.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
-
-                metricsWriter.writeMetrics(writer);
-            }
-        }
-    }
-
 }

@@ -26,25 +26,18 @@ public class ApplicationInformationServlet extends HttpServlet {
     private final StatusPageGenerator statusPage;
     private final StartupTimer startupTimer;
 
-    public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
-        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricsWriter);
-        this.startupTimer = new StartupTimer(health);
-    }
-
-    public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health, MetricsWriter metricsWriter) {
-        this.statusPage = statusPage;
-        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health, metricsWriter);
-        this.startupTimer = new StartupTimer(health);
-    }
-
     public ApplicationInformationServlet(String applicationId, Stoppable stoppable, Health health) {
-        this(applicationId, stoppable, health, null );
+        this.statusPage = new StatusPageGenerator(applicationId, new ServletVersionComponent(this));
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
+        this.startupTimer = new StartupTimer(health);
     }
 
     public ApplicationInformationServlet(StatusPageGenerator statusPage, Stoppable stoppable, Health health) {
-        this(statusPage, stoppable, health, null);
+        this.statusPage = statusPage;
+        this.handler = new ApplicationInformationHandler(statusPage, stoppable, health);
+        this.startupTimer = new StartupTimer(health);
     }
+
 
     public final StatusPageGenerator getStatusPageGenerator() {
         return statusPage;
@@ -76,7 +69,6 @@ public class ApplicationInformationServlet extends HttpServlet {
     public static class Builder {
         private Stoppable stoppable = Stoppable.ALWAYS_STOPPABLE;
         private Health health = Health.ALWAYS_HEALTHY;
-        private MetricsWriter metricsWriter;
 
         private StatusPageGenerator statusPage;
         private String applicationId;
@@ -99,16 +91,11 @@ public class ApplicationInformationServlet extends HttpServlet {
             return this;
         }
 
-        public Builder setMetricsWriter(MetricsWriter metricsWriter) {
-            this.metricsWriter = metricsWriter;
-            return this;
-        }
-
         public ApplicationInformationServlet build() {
             if (statusPage != null) {
-                return new ApplicationInformationServlet(statusPage, stoppable, health, metricsWriter);
+                return new ApplicationInformationServlet(statusPage, stoppable, health);
             } else {
-                return new ApplicationInformationServlet(applicationId, stoppable, health, metricsWriter);
+                return new ApplicationInformationServlet(applicationId, stoppable, health);
             }
         }
     }

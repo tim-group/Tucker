@@ -32,7 +32,7 @@ public class ApplicationInformationServerTest {
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
         Metrics metrics = new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG);
-        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY, metrics);
+        server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
         metrics.getMetricRegistry().timer("startup_time").time(() -> {
             server.start();
         });
@@ -60,30 +60,6 @@ public class ApplicationInformationServerTest {
         assertThat(statusPageJavascript, containsString("test-tucker"));
         assertThat(statusPageJavascript, startsWith(callbackFunction + "({"));
         assertThat(statusPageJavascript, endsWith("})"));
-    }
-
-    @Test
-    public void
-    whenAServerIsRunningStatusMetricsCanBeRequested() throws IOException {
-        String metrics = load(String.format("http://localhost:%d/info/status.metrics", server.getBase().getPort()));
-
-        assertThat(metrics, containsString("tucker_component_status"));
-    }
-
-    @Test
-    public void
-    whenAServerIsRunningMetricsCanBeRequested() throws IOException {
-        String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
-
-        assertThat(metrics, containsString("startup_time"));
-    }
-
-    @Test
-    public void
-    whenAServerIsRunningMetricsAlsoIncludesTuckerComponenetStatusMetrics() throws IOException {
-        String metrics = load(String.format("http://localhost:%d/info/metrics", server.getBase().getPort()));
-
-        assertThat(metrics, containsString("tucker_component_status"));
     }
 
     private String load(String url) throws IOException {

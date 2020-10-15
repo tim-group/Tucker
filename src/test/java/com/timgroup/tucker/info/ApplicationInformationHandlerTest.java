@@ -1,10 +1,7 @@
 package com.timgroup.tucker.info;
 
-import com.codahale.metrics.MetricRegistry;
-import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.component.VersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.exporter.common.TextFormat;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -13,10 +10,7 @@ import java.io.OutputStream;
 
 import static com.timgroup.tucker.info.Stoppable.State.safe;
 import static com.timgroup.tucker.info.Stoppable.State.unwise;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,7 +27,7 @@ public class ApplicationInformationHandlerTest {
         }
     };
 
-    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, new Metrics().getMetricWriter());
+    private final ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health);
 
     @Test
     public void responds_to_version_request_when_null_version() throws Exception {
@@ -65,7 +59,7 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_healthy_returns_healthy() throws Exception {
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY,  new Metrics().getMetricWriter());
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -82,7 +76,7 @@ public class ApplicationInformationHandlerTest {
     public void when_application_is_not_healthy_returns_ill() throws Exception {
         Health alwaysIll = Health.healthyWhen(() -> false);
 
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll,  new Metrics().getMetricWriter());
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
 
         final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
 
@@ -97,7 +91,7 @@ public class ApplicationInformationHandlerTest {
 
     @Test
     public void when_application_is_healthy_returns_ready() throws Exception {
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY,  new Metrics().getMetricWriter());
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, Health.ALWAYS_HEALTHY);
 
         final WebResponse response = mock(WebResponse.class);
 
@@ -110,7 +104,7 @@ public class ApplicationInformationHandlerTest {
     public void when_application_is_not_healthy_returns_unready() throws Exception {
         Health alwaysIll = Health.healthyWhen(() -> false);
 
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll,  new Metrics().getMetricWriter());
+        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, alwaysIll);
 
         final WebResponse response = mock(WebResponse.class);
 
@@ -160,28 +154,5 @@ public class ApplicationInformationHandlerTest {
         handler.handle("/status", response);
 
         verify(responseContent).close();
-    }
-
-    @Test
-    public void prints_all_metrics_in_plain_text() throws IOException {
-        Metrics metrics = new Metrics();
-        MetricRegistry metricRegistry =metrics.getMetricRegistry();
-        metricRegistry.counter("my_first_metric").inc();
-        metricRegistry.histogram("my_first_histogram").update(42);
-
-        ApplicationInformationHandler handler = new ApplicationInformationHandler(new StatusPageGenerator("appId", version), stoppable, health, metrics.getMetricWriter());
-
-        final ByteArrayOutputStream responseContent = new ByteArrayOutputStream();
-
-        final WebResponse response = mock(WebResponse.class);
-        when(response.respond(TextFormat.CONTENT_TYPE_004, "UTF-8")).thenReturn(responseContent);
-
-        handler.handle("/metrics", response);
-
-        assertThat(responseContent.toString(), allOf(
-                containsString("my_first_histogram_count 1.0\n"),
-                containsString("\nmy_first_histogram{quantile=\"0.999\",} 42.0\n"),
-                containsString("my_first_metric 1.0\n")
-        ));
     }
 }

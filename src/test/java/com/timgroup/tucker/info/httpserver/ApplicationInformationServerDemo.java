@@ -25,7 +25,7 @@ public class ApplicationInformationServerDemo {
 
         metricRegistry.counter("my_applications_special_counter_metric").inc();
 
-        ApplicationInformationServer server = ApplicationInformationServer.create(choosePort(args), statusPage, Health.ALWAYS_HEALTHY, metrics);
+        ApplicationInformationServer server = ApplicationInformationServer.create(choosePort(args), statusPage, Health.ALWAYS_HEALTHY);
         server.start();
 
         System.out.println(server.getBase());
