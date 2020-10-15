@@ -2,7 +2,6 @@ package com.timgroup.tucker.info;
 
 import com.timgroup.tucker.info.status.StatusPage;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.exporter.common.TextFormat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +9,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
