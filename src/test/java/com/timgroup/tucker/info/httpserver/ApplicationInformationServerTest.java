@@ -1,11 +1,8 @@
 package com.timgroup.tucker.info.httpserver;
 
 import com.codahale.metrics.MetricRegistry;
-import com.timgroup.metrics.Metrics;
-import com.timgroup.metrics.MetricsConfig;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.CollectorRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +28,9 @@ public class ApplicationInformationServerTest {
     @Before public void
     startServer() throws IOException {
         statusPage = new StatusPageGenerator("test-tucker", new JarVersionComponent(Object.class));
-        Metrics metrics = new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG);
+        MetricRegistry metricRegistry = new MetricRegistry();
         server = create(0, statusPage, ALWAYS_STOPPABLE, ALWAYS_HEALTHY);
-        metrics.getMetricRegistry().timer("startup_time").time(() -> {
+        metricRegistry.timer("startup_time").time(() -> {
             server.start();
         });
     }

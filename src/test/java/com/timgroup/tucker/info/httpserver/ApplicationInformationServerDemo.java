@@ -1,15 +1,12 @@
 package com.timgroup.tucker.info.httpserver;
 
 import com.codahale.metrics.MetricRegistry;
-import com.timgroup.metrics.Metrics;
-import com.timgroup.metrics.MetricsConfig;
 import com.timgroup.tucker.info.Component;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.CollectorRegistry;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -20,8 +17,7 @@ public class ApplicationInformationServerDemo {
         StatusPageGenerator statusPage = new StatusPageGenerator("tuckerDemo", new JarVersionComponent(Object.class));
         statusPage.addComponent(new TimeComponent());
 
-        Metrics metrics = new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG);
-        MetricRegistry metricRegistry =metrics.getMetricRegistry();
+        MetricRegistry metricRegistry =new MetricRegistry();
 
         metricRegistry.counter("my_applications_special_counter_metric").inc();
 

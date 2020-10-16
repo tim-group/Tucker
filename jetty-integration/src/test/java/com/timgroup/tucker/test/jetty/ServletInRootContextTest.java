@@ -1,6 +1,5 @@
 package com.timgroup.tucker.test.jetty;
 
-import com.timgroup.metrics.Metrics;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;

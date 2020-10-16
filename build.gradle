@@ -49,7 +49,8 @@ dependencies {
     implementation "javax.servlet:javax.servlet-api:3.0.1"
     implementation "com.fasterxml.jackson.core:jackson-core:2.6.0"
     api "io.dropwizard.metrics:metrics-core:3.2.0"
-    api "com.timgroup:tim-metrics:1.0.39" // autobump
+    implementation "io.prometheus:simpleclient_dropwizard:0.9.0"
+    implementation "io.prometheus:simpleclient:0.9.0"
 
     testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.25.1"
