@@ -1,15 +1,12 @@
 package infrastructure;
 
 import com.codahale.metrics.MetricRegistry;
-import com.timgroup.metrics.Metrics;
-import com.timgroup.metrics.MetricsConfig;
 import com.timgroup.tucker.info.Health;
 import com.timgroup.tucker.info.Stoppable;
 import com.timgroup.tucker.info.component.AvailableComponent;
 import com.timgroup.tucker.info.component.JarVersionComponent;
 import com.timgroup.tucker.info.servlet.ApplicationInformationServlet;
 import com.timgroup.tucker.info.status.StatusPageGenerator;
-import io.prometheus.client.CollectorRegistry;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -44,8 +41,7 @@ public class JettyLauncher {
 
         StatusPageGenerator statusPage = new StatusPageGenerator("reference-implementation", new JarVersionComponent(StatusPageGenerator.class));
         statusPage.addComponent(availableComponent);
-        Metrics metrics = new Metrics(new MetricRegistry(), CollectorRegistry.defaultRegistry, MetricsConfig.EMPTY_CONFIG);
-        MetricRegistry registry = metrics.getMetricRegistry();
+        MetricRegistry registry = new MetricRegistry();
         registry.gauge("uptime", () -> ManagementFactory.getRuntimeMXBean()::getUptime);
 
         ApplicationInformationServlet statusPageServlet = new ApplicationInformationServlet(statusPage, Stoppable.ALWAYS_STOPPABLE, Health.ALWAYS_HEALTHY);
