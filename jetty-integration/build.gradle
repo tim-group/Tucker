@@ -1,24 +1,6 @@
 plugins {
     id "java"
-}
-
-
-repositories {
-    maven {
-        url = "$repoUrl/groups/public"
-    }
-}
-
-tasks.withType(JavaCompile).all {
-    options.encoding = "UTF-8"
-    options.deprecation = true
-    options.compilerArgs << "-parameters"
-    options.compilerArgs << "-Xlint:unchecked"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    id "java-common-conventions"
 }
 
 tasks.named("jar").configure {

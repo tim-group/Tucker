@@ -2,28 +2,12 @@ plugins {
     id "java"
     id "application"
     id "maven-publish"
+    id "java-common-conventions"
+    id "java-publishing-conventions"
 }
 
 ext {
     httpPort = 8888
-}
-
-repositories {
-    maven {
-        url = "$repoUrl/groups/public"
-    }
-}
-
-tasks.withType(JavaCompile).all {
-    options.encoding = "UTF-8"
-    options.deprecation = true
-    options.compilerArgs << "-parameters"
-    options.compilerArgs << "-Xlint:unchecked"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 tasks.named("jar").configure {
@@ -49,14 +33,4 @@ mainClassName = 'infrastructure.JettyLauncher'
 
 run {
     args = [httpPort.toString()]
-}
-
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId "Tucker-Demo"
-            from components.java
-        }
-    }
 }
