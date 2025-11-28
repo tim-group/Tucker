@@ -32,7 +32,7 @@ java {
     withJavadocJar()
 }
 
-extensions.create("timgroupRepo", com.timgroup.build.TimRepoExtension)
+extensions.create("timgroupRepo", com.timgroup.gradle.TimRepoExtension)
 
 repositories {
     mavenCentral()
