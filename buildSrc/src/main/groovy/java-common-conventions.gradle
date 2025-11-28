@@ -32,29 +32,24 @@ java {
     withJavadocJar()
 }
 
-def nexusRepoUrl = providers.gradleProperty("repoUrl")
-def codeartifactUrl = providers.environmentVariable("CODEARTIFACT_URL")
-        .orElse(providers.gradleProperty("codeartifact.url"))
-        .orElse("https://timgroup-148217964156.d.codeartifact.eu-west-1.amazonaws.com/maven/jars/")
-def codeartifactToken = providers.environmentVariable("CODEARTIFACT_TOKEN")
-        .orElse(providers.gradleProperty("codeartifact.token"))
+extensions.create("timgroupRepo", com.timgroup.build.TimRepoExtension)
 
 repositories {
     mavenCentral()
-    if (nexusRepoUrl.present) {
+    if (timgroupRepo.nexusRepoUrl.present) {
         maven {
             name = "nexus"
-            url = "${nexusRepoUrl.get()}/repositories/yd-release-candidates"
+            url = "${timgroupRepo.nexusRepoUrl.get()}/repositories/yd-release-candidates"
             allowInsecureProtocol = true
         }
     }
-    if (codeartifactUrl.present && codeartifactToken.present) {
+    if (timgroupRepo.codeartifactUrl.present && timgroupRepo.codeartifactToken.present) {
         maven {
             name = "codeartifact"
-            url = codeartifactUrl.get()
+            url = timgroupRepo.codeartifactUrl.get()
             credentials {
                 username = "aws"
-                password = codeartifactToken.get()
+                password = timgroupRepo.codeartifactToken.get()
             }
         }
     }
