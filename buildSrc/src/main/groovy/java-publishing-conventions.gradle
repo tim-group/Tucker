@@ -32,9 +32,7 @@ afterEvaluate {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                artifactId project.ext.has('artifactId') ? project.ext.artifactId
-                        : project == rootProject ? project.name
-                        : rootProject.name + "-" + project.name
+                artifactId timgroupRepo.artifactId.get()
                 from components.java
             }
         }
