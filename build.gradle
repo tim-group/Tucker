@@ -7,7 +7,7 @@ plugins {
 }
 
 ext {
-    slf4jVersion = "1.7.25"
+    slf4jVersion = "1.7.36"
     jettyVersion = "9.4.27.v20200227"
 }
 
