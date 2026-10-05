@@ -1,0 +1,32 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "07:00"
+      timezone: Europe/London
+    groups:
+      github:
+        patterns:
+          - "actions/*"
+    registries:
+      - github-internal
+
+  - package-ecosystem: "gradle"
+    directory: "/"
+    open-pull-requests-limit: 20
+    schedule:
+      interval: daily
+      time: "07:00"
+      timezone: Europe/London
+    registries:
+      - maven-github
+    groups:
+      internal:
+        patterns:
+          - "com.timgroup:*"
+    ignore:
+      - dependency-name: '*'
+        update-types: [ 'version-update:semver-major' ]
