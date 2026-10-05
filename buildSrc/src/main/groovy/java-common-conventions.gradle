@@ -2,18 +2,23 @@ plugins {
     id "java-library"
 }
 
-group = 'com.timgroup'
+extensions.create("timgroupRepo", com.timgroup.gradle.TimRepoExtension)
 
-def buildNumber = providers.environmentVariable("BUILD_NUMBER")
-if (buildNumber.present) version = "1.0.${buildNumber.get()}"
+group = timgroupRepo.group.get()
+if (timgroupRepo.version.present) version = timgroupRepo.version.get()
 
-tasks.withType(Jar).configureEach {
-    manifest {
-        attributes(
-                'Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Implementation-Vendor': 'TIM Group'
-        )
+// give build script a chance to override name or version
+afterEvaluate {
+    tasks.withType(Jar).configureEach {
+        manifest {
+            attributes(
+                    'Implementation-Title': project.name,
+                    'Implementation-Version': project.version,
+                    'Implementation-Vendor': 'TIM Group'
+            )
+        }
+        inputs.property("projectName", project.name)
+        inputs.property("projectVersion", project.version)
     }
 }
 
@@ -26,20 +31,16 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(17)
     }
-    withSourcesJar()
-    withJavadocJar()
 }
-
-extensions.create("timgroupRepo", com.timgroup.gradle.TimRepoExtension)
 
 repositories {
     mavenCentral()
     if (timgroupRepo.nexusRepoUrl.present) {
         maven {
             name = "nexus"
-            url = "${timgroupRepo.nexusRepoUrl.get()}/repositories/yd-release-candidates"
+            url = "${timgroupRepo.nexusRepoUrl.get()}/groups/public"
             allowInsecureProtocol = true
         }
     }
@@ -52,5 +53,32 @@ repositories {
                 password = timgroupRepo.codeartifactToken.get()
             }
         }
+    }
+}
+
+dependencies {
+    components.all(com.timgroup.gradle.LoggingCapability)
+}
+
+configurations.configureEach {
+    resolutionStrategy.capabilitiesResolution.withCapability("commons-logging:commons-logging") {
+        def toBeSelected = candidates.find { it.id instanceof ModuleComponentIdentifier && it.id.module == "jcl-over-slf4j" }
+        if (toBeSelected != null) {
+            select(toBeSelected)
+            because "use slf4j in place of clogger"
+        }
+    }
+    resolutionStrategy.capabilitiesResolution.withCapability("org.slf4j:jcl-over-slf4j") {
+        selectHighestVersion()
+    }
+    resolutionStrategy.capabilitiesResolution.withCapability("log4j:log4j") {
+        def toBeSelected = candidates.find { it.id instanceof ModuleComponentIdentifier && it.id.module == "log4j-over-slf4j" }
+        if (toBeSelected != null) {
+            select(toBeSelected)
+            because "use slf4j in place of log4j"
+        }
+    }
+    resolutionStrategy.capabilitiesResolution.withCapability("org.slf4j:log4j-over-slf4j") {
+        selectHighestVersion()
     }
 }

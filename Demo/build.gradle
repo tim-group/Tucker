@@ -6,6 +6,12 @@ plugins {
     id "java-publishing-conventions"
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
 ext {
     httpPort = 8888
 }
@@ -20,13 +26,14 @@ tasks.named("jar").configure {
 
 dependencies {
     implementation project(":")
-    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation libs.slf4j.api
 
-    runtimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
+    runtimeOnly libs.slf4j.simple
 
-    implementation "org.eclipse.jetty:jetty-server:$jettyVersion"
-    implementation "org.eclipse.jetty:jetty-servlet:$jettyVersion"
-    implementation "commons-io:commons-io:1.4"
+    implementation platform(libs.jetty.bom)
+    implementation "org.eclipse.jetty:jetty-server"
+    implementation "org.eclipse.jetty:jetty-servlet"
+    implementation libs.commons.io
 }
 
 mainClassName = 'infrastructure.JettyLauncher'

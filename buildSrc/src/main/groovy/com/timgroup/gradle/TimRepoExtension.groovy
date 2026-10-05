@@ -9,6 +9,8 @@ import org.gradle.api.provider.ProviderFactory
 import javax.inject.Inject
 
 class TimRepoExtension {
+    final Provider<String> version
+    final Provider<String> group
     final Provider<String> nexusRepoUrl
     final Provider<String> nexusRepoUsername
     final Provider<String> nexusRepoPassword
@@ -18,6 +20,11 @@ class TimRepoExtension {
 
     @Inject
     TimRepoExtension(ObjectFactory objectFactory, ProviderFactory providers, Project project) {
+        def versionPrefix = providers.gradleProperty("versionPrefix")
+        def buildNumber = providers.environmentVariable("ORIGINAL_BUILD_NUMBER")
+                .orElse(providers.environmentVariable("BUILD_NUMBER"))
+        version = versionPrefix.zip(buildNumber, (p, n) -> (String) "${p}.${n}")
+        group = providers.gradleProperty("artifactGroup").orElse("com.timgroup")
         nexusRepoUrl = providers.gradleProperty("repoUrl")
         nexusRepoUsername = providers.gradleProperty("repoUsername")
         nexusRepoPassword = providers.gradleProperty("repoPassword")
