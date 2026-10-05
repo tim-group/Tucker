@@ -10,6 +10,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -80,6 +81,18 @@ public class ApplicationInformationServletTest {
         assertEquals('a', out.lastByte);
     }
 
+    private static abstract class Servlet30OutputStream extends ServletOutputStream {
+        @Override
+        public boolean isReady() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setWriteListener(WriteListener writeListener) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     @Test
     public void askingForStatusWithCallbackGetsJSONPFromStatusPage() throws Exception {
         String callbackFunction = "test" + System.currentTimeMillis();
@@ -90,7 +103,7 @@ public class ApplicationInformationServletTest {
         HttpServletRequest request = mockRequest("/status", Collections.singletonMap("callback", callbackFunction));
         HttpServletResponse response = mock(HttpServletResponse.class);
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ServletOutputStream out = new ServletOutputStream() {
+        ServletOutputStream out = new Servlet30OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 output.write(b);
@@ -106,7 +119,7 @@ public class ApplicationInformationServletTest {
         assertEquals(callbackFunction + "(a)", new String(output.toByteArray(), StandardCharsets.UTF_8));
     }
 
-    private final class WriteOneCharacter implements Answer<Void> {
+    private static final class WriteOneCharacter implements Answer<Void> {
         private final char ch;
 
         private WriteOneCharacter(char ch) {
@@ -122,7 +135,7 @@ public class ApplicationInformationServletTest {
         }
     }
 
-    private final class GoldfishServletOutputStream extends ServletOutputStream {
+    private static final class GoldfishServletOutputStream extends Servlet30OutputStream {
         public int lastByte;
 
         @Override
@@ -185,7 +198,7 @@ public class ApplicationInformationServletTest {
     }
 
     private ServletOutputStream newServletOutputStream(final OutputStream out) {
-        return new ServletOutputStream() {
+        return new Servlet30OutputStream() {
             @Override
             public void write(int b) throws IOException {
                 out.write(b);
