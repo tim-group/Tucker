@@ -11,8 +11,6 @@ updates:
       github:
         patterns:
           - "actions/*"
-    registries:
-      - github-internal
 
   - package-ecosystem: "gradle"
     directory: "/"
@@ -21,8 +19,6 @@ updates:
       interval: daily
       time: "07:00"
       timezone: Europe/London
-    registries:
-      - maven-github
     groups:
       internal:
         patterns:
