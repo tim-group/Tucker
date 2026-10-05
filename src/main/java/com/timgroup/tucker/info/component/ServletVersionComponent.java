@@ -5,8 +5,8 @@ import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 
 import com.timgroup.tucker.info.Report;
 import com.timgroup.tucker.info.Status;
