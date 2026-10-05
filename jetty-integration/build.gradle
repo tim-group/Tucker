@@ -27,5 +27,5 @@ dependencies {
     testImplementation platform(libs.jetty.bom)
     testImplementation "org.eclipse.jetty:jetty-server"
     testImplementation "org.eclipse.jetty:jetty-servlet"
-    testImplementation "org.apache.httpcomponents:httpclient:4.5.12"
+    testImplementation "org.apache.httpcomponents:httpclient:4.5.14"
 }
