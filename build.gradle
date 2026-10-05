@@ -33,7 +33,7 @@ dependencies {
     testImplementation "javax.servlet:javax.servlet-api:3.0.1"
     testImplementation libs.bundles.junit
     testImplementation "com.fasterxml.jackson.core:jackson-databind"
-    testImplementation "com.google.guava:guava:28.0-jre"
+    testImplementation "com.google.guava:guava:28.2-jre"
 
     testRuntimeOnly libs.slf4j.simple
 }
