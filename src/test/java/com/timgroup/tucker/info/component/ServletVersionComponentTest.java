@@ -1,7 +1,7 @@
 package com.timgroup.tucker.info.component;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 
 import org.junit.Before;
 import org.junit.Test;
