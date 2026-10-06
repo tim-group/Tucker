@@ -1,7 +1,7 @@
 [versions]
 slf4j = "1.7.25"
 jetty = "9.4.58.v20250814"
-jackson = "2.9.8"
+jackson = "2.22.3"
 
 [libraries]
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
