@@ -25,8 +25,8 @@ dependencies {
     implementation platform(libs.jackson.bom)
     implementation "com.fasterxml.jackson.core:jackson-core"
     api "io.dropwizard.metrics:metrics-core:3.2.0"
-    implementation "io.prometheus:simpleclient_dropwizard:0.9.0"
-    implementation "io.prometheus:simpleclient:0.9.0"
+    implementation "io.prometheus:simpleclient_dropwizard:0.16.0"
+    implementation "io.prometheus:simpleclient:0.16.0"
 
     testImplementation "javax.servlet:javax.servlet-api:3.1.0"
     testImplementation libs.bundles.junit
